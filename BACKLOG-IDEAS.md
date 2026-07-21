@@ -71,22 +71,28 @@
 ### ไฟล์หลัก
 `unlocks.js` (ใหม่), `game.js`, `events.js`, `nav.js`, `render.js`, `main.js`, `state.js`, `index.html`, `style.css`
 
+## รอบ 3 — Daily / Context MG / Quest / Branch
+- [x] Daily Special เมนู (x1.75, แบนเนอร์, ไฮไลต์เมนู, quest)  
+- [x] Contextual minigame VIP (ทิป x2/x0.5) + Critic (rating)  
+- [x] Quest รางวัล: เงิน + วัตถุดิบ + rating  
+- [x] Branch specialization พื้นฐาน (spec บน BRANCHES)  
+
 ### ยังค้าง (infra + ต่อ)
 - [ ] Live click-through มือถือเต็ม  
 - [ ] **Render auto-deploy** — Connect ใหม่  
 - [ ] **Post-mortem** webhook  
-- [ ] Daily Special, contextual minigame, branch specialization, …  
+- [ ] Prestige shop, kitchen 2D/3D, BGM, socket multiplayer, …  
 
 ---
 
 # 🔜 คิวถัดไป (แนะนำทำตามลำดับ)
 
 1. Live click-through มือถือ + desktop  
-2. Daily Special เมนู  
-3. Contextual minigame ตอน VIP/Critic  
-4. Quest รางวัลไม่ใช่แค่เงิน  
-5. Branch specialization  
-6. …ตาม Roadmap 30 วัน  
+2. Prestige shop  
+3. Kitchen 2D upgrade → Three.js  
+4. BGM / SFX ชุดจริง  
+5. Socket leaderboard / spectate  
+6. …ตาม Roadmap 30 วัน + BACKLOG 
 
 ---
 
@@ -133,7 +139,7 @@
 |--------|--------|------------|
 | Secret menu omakase_ex | ✅ | |
 | Menu roles (build identity) | 📋 | Fast cash / Premium / Rating farm / Event synergy |
-| Daily Special ×1.5–2 | 🔜 | เมนูวันละ 1 จากที่ปลดแล้ว |
+| Daily Special ×1.5–2 | ✅ | x1.75 + banner + quest |
 | Ingredient scarcity tiers | 📋 | Common / Rare / Auction |
 | เปลี่ยน gold/diamond ให้อยู่ธีมซูชิ | 📋 | ทรัฟเฟิล, ไข่ปลาคุณภาพ, ยูซุ ฯลฯ |
 | Seasonality | 🧊 | เมนูตามฤดู |
@@ -210,7 +216,7 @@
 | ไอเดีย | สถานะ | รายละเอียด |
 |--------|--------|------------|
 | สาขา = mult + idle ตัวเลข | ที่มีอยู่ | ตื้น |
-| Per-branch specialization | 📋 | ชายหาด tourist+seafood; สนามบิน volume/patience ต่ำ; โตเกียว rating+critic; ดูไบ premium only |
+| Per-branch specialization | ✅ พื้นฐาน | spec บน BRANCHES — weights + seafood/premium/patience/rating |
 | Manager assign ต่อสาขา | 📋 | |
 | Crisis ต่อสาขา (สลับไปแก้ 30วิ) | 📋 | |
 | Map UI โลก/เมือง | 📋 | แทน list การ์ดอย่างเดียว |
@@ -237,8 +243,8 @@
 | ไอเดีย | สถานะ | รายละเอียด |
 |--------|--------|------------|
 | Daily/Weekly pool | ที่มีอยู่ | |
-| รางวัลหลาก (ing, blueprint, staff XP, prestige dust) | 📋 | ไม่ใช่แค่เงิน |
-| Quest แนว skill | 📋 | Perfect 10 ครั้ง, VIP ถูกเมนู |
+| รางวัลหลาก (ing, blueprint, staff XP, prestige dust) | ✅ บางส่วน | เงิน + ing + rating (ยังไม่มี dust/blueprint) |
+| Quest แนว skill | 📋 | Perfect 10 ครั้ง, VIP ถูกเมนู — มี daily special quest แล้ว |
 | Battle pass เบา 30 วัน | 🧊 | free track |
 | `maxStreakToday` สำหรับ quest streak | 📋 | ตอนนี้ใช้ G.streak ปัจจุบัน คลุมเครือ |
 
@@ -274,7 +280,7 @@
 | ไอเดีย | สถานะ | รายละเอียด |
 |--------|--------|------------|
 | 3 เกมในแท็บ | ที่มีอยู่ | rhythm / fish / memory |
-| Contextual minigame ตอน VIP/Critic | 🔜 | บังคับ/ชวน 10 วิ — ชนะ tip ใหญ่ |
+| Contextual minigame ตอน VIP/Critic | ✅ | context-mg.js timing 3 hits |
 | Scale difficulty ตาม level | 📋 | |
 | Unlock rare ing จาก weekly MG | 📋 | |
 | เกมที่ 4: จัดหน้าจาน drag | 📋 | ผูก Food Artist |
@@ -387,11 +393,11 @@
 | 2 | ลูกค้าสั่งเมนู | ✅ |
 | 3 | Perfect cook window | ✅ |
 | 4 | Progressive unlock | ✅ |
-| 5 | Branch มีกฎต่างกัน | 📋 |
-| 6 | Prestige shop | 📋 |
+| 5 | Branch มีกฎต่างกัน | ✅ พื้นฐาน |
+| 6 | Prestige shop | 🔜 |
 | 7 | Kitchen visual 2D→3D | 📋 |
 | 8 | BGM + SFX ชุดจริง | 📋 |
-| 9 | Contextual minigame | 🔜 |
+| 9 | Contextual minigame | ✅ |
 | 10 | Socket LB / spectate จริง | 📋 |
 
 ---

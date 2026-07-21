@@ -26,6 +26,10 @@ export function defaultState() {
     // Temporary boosts (influencer etc.)
     tempQSizeBonus: 0,
     tempQSizeUntil: 0,
+    // Daily special: { dayKey, menuId, mult }
+    dailySpecial: { dayKey: '', menuId: null, mult: 1.75 },
+    // Quest counters beyond defaults
+    qDailyExtra: { specialServed: 0 },
     ing: { rice:10, salmon:5, tuna:3, shrimp:3, uni:2, nori:5 },
     lastSave: Date.now(),
     ach: {},

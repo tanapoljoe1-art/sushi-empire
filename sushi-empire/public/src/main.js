@@ -10,8 +10,10 @@ import {
   cook, serve, buyIngredient, buyUpgrade, buyBranch, switchBranch,
   showPrestModal, closePrest, doPrestige, closeAch, spawnQueue,
 } from './systems/game.js';
-import { closeEvent, closeVip, tickEventScheduler, updateEventForecastUI } from './systems/events.js';
+import { closeEvent, closeVip, challengeVip, tickEventScheduler, updateEventForecastUI } from './systems/events.js';
 import { refreshUnlockUI, markExistingUnlocksSeen } from './systems/unlocks.js';
+import { ensureDailySpecial } from './systems/daily.js';
+import { ctxMgTap, ctxMgSkip } from './systems/context-mg.js';
 import { applyAllStaffBonuses, renderStaff, hireStaff, levelUpStaff, restStaff, fireStaff, unlockSkill } from './systems/staff.js';
 import { applyDecoBonus, buyDeco } from './systems/decoration.js';
 import { initQuests, claimQuest, submitScore, savePlayerName } from './systems/progress.js';
@@ -60,6 +62,7 @@ renderIngredients();
 updateEarnPreview();
 refreshUnlockUI();
 markExistingUnlocksSeen();
+ensureDailySpecial();
 updateEventForecastUI();
 
 // ── Periodic intervals ────────────────────────────────────────────────────────
@@ -105,8 +108,8 @@ setInterval(tickEventScheduler, 1000);
 // clicks that exact button, not at load time.
 Object.assign(window, {
   bnavDrawer, bnavGo, buyBranch, buyDeco, buyIngredient, buyUpgrade, claimQuest,
-  clearFusionSlot, closeAch, closeConfirm, closeDrawer, closeEvent, closeIdle,
-  closePause, closePrest, closeSettings, closeVip, confirmOk, cook, doFusion,
+  challengeVip, clearFusionSlot, closeAch, closeConfirm, closeDrawer, closeEvent, closeIdle,
+  closePause, closePrest, closeSettings, closeVip, confirmOk, cook, ctxMgSkip, ctxMgTap, doFusion,
   doPrestige, drawerGo, fireStaff, goTab, hireStaff, levelUpStaff, openPause,
   openStoryPing, pauseNewGame, pauseSettings, pauseToTitle, pickFusionIng,
   restStaff, rhTap, savePlayerName, selMenu, selectMG, serve, showPrestModal,

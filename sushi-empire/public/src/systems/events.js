@@ -7,6 +7,7 @@ import { EVENTS, BRANCHES, MENUS } from '../data.js';
 import { getEl } from '../core/dom.js';
 import { toast, updateUI } from '../ui/render.js';
 import { renderQ, checkAch, spawnQueue, allocCustomerId, clearCustomerTimer, trackQuestProgress } from './game.js';
+import { startContextChallenge } from './context-mg.js';
 
 let eventCountdown = null;
 
@@ -154,6 +155,29 @@ export function closeEvent() {
     getEl('cookBtn').innerText = '⚡ Rush Hour! ทำซูชิ!';
   }
   if (ev.guaranteedVip) triggerVIP();
+
+  // Critic: optional skill check after accepting the event
+  if (ev.id === 'critic') {
+    setTimeout(() => {
+      startContextChallenge('critic', {
+        title: '📰 นักวิจารณ์ทดสอบ!',
+        desc: 'ตัดให้ตรงโซนเขียว 3 ครั้ง — ผ่านแล้วได้ Rating โบนัส',
+        skipLabel: 'ไม่ท้า · แค่เสิร์ฟต่อ',
+        onWin: () => {
+          G.rating = Math.min(100, G.rating + 8);
+          G.money += 150 + G.level * 20;
+          toast('📰 ผ่านทดสอบ! +Rating +เงิน');
+          updateUI();
+        },
+        onLose: (info) => {
+          if (info?.skipped) return;
+          G.rating = Math.max(0, G.rating - 3);
+          toast('📰 นักวิจารณ์ไม่ประทับใจ −3 Rating');
+          updateUI();
+        },
+      });
+    }, 350);
+  }
 }
 
 export function showEventBanner() {
@@ -213,16 +237,19 @@ export function triggerVIP() {
     wantedMenuId: wanted.id, wantedEmoji: wanted.emoji,
     ctype: 'vip', typeBadge: '👑',
   });
+  // stash pending tip for challenge path
+  G._pendingVipTip = vipBonus;
   renderQ();
 }
 
-export function closeVip() {
+function finishVipPayout(tipMult = 1) {
   getEl('vipModal').classList.remove('vis');
   const vip = G.queue.find(c => c.state === 'vip');
-  const tip = (vip && vip.vipBonus) || 0;
+  let tip = (vip && vip.vipBonus) || G._pendingVipTip || 0;
+  tip = Math.round(tip * tipMult);
   G.money += tip;
   G.vipServed++;
-  G.rating = Math.min(100, G.rating + 5);
+  G.rating = Math.min(100, G.rating + (tipMult >= 1.5 ? 8 : 5));
   if (G.staffPhotoBonus) G.rating = Math.min(100, G.rating + 2);
   const idx = G.queue.findIndex(c => c.state === 'vip');
   if (idx >= 0) {
@@ -232,8 +259,26 @@ export function closeVip() {
   }
   if (!G.queue.length) spawnQueue();
   G.activeEvent = null;
-  toast('👑 VIP เก็บเงินมา! +' + tip.toLocaleString() + '฿ +Rating');
+  G._pendingVipTip = 0;
+  toast('👑 VIP! +' + tip.toLocaleString() + '฿' + (tipMult > 1 ? ' (ท้าทายโบนัส!)' : tipMult < 1 ? ' (พลาดท้าทาย)' : ''));
   checkAch();
   updateUI();
   save();
+}
+
+/** Take tip immediately (no challenge). */
+export function closeVip() {
+  finishVipPayout(1);
+}
+
+/** Optional skill challenge for double tip. */
+export function challengeVip() {
+  getEl('vipModal').classList.remove('vis');
+  startContextChallenge('vip', {
+    title: '👑 ท้าทาย VIP!',
+    desc: 'ตัดตรงโซนเขียว 3 ครั้ง → ทิป x2 · พลาด = ทิปครึ่ง',
+    skipLabel: 'ไม่ท้า · รับทิปปกติ',
+    onWin: () => finishVipPayout(2),
+    onLose: (info) => finishVipPayout(info?.skipped ? 1 : 0.5),
+  });
 }

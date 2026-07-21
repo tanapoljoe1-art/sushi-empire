@@ -5,6 +5,7 @@ import { getEl } from '../core/dom.js';
 import { hasIngredients, ingredientCost, calcServeEarn, effectiveIng } from '../systems/game.js';
 import { updateNavDots } from '../systems/nav.js';
 import { refreshUnlockUI } from '../systems/unlocks.js';
+import { renderDailySpecialBanner, isDailySpecial, ensureDailySpecial } from '../systems/daily.js';
 
 export function toast(msg) {
   const t = getEl('toast');
@@ -46,6 +47,8 @@ export function updateUI() {
   if (rh) rh.innerText = 'รางวัล: +' + (200 + G.level * 25) + '฿';
 
   updateBpmHud();
+  ensureDailySpecial();
+  renderDailySpecialBanner();
   renderMenu();
   updateNavDots();
   refreshUnlockUI();
@@ -101,10 +104,12 @@ export function renderMenu() {
     const need    = effectiveIng(m.id);
     const ingList = Object.entries(need).map(([k,v]) => `${INGREDIENTS[k]?.emoji || '?'}×${v}`).join(' ');
     const secretTag = m.secret ? ' <span style="font-size:9px;color:var(--gold)">SECRET</span>' : '';
-    return `<div class="mi ${locked?'lck':''} ${sel?'sel':''}" onclick="${locked ? '' : `selMenu('${m.id}')`}">
+    const special = !locked && isDailySpecial(m.id);
+    return `<div class="mi ${locked?'lck':''} ${sel?'sel':''} ${special?'daily-sp':''}" onclick="${locked ? '' : `selMenu('${m.id}')`}">
       ${sel ? '<div class="mi-sb">✓</div>' : ''}
+      ${special ? '<div class="mi-sp">⭐</div>' : ''}
       <div class="mi-e">${m.emoji}</div>
-      <div class="mi-n">${m.name}${secretTag}</div>
+      <div class="mi-n">${m.name}${secretTag}${special ? ' ·SP' : ''}</div>
       ${locked
         ? `<div class="mi-u">🔒 Lv.${m.unlockLv}</div>`
         : `<div class="mi-p">+${earn}฿</div>
@@ -196,6 +201,9 @@ export function updateEarnPreview() {
     if (orderMatch === false) parts.push('ออเดอร์✗');
     if (front?.ctype && front.ctype !== 'regular') parts.push(front.typeBadge || front.ctype);
     if (G.streak >= 5) parts.push(`streak${G.streak}`);
+    if (isDailySpecial(G.menu)) parts.push('⭐Special');
+    const br = BRANCHES.find(b => b.id === G.activeBranch);
+    if (br?.spec?.label) parts.push(br.spec.label);
     bd.innerText = parts.join(' · ');
   }
   updateBpmHud();

@@ -16,6 +16,7 @@ import { cancelEventCountdown } from './events.js';
 import { applyDecoBonus } from './decoration.js';
 import { goTab } from './nav.js';
 import { checkFeatureUnlocks } from './unlocks.js';
+import { dailySpecialMult, isDailySpecial } from './daily.js';
 
 let cookInt        = null;
 let nextCustomerId = 0;
@@ -90,10 +91,21 @@ export function getFusionMods(menuId) {
  * Central earn calculator — used by serve() and updateEarnPreview().
  * opts: { quality, orderMatch, isVipServe, skipStreak }
  */
+function activeBranchSpec() {
+  const br = BRANCHES.find(b => b.id === G.activeBranch);
+  return br?.spec || null;
+}
+
+function isSeafoodMenu(m) {
+  if (!m?.ing) return false;
+  return ['salmon', 'tuna', 'shrimp', 'uni'].some(k => m.ing[k]);
+}
+
 export function calcServeEarn(menuId, opts = {}) {
   const m  = MENUS.find(x => x.id === menuId);
   if (!m) return { earn: 0, ratingGain: 0, m: null };
   const br = BRANCHES.find(b => b.id === G.activeBranch);
+  const spec = br?.spec;
   const ev = activeEvent(G, EVENTS);
   const fus = getFusionMods(menuId);
 
@@ -109,6 +121,15 @@ export function calcServeEarn(menuId, opts = {}) {
   // Fusion Rush+ tag: stronger during rush-like events (earnMult ≥ 2)
   if (fus.rushMult > 1 && ev?.earnMult >= 2) earn = Math.round(earn * fus.rushMult);
   earn = Math.round(earn * fus.earn);
+
+  // Branch specialization
+  if (spec?.earnMult) earn = Math.round(earn * spec.earnMult);
+  if (spec?.seafoodBonus && isSeafoodMenu(m)) earn = Math.round(earn * spec.seafoodBonus);
+  if (spec?.premiumBonus && isPremiumMenu(m)) earn = Math.round(earn * spec.premiumBonus);
+
+  // Daily special
+  const dsMult = dailySpecialMult(menuId);
+  if (dsMult > 1) earn = Math.round(earn * dsMult);
 
   if (G.streak >= 5) {
     const sm = (G.decoStreakMult || 1) * fus.streakMult;
@@ -138,9 +159,11 @@ export function calcServeEarn(menuId, opts = {}) {
   if (G.decoRatingBonus)  ratingGain = Math.round(ratingGain * (1 + G.decoRatingBonus));
   ratingGain = Math.round(ratingGain * (G.xpMult || 1)); // mastery
   ratingGain += fus.ratingExtra;
+  if (spec?.ratingMult) ratingGain = Math.round(ratingGain * spec.ratingMult);
   if (opts.orderMatch === true)  ratingGain += 1;
   if (opts.orderMatch === false) ratingGain = Math.max(0, ratingGain - 1);
   if (opts.quality === 'perfect') ratingGain += 1;
+  if (dsMult > 1) ratingGain += 1;
 
   return { earn, ratingGain, m };
 }
@@ -174,6 +197,8 @@ export function getPatience() {
                * (1 + (G.decoPatienceBonus || 0));
   const ev = activeEvent(G, EVENTS);
   if (ev?.patienceMult) base *= ev.patienceMult;
+  const spec = activeBranchSpec();
+  if (spec?.patienceMult) base *= spec.patienceMult;
   return base;
 }
 
@@ -190,10 +215,15 @@ export const CUSTOMER_TYPES = {
 export function pickCustomerType() {
   // Early game = only regulars
   if (G.level < 3) return CUSTOMER_TYPES.regular;
+  const spec = activeBranchSpec() || {};
   const roll = Math.random();
-  if (G.level >= 6 && roll < 0.12) return CUSTOMER_TYPES.influencer;
-  if (G.level >= 4 && roll < 0.28) return CUSTOMER_TYPES.foodie;
-  if (G.level >= 3 && roll < 0.45) return CUSTOMER_TYPES.tourist;
+  // Branch-weighted mix (weights are cumulative bands)
+  const influW = (spec.influW ?? 0.08) + (G.level >= 6 ? 0.04 : 0);
+  const foodieW = (spec.foodieW ?? 0.12) + (G.level >= 4 ? 0.05 : 0);
+  const touristW = (spec.touristW ?? 0.2) + (G.level >= 3 ? 0.08 : 0);
+  if (roll < influW) return CUSTOMER_TYPES.influencer;
+  if (roll < influW + foodieW) return CUSTOMER_TYPES.foodie;
+  if (roll < influW + foodieW + touristW) return CUSTOMER_TYPES.tourist;
   return CUSTOMER_TYPES.regular;
 }
 
@@ -507,9 +537,11 @@ export function serve() {
 
   trackQuestProgress('serve');
   trackQuestProgress('earn', earn);
+  if (isDailySpecial(menuId)) trackQuestProgress('special');
   tickStaffMood();
   sfxServe();
   checkStreakMilestone(G.streak);
+  if (isDailySpecial(menuId)) spawnFE('⭐ Special!');
 
   if (orderMatch === true)  spawnFE('👍 สั่งตรง!');
   if (orderMatch === false) { spawnFE('😕 ผิดเมนู', true); toast('😕 ลูกค้าสั่งคนละเมนู — รายได้ลด'); }
@@ -558,6 +590,7 @@ export function serve() {
 export function trackQuestProgress(type, val = 1) {
   if (!G.qDaily)  G.qDaily  = defaultState().qDaily;
   if (!G.qWeekly) G.qWeekly = defaultState().qWeekly;
+  if (!G.qDailyExtra) G.qDailyExtra = { specialServed: 0 };
 
   if (type === 'serve') {
     G.qDaily.served++;
@@ -568,6 +601,7 @@ export function trackQuestProgress(type, val = 1) {
   if (type === 'mg')    { G.qDaily.mgWinsToday++; G.qWeekly.mgWinsWeek++; }
   if (type === 'upgrade') G.qWeekly.upgradesWeek++;
   if (type === 'event')   G.qWeekly.eventsWeek++;
+  if (type === 'special') G.qDailyExtra.specialServed = (G.qDailyExtra.specialServed || 0) + 1;
 }
 
 // ── Upgrades ──────────────────────────────────────────────────────────────────
@@ -681,6 +715,15 @@ export function renderBr() {
     const gb  = G.branches.find(b => b.id === bd.id) || { id: bd.id, owned: false };
     const own = gb.owned;
     const cur = G.activeBranch === bd.id;
+    const sp  = bd.spec;
+    const spBits = [];
+    if (sp?.label) spBits.push(sp.label);
+    if (sp?.seafoodBonus) spBits.push(`ซีฟู้ด x${sp.seafoodBonus}`);
+    if (sp?.premiumBonus) spBits.push(`พรีเมียม x${sp.premiumBonus}`);
+    if (sp?.touristW >= 0.4) spBits.push('นักท่องเที่ยวเยอะ');
+    if (sp?.foodieW >= 0.35) spBits.push('สายกินเยอะ');
+    if (sp?.patienceMult && sp.patienceMult < 0.85) spBits.push('ใจร้อน');
+    if (sp?.ratingMult > 1.05) spBits.push(`Rating x${sp.ratingMult}`);
     return `<div class="br ${own?'own':''} ${cur?'cur':''}">
       <div class="brh">
         <div class="brico">${bd.emoji}</div>
@@ -691,6 +734,7 @@ export function renderBr() {
         <div class="brs">รายได้ x<span>${bd.mult}</span></div>
         <div class="brs">Idle <span>${bd.idleRate}฿/นาที</span></div>
       </div>
+      ${spBits.length ? `<div class="br-spec">${spBits.map(s => `<span class="br-tag">${s}</span>`).join('')}</div>` : ''}
       ${own
         ? cur
           ? `<button class="brbtn cur">● สาขาปัจจุบัน</button>`

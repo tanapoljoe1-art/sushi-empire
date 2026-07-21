@@ -29,9 +29,9 @@
 | วัน | งาน | ผลลัพธ์ |
 |-----|-----|--------|
 | 8–9 | ✅ Customer types พื้นฐาน (tourist / foodie / influencer) | คิวมี identity — ยังไม่มี critic/spy |
-| 10 | Daily Special เมนู | reason กลับมาเล่นรายวัน |
-| 11–12 | Contextual minigame ตอน VIP/Critic | minigame ไม่อยู่แท็บเปล่า |
-| 13 | Quest รางวัลไม่ใช่แค่เงิน (ing / deco dust) | quest มีค่า mid-game |
+| 10 | ✅ Daily Special เมนู | reason กลับมาเล่นรายวัน |
+| 11–12 | ✅ Contextual minigame ตอน VIP/Critic | minigame ไม่อยู่แท็บเปล่า |
+| 13 | ✅ Quest รางวัลหลาก (เงิน+ing+rating) | quest มีค่า mid-game |
 | 14 | Balance pass ตัวเลข Lv.1–15 | ไม่ตัน / ไม่ระเบิดเร็วเกิน |
 
 **DoD สัปดาห์ 2:** session 30 นาทีมี “ช่วงตึง” อย่างน้อย 3 ครั้ง (order mismatch, event, minigame)
@@ -42,7 +42,7 @@
 
 | วัน | งาน | ผลลัพธ์ |
 |-----|-----|--------|
-| 15–16 | Branch specialization (กฎต่างกันต่อสาขา) | สลับสาขามีเหตุผล |
+| 15–16 | ✅ Branch specialization พื้นฐาน | สลับสาขามีเหตุผล — ยังไม่มี manager assign |
 | 17 | Assign staff ประจำสาขา | staff ไม่ใช่แค่ % รวม |
 | 18–19 | Prestige shop (ใช้ดาวซื้อถาวร) | meta ไม่แบน |
 | 20 | Story branching เบา ๆ + rival weekly | เนื้อเรื่องมีผล |

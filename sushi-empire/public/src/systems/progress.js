@@ -1,6 +1,6 @@
 // ── Quests ────────────────────────────────────────────────────────────────────
 import { G, save } from '../core/state.js';
-import { DAILY_POOL, WEEKLY_POOL, ACHIEVEMENTS } from '../data.js';
+import { DAILY_POOL, WEEKLY_POOL, ACHIEVEMENTS, INGREDIENTS } from '../data.js';
 import { getEl } from '../core/dom.js';
 import { toast, updateUI } from '../ui/render.js';
 
@@ -19,6 +19,7 @@ export function initQuests() {
     }
     if (!G.qDaily) G.qDaily = { served:0, streak:0, moneyEarned:0, servedNomiss:0, mgWinsToday:0 };
     else Object.keys(G.qDaily).forEach(k => G.qDaily[k] = 0);
+    G.qDailyExtra = { specialServed: 0 };
   }
 
   if (now - G.quests.lastWeeklyReset > weekMs || !G.quests.activeWeeklyIds.length) {
@@ -33,15 +34,37 @@ export function initQuests() {
   }
 }
 
+export function formatQuestReward(q) {
+  const bits = [`+${q.reward}฿`];
+  if (q.rewardRating) bits.push(`+${q.rewardRating}⭐`);
+  if (q.rewardIng) {
+    Object.entries(q.rewardIng).forEach(([id, n]) => {
+      const ing = INGREDIENTS[id];
+      bits.push(`${ing ? ing.emoji : id}×${n}`);
+    });
+  }
+  return bits.join(' · ');
+}
+
+export function applyQuestRewards(q) {
+  G.money += q.reward || 0;
+  if (q.rewardRating) G.rating = Math.min(100, G.rating + q.rewardRating);
+  if (q.rewardIng) {
+    Object.entries(q.rewardIng).forEach(([id, n]) => {
+      G.ing[id] = (G.ing[id] || 0) + n;
+    });
+  }
+}
+
 export function claimQuest(id, isWeekly) {
   const pool   = isWeekly ? WEEKLY_POOL : DAILY_POOL;
   const q      = pool.find(x => x.id === id);
   if (!q) return;
   const qstate = isWeekly ? G.quests.weekly : G.quests.daily;
   if (qstate[id] === 'claimed') { toast('รับแล้ว!'); return; }
-  G.money += q.reward;
+  applyQuestRewards(q);
   qstate[id] = 'claimed';
-  toast('🎉 Quest สำเร็จ! +' + q.reward + '฿');
+  toast('🎉 Quest สำเร็จ! ' + formatQuestReward(q));
   const cv = getEl('money');
   cv.classList.remove('pop'); void cv.offsetWidth; cv.classList.add('pop');
   updateUI(); renderQuests(); save();
@@ -62,7 +85,7 @@ export function renderQuests() {
     return `<div class="quest-card ${claimed ? 'done' : ''}">
       <div class="quest-head">
         <div class="quest-icon">${q.emoji}</div>
-        <div class="quest-info"><div class="quest-name">${q.name}</div><div class="quest-reward">รางวัล +${q.reward}฿</div></div>
+        <div class="quest-info"><div class="quest-name">${q.name}</div><div class="quest-reward">${formatQuestReward(q)}</div></div>
         ${claimed ? '<div style="font-size:20px">✅</div>' : ''}
       </div>
       <div class="quest-prog"><div class="quest-fill" style="width:${pct}%"></div></div>
@@ -81,7 +104,7 @@ export function renderQuests() {
       <div class="weekly-badge">📅 Weekly</div>
       <div class="quest-head">
         <div class="quest-icon">${q.emoji}</div>
-        <div class="quest-info"><div class="quest-name">${q.name}</div><div class="quest-reward">รางวัล +${q.reward}฿</div></div>
+        <div class="quest-info"><div class="quest-name">${q.name}</div><div class="quest-reward">${formatQuestReward(q)}</div></div>
         ${claimed ? '<div style="font-size:20px">✅</div>' : ''}
       </div>
       <div class="quest-prog"><div class="quest-fill" style="width:${pct}%"></div></div>
@@ -98,6 +121,7 @@ export function getQuestVal(field) {
     moneyEarned:  G.qDaily.moneyEarned   || 0,
     servedNomiss: G.qDaily.servedNomiss  || 0,
     mgWinsToday:  G.qDaily.mgWinsToday   || 0,
+    specialServed:(G.qDailyExtra && G.qDailyExtra.specialServed) || 0,
     servedWeek:   G.qWeekly.servedWeek   || 0,
     upgradesWeek: G.qWeekly.upgradesWeek || 0,
     eventsWeek:   G.qWeekly.eventsWeek   || 0,

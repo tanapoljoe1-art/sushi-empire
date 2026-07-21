@@ -71,16 +71,24 @@ export const ACHIEVEMENTS = [
   {id:'fusAll',name:'Master Alchemist',desc:'ค้นพบทุก Fusion เมนู', icon:'🌟',reward:3000, chk:g=>(g.fusion&&g.fusion.discovered&&g.fusion.discovered.length||0)>=FUSION_RECIPES.length},
 ];
 
+// spec = branch specialization (gameplay hooks in pickCustomerType / calcServeEarn / getPatience)
 export const BRANCHES = [
-  {id:'main',   name:'สาขาหลัก',    loc:'ย่านเมือง',   emoji:'🏠',cost:0,    idleRate:5,  mult:1.0},
-  {id:'mall',   name:'เซ็นทรัล',     loc:'ศูนย์การค้า', emoji:'🏬',cost:3000, idleRate:18, mult:1.4},
-  {id:'beach',  name:'ริมทะเล',      loc:'ชายหาด',      emoji:'🏝️',cost:10000,idleRate:35, mult:1.8},
-  {id:'airport',name:'สนามบิน',      loc:'เขตปลอดภาษี', emoji:'✈️',cost:25000,idleRate:70, mult:2.2},
-  {id:'tokyo',  name:'สาขาในญี่ปุ่น', loc:'ชินจุกุ โตเกียว',emoji:'🗼',cost:60000,idleRate:150,mult:3.0},
-  // NEW: Premium Branches
-  {id:'paris',  name:'ปารีส',        loc:'ช็องส์-เอลิเซ', emoji:'🗼',cost:150000,idleRate:300,mult:4.0},
-  {id:'dubai',  name:'ดูไบ',         loc:'เบิร์จ คาลิฟา', emoji:'🏙️',cost:400000,idleRate:600,mult:5.5},
-  {id:'space',  name:'สถานีอวกาศ',   loc:'วงโคจรโลก',    emoji:'🚀',cost:1000000,idleRate:1200,mult:8.0},
+  {id:'main',   name:'สาขาหลัก',    loc:'ย่านเมือง',   emoji:'🏠',cost:0,    idleRate:5,  mult:1.0,
+   spec:{ label:'สมดุล', touristW:0.15, foodieW:0.10, influW:0.05, patienceMult:1.0, earnMult:1.0, ratingMult:1.0 }},
+  {id:'mall',   name:'เซ็นทรัล',     loc:'ศูนย์การค้า', emoji:'🏬',cost:3000, idleRate:18, mult:1.4,
+   spec:{ label:'วอลุ่มห้าง', touristW:0.30, foodieW:0.10, influW:0.12, patienceMult:0.92, earnMult:1.06, ratingMult:1.0 }},
+  {id:'beach',  name:'ริมทะเล',      loc:'ชายหาด',      emoji:'🏝️',cost:10000,idleRate:35, mult:1.8,
+   spec:{ label:'ซีฟู้ด', touristW:0.45, foodieW:0.10, influW:0.08, patienceMult:0.88, earnMult:1.0, ratingMult:1.0, seafoodBonus:1.22 }},
+  {id:'airport',name:'สนามบิน',      loc:'เขตปลอดภาษี', emoji:'✈️',cost:25000,idleRate:70, mult:2.2,
+   spec:{ label:'วอลุ่มสูง', touristW:0.55, foodieW:0.05, influW:0.10, patienceMult:0.70, earnMult:1.10, ratingMult:0.95 }},
+  {id:'tokyo',  name:'สาขาในญี่ปุ่น', loc:'ชินจุกุ โตเกียว',emoji:'🗼',cost:60000,idleRate:150,mult:3.0,
+   spec:{ label:'gourmet', touristW:0.10, foodieW:0.42, influW:0.12, patienceMult:1.08, earnMult:1.0, ratingMult:1.18 }},
+  {id:'paris',  name:'ปารีส',        loc:'ช็องส์-เอลิเซ', emoji:'🗼',cost:150000,idleRate:300,mult:4.0,
+   spec:{ label:'ไฮโซ', touristW:0.20, foodieW:0.35, influW:0.18, patienceMult:1.0, earnMult:1.08, ratingMult:1.12, premiumBonus:1.15 }},
+  {id:'dubai',  name:'ดูไบ',         loc:'เบิร์จ คาลิฟา', emoji:'🏙️',cost:400000,idleRate:600,mult:5.5,
+   spec:{ label:'พรีเมียม', touristW:0.15, foodieW:0.40, influW:0.15, patienceMult:0.95, earnMult:1.05, ratingMult:1.05, premiumBonus:1.30 }},
+  {id:'space',  name:'สถานีอวกาศ',   loc:'วงโคจรโลก',    emoji:'🚀',cost:1000000,idleRate:1200,mult:8.0,
+   spec:{ label:'สุดขั้ว', touristW:0.25, foodieW:0.25, influW:0.20, patienceMult:0.85, earnMult:1.15, ratingMult:1.10, premiumBonus:1.20 }},
 ];
 
 // Each event is fully self-describing: everything a system needs to apply its
@@ -232,19 +240,21 @@ export const DECO_DATA = [
   }},
 ];
 
+// reward = money; rewardIng = { ingredientId: amount }; rewardRating = flat rating
 export const DAILY_POOL = [
-  {id:'d_serve10',  name:'เสิร์ฟ 10 ครั้ง',     emoji:'🍣',target:10, field:'served',     reward:200},
-  {id:'d_streak5',  name:'Streak 5 ครั้งติด',    emoji:'🔥',target:5,  field:'streak',     reward:150},
-  {id:'d_money500', name:'หาเงิน 500฿',           emoji:'💰',target:500,field:'moneyEarned',reward:180},
-  {id:'d_nomiss',   name:'เสิร์ฟโดยไม่มีคนเดิน', emoji:'😊',target:5,  field:'servedNomiss',reward:250},
-  {id:'d_mg1',      name:'ชนะ Mini-game 1 ครั้ง', emoji:'🎮',target:1,  field:'mgWinsToday', reward:120},
+  {id:'d_serve10',  name:'เสิร์ฟ 10 ครั้ง',     emoji:'🍣',target:10, field:'served',     reward:200, rewardIng:{rice:5,salmon:2}},
+  {id:'d_streak5',  name:'Streak 5 ครั้งติด',    emoji:'🔥',target:5,  field:'streak',     reward:150, rewardRating:3},
+  {id:'d_money500', name:'หาเงิน 500฿',           emoji:'💰',target:500,field:'moneyEarned',reward:180, rewardIng:{nori:8}},
+  {id:'d_nomiss',   name:'เสิร์ฟโดยไม่มีคนเดิน', emoji:'😊',target:5,  field:'servedNomiss',reward:250, rewardIng:{uni:1,egg:3}},
+  {id:'d_mg1',      name:'ชนะ Mini-game 1 ครั้ง', emoji:'🎮',target:1,  field:'mgWinsToday', reward:120, rewardIng:{shrimp:3}},
+  {id:'d_special3', name:'เสิร์ฟ Daily Special 3 จาน', emoji:'⭐',target:3, field:'specialServed', reward:220, rewardIng:{tuna:2}, rewardRating:2},
 ];
 
 export const WEEKLY_POOL = [
-  {id:'w_serve100', name:'เสิร์ฟ 100 ครั้งในสัปดาห์',emoji:'🏅',target:100,field:'servedWeek',  reward:2000},
-  {id:'w_lv3',      name:'อัปเกรด 3 อย่าง',          emoji:'⬆️',target:3,  field:'upgradesWeek',reward:1500},
-  {id:'w_event5',   name:'ผ่าน Event 5 ครั้ง',        emoji:'⚡',target:5,  field:'eventsWeek',  reward:1800},
-  {id:'w_mg5',      name:'ชนะ Mini-game 5 ครั้ง',     emoji:'🎮',target:5,  field:'mgWinsWeek',  reward:2500},
+  {id:'w_serve100', name:'เสิร์ฟ 100 ครั้งในสัปดาห์',emoji:'🏅',target:100,field:'servedWeek',  reward:2000, rewardIng:{salmon:10,tuna:8,rice:20}},
+  {id:'w_lv3',      name:'อัปเกรด 3 อย่าง',          emoji:'⬆️',target:3,  field:'upgradesWeek',reward:1500, rewardIng:{gold:1}, rewardRating:5},
+  {id:'w_event5',   name:'ผ่าน Event 5 ครั้ง',        emoji:'⚡',target:5,  field:'eventsWeek',  reward:1800, rewardIng:{uni:3,caviar:1}},
+  {id:'w_mg5',      name:'ชนะ Mini-game 5 ครั้ง',     emoji:'🎮',target:5,  field:'mgWinsWeek',  reward:2500, rewardIng:{wagyu:2,egg:10}},
 ];
 
 export const FUSION_RECIPES = [

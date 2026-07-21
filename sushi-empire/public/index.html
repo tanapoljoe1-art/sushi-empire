@@ -243,6 +243,7 @@
 
 <!-- ══ MAIN PAGE ══ -->
 <div class="pg on" id="pg-main">
+  <div id="dailySpecialBanner" class="daily-special-banner" style="display:none"></div>
   <div class="resto" id="restoCard">
     <div class="resto-bg"></div>
     <div class="steam" id="steamEl"></div>
@@ -558,7 +559,24 @@
     <div class="mtitle">ลูกค้า VIP!</div>
     <div class="msub" id="vipDesc">เสิร์ฟให้ VIP ทันที รับโบนัสพิเศษ!</div>
     <div class="mamt" id="vipAmt">+500฿</div>
-    <button class="mbtn" onclick="closeVip()">เสิร์ฟ VIP! 👑</button>
+    <button class="mbtn" onclick="challengeVip()" style="margin-bottom:8px">🎮 ท้าทาย · ทิป x2</button>
+    <button class="mbtn" onclick="closeVip()" style="background:rgba(255,255,255,.08);color:var(--text)">รับทิปปกติ 👑</button>
+  </div>
+</div>
+
+<!-- Contextual mini-challenge (VIP / Critic) -->
+<div class="mbg" id="ctxMgModal">
+  <div class="mbox" style="max-width:340px">
+    <div class="micon" id="ctxMgIcon">🎮</div>
+    <div class="mtitle" id="ctxMgTitle">ท้าทาย!</div>
+    <div class="msub" id="ctxMgDesc">กดตอนแถบอยู่ในโซนเขียว 3 ครั้ง</div>
+    <div class="ctx-lane" id="ctxLane">
+      <div class="ctx-zone"></div>
+      <div class="ctx-bar" id="ctxBar"></div>
+    </div>
+    <div id="ctxMgStatus" style="text-align:center;font-weight:800;color:var(--gold);margin:8px 0 12px;font-size:14px">0 / 3</div>
+    <button class="mbtn" id="ctxMgBtn" onclick="ctxMgTap()" style="margin-bottom:8px">✂️ ตัด!</button>
+    <button class="mbtn" id="ctxMgSkip" onclick="ctxMgSkip()" style="background:rgba(255,255,255,.08);color:var(--text)">ข้าม</button>
   </div>
 </div>
 
