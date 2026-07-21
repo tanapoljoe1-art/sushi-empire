@@ -2,16 +2,35 @@
 import { UPGRADES, MENUS, BRANCHES } from '../data.js';
 import { updateUI } from '../ui/render.js';
 
+/** Economy curve tuned for Lv.1–15: generous early, soft after mid. */
 export const BAL = {
-  incomeLvMult: (lv) => 1 + (lv - 1) * 0.08,
-  upgradeCost:  (base, lvl) => Math.round(base * Math.pow(1.8, lvl)),
-  ratingGain:   (streak) => streak >= 15 ? 4 : streak >= 10 ? 3 : streak >= 5 ? 2 : 1,
+  // Stronger early so first kitchen/waiter feel reachable; softens after 15
+  incomeLvMult: (lv) => {
+    if (lv <= 10) return 1 + (lv - 1) * 0.10;
+    if (lv <= 15) return 1 + 9 * 0.10 + (lv - 10) * 0.07;
+    return 1 + 9 * 0.10 + 5 * 0.07 + (lv - 15) * 0.05;
+  },
+  // Upgrade costs: gentler early growth, steeper late (was flat 1.8^n)
+  upgradeCost: (base, lvl) => {
+    if (lvl <= 0) return Math.round(base);
+    const growth = lvl < 3 ? 1.55 : lvl < 5 ? 1.72 : 1.88;
+    return Math.round(base * Math.pow(growth, lvl));
+  },
+  ratingGain: (streak) => streak >= 15 ? 4 : streak >= 10 ? 3 : streak >= 5 ? 2 : 1,
+  // Miss less punishing at low level; story flags can soften/harden
+  missRatingLoss: (g) => {
+    let loss = (g.level || 1) < 5 ? -3 : -5;
+    if (g.storyFlags?.criticFriend) loss += 2; // -1 or -3
+    if (g.storyFlags?.rivalHate) loss -= 1;
+    if (g.staffCriticProof) loss = Math.min(-1, Math.ceil(loss / 2));
+    return Math.min(-1, loss);
+  },
 };
 
 export function defaultState() {
   return {
-    saveVersion: 2,
-    money: 100, rating: 0, level: 1,
+    saveVersion: 3,
+    money: 150, rating: 0, level: 1,
     menu: 'salmon', cooking: false, plateReady: false,
     streak: 0, served: 0, vipServed: 0, rushCleared: 0, mgWins: 0,
     queue: [],
@@ -56,10 +75,11 @@ export function defaultState() {
     staffEventBonus:false, staffTrainerBonus:false, staffPhotoBonus:false,
     staffViralBonus:false, staffSecretMenu:false, staffExtraRating:false,
     staffDecoMult: 1,
-    // Decoration
-    deco: { owned:[], equipped:null },
+    // Decorations — multi-slot (wall / counter / light / floor)
+    deco: { owned:[], equipped:null, slots:{ wall:null, counter:null, light:null, floor:null } },
     decoRatingBonus:0, decoIncomeBonus:0, decoVipBonus:false,
     decoPatienceBonus:0, decoStreakMult:1, decoRushBonus:false, decoIdleBonus:false,
+    decoSetBonus:0,
     // Quests
     quests: { daily:{}, weekly:{}, lastDailyReset:0, lastWeeklyReset:0, activeDailyIds:[], activeWeeklyIds:[] },
     qDaily:  { served:0, streak:0, moneyEarned:0, servedNomiss:0, mgWinsToday:0 },
@@ -69,8 +89,10 @@ export function defaultState() {
     fusion: { discovered:[], newDisc:[] },
     // Mini-games
     mgHighScores: { rhythm:null, fish:null, memory:null },
-    // Story
+    // Story + rival
     storyData: { seenChapters:{}, pendingChapters:[] },
+    storyFlags: {},
+    rivalWeekly: { weekKey:'', playerEarn:0, rivalTarget:0, claimed:false },
     // Player
     playerName: '',
   };
@@ -79,8 +101,9 @@ export function defaultState() {
 export let G = defaultState();
 
 /** Bump when save shape needs a migration. Written on every save. */
-export const SAVE_VERSION = 2;
+export const SAVE_VERSION = 3;
 export const SAVE_KEY = 'SE5';
+export const DECO_SLOTS = ['wall', 'counter', 'light', 'floor'];
 
 // Reassigning the exported `G` binding (as opposed to mutating its fields) can
 // only happen inside this module — an importer holds a live *view* of G, not a
@@ -111,6 +134,25 @@ function migrateSave(data) {
     if (!data.featureUnlockToast || typeof data.featureUnlockToast !== 'object') data.featureUnlockToast = {};
     v = 2;
   }
+  // v2 → v3: deco multi-slot + story flags + rival weekly
+  if (v < 3) {
+    if (!data.storyFlags || typeof data.storyFlags !== 'object') data.storyFlags = {};
+    if (!data.rivalWeekly || typeof data.rivalWeekly !== 'object') {
+      data.rivalWeekly = { weekKey: '', playerEarn: 0, rivalTarget: 0, claimed: false };
+    }
+    if (!data.deco || typeof data.deco !== 'object') data.deco = { owned:[], equipped:null, slots:{} };
+    if (!data.deco.slots || typeof data.deco.slots !== 'object') {
+      data.deco.slots = { wall:null, counter:null, light:null, floor:null };
+    }
+    DECO_SLOTS.forEach(s => {
+      if (!(s in data.deco.slots)) data.deco.slots[s] = null;
+    });
+    // Migrate single equipped → slot (default counter)
+    if (data.deco.equipped && !Object.values(data.deco.slots).some(Boolean)) {
+      data.deco.slots.counter = data.deco.equipped;
+    }
+    v = 3;
+  }
   data.saveVersion = SAVE_VERSION;
   return data;
 }
@@ -126,7 +168,11 @@ function normalizeLoadedState(parsed) {
   G.saveVersion = SAVE_VERSION;
 
   // Guard nested objects that might be missing in old saves
-  if (!G.deco || typeof G.deco !== 'object') G.deco = { owned:[], equipped:null };
+  if (!G.deco || typeof G.deco !== 'object') G.deco = { owned:[], equipped:null, slots:{ wall:null, counter:null, light:null, floor:null } };
+  if (!G.deco.slots) G.deco.slots = { wall:null, counter:null, light:null, floor:null };
+  DECO_SLOTS.forEach(s => { if (!(s in G.deco.slots)) G.deco.slots[s] = null; });
+  if (!G.storyFlags) G.storyFlags = {};
+  if (!G.rivalWeekly) G.rivalWeekly = { weekKey:'', playerEarn:0, rivalTarget:0, claimed:false };
   if (!G.fusion) G.fusion = { discovered:[], newDisc:[] };
   if (!G.storyData) G.storyData = { seenChapters:{}, pendingChapters:[] };
   if (!G.mgHighScores) G.mgHighScores = { rhythm:null, fish:null, memory:null };

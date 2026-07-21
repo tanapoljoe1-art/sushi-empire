@@ -1,6 +1,6 @@
 {
   "name": "sushi-empire",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Sushi Empire - Multiplayer Game Server",
   "main": "server.js",
   "scripts": {

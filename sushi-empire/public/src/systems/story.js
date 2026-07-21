@@ -16,6 +16,7 @@ export let storyState = {
 
 export function initStory() {
   if (!G.storyData) G.storyData = { seenChapters: {}, pendingChapters: [] };
+  if (!G.storyFlags) G.storyFlags = {};
 }
 
 export function checkStoryTriggers() {
@@ -138,6 +139,22 @@ export function storyChoose(choiceIdx) {
   if (!choice) return;
 
   if (choice.reward) applyStoryReward(choice.reward);
+  if (choice.flag) {
+    G.storyFlags = G.storyFlags || {};
+    G.storyFlags[choice.flag] = true;
+    const FLAG_TOAST = {
+      criticFriend: '📰 นักวิจารณ์เป็นมิตร — เสีย rating น้อยลงเมื่อพลาด',
+      rivalHate: '⚔️ Tsunami จ้องตา — แข่งรายสัปดาห์ดุขึ้น',
+      rivalPride: '💪 ไม่กลัวคู่แข่ง — เป้า rival ง่ายลง + รางวัลโบนัส',
+      brave: '🔥 ใจกล้า — โบนัสเล็ก ๆ ถาวร',
+      staffAffinity: '🌸 ทีมสนิท — ขวัญกำลังใจดี',
+    };
+    if (FLAG_TOAST[choice.flag]) toast(FLAG_TOAST[choice.flag]);
+  }
+  if (choice.flags && Array.isArray(choice.flags)) {
+    G.storyFlags = G.storyFlags || {};
+    choice.flags.forEach(f => { G.storyFlags[f] = true; });
+  }
 
   if (choice.close || choice.next === null) {
     closeStory();
@@ -154,10 +171,14 @@ export function applyStoryReward(reward) {
     G.money += reward.money;
     spawnFE('+' + reward.money + '฿ (เรื่องราว)');
     const cv = getEl('money');
-    cv.classList.remove('pop'); void cv.offsetWidth; cv.classList.add('pop');
+    if (cv) { cv.classList.remove('pop'); void cv.offsetWidth; cv.classList.add('pop'); }
   }
   if (reward.rating) G.rating = Math.min(100, G.rating + reward.rating);
   if (reward.ing)    G.ing[reward.ing] = (G.ing[reward.ing] || 0) + 5;
+  if (reward.incomeBonus) {
+    G.storyFlags = G.storyFlags || {};
+    G.storyFlags.storyIncome = (G.storyFlags.storyIncome || 0) + reward.incomeBonus;
+  }
   if (reward.prestige) toast('✨ ถึงเวลา Prestige แล้ว! ลองดูที่ Shop Tab ✨');
   updateUI();
 }

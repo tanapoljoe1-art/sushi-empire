@@ -96,22 +96,27 @@
 - [x] Live click-through mobile + desktop (Playwright)  
 - [x] Toast `pointer-events:none` ไม่บังปุ่ม  
 
+## รอบ 7 — Balance / Story flags / Rival / Deco slots (2026-07-21)
+- [x] Balance pass Lv.1–15 (BAL curve + early costs + golden soft)  
+- [x] Story choice flags (criticFriend, rivalPride/Hate, staffAffinity)  
+- [x] Rival weekly vs Tsunami (banner + claim)  
+- [x] Deco multi-slot 4 ช่อง + set ซากุระ/เซน  
+- [x] Kitchen visual strip จาก deco  
+- [x] saveVersion → 3  
+
 ### ยังค้าง (infra + ต่อ)
 - [ ] **Render auto-deploy** — Connect ใหม่  
 - [ ] **Post-mortem** webhook  
-- [ ] Balance pass Lv.1–15  
-- [ ] Story branching + rival weekly  
-- [ ] Deco multi-slot / visual kitchen  
-- [ ] Polish 3D kitchen ต่อ, battle pass, …  
+- [ ] Polish 3D kitchen ต่อ, battle pass, resource tension, …  
 
 ---
 
 # 🔜 คิวถัดไป (แนะนำทำตามลำดับ)
 
-1. Balance pass Lv.1–15  
-2. Story choice consequences + rival weekly เบา  
-3. Deco multi-slot + visual kitchen  
-4. Render Connect + post-mortem webhook  
+1. Render Connect + post-mortem webhook  
+2. Resource tension / daily fish market  
+3. Coach marks / onboarding  
+4. Polish 3D + deco set visuals  
 5. …ตาม Roadmap 30 วัน
 
 ---
@@ -130,7 +135,7 @@
 | ฿/min บน HUD | ✅ | chip 📈 |
 | Resource tension / spoil | 📋 | วัตถุดิบหมดอายุ หรือราคาตลาดขึ้นลง |
 | Daily fish market | 📋 | ราคา ing หมุนรายชั่วโมง/วัน |
-| Soft cap upgrades + diminishing | 📋 | แทน hard max เร็ว |
+| Soft cap upgrades + diminishing | ✅ บางส่วน | BAL.upgradeCost โค้งนุ่ม + golden 35%/lv |
 | Upgrade trees 3 สาย | 📋 | Volume / Quality / Empire — respec แพง |
 | Debug panel (dev) | 📋 | ให้เงิน, skip time, force event |
 
@@ -198,10 +203,10 @@
 |--------|--------|------------|
 | decoIdleBonus wire | ✅ | |
 | Prestige keep deco | ✅ | |
-| Multi-slot (ผนัง/พื้น/เคาน์เตอร์/แสง) | 📋 | ใส่หลายชิ้น |
-| Set bonus ชุดซากุระ ฯลฯ | 📋 | theme + income |
-| Visual เปลี่ยนจริงใน kitchen | 📋 | ไม่ใช่แค่การ์ดในแท็บ |
-| แก้ crystal hardcode stack | 📋 | ให้เป็นระบบ set/stack ชัดเจน |
+| Multi-slot (ผนัง/พื้น/เคาน์เตอร์/แสง) | ✅ | 4 slots + equip/unequip |
+| Set bonus ชุดซากุระ ฯลฯ | ✅ | sakura / zen at2/at3 |
+| Visual เปลี่ยนจริงใน kitchen | ✅ พื้นฐาน | kitchenDecoStrip + tint |
+| แก้ crystal hardcode stack | ✅ | additive fx + multi-slot |
 
 ---
 
@@ -287,8 +292,8 @@
 | ไอเดีย | สถานะ | รายละเอียด |
 |--------|--------|------------|
 | Chapters + typewriter | ที่มีอยู่ | |
-| Choice มี consequence / flag | 📋 | rivalHate, criticFriend, unlock staff |
-| Rival arc จริง (Tsunami Sushi) | 📋 | แข่งยอดขายรายสัปดาห์ |
+| Choice มี consequence / flag | ✅ | storyFlags + toast + economy hooks |
+| Rival arc จริง (Tsunami Sushi) | ✅ | rival.js weekly banner + claim |
 | Chapter หลัง prestige / สาขาใหม่ | 📋 | |
 | VN-lite + CG ง่าย | 🧊 | |
 | ไดอารี่ร้าน (log) | 📋 | |
@@ -377,7 +382,7 @@
 |--------|--------|------------|
 | Telemetry เบา | 📋 | time-to-Lv5, prestige rate, churn point |
 | Economy spreadsheet ฿/s ต่อ stage | 📋 | |
-| Balance pass Lv.1–15 | 🔜 | ตาม roadmap สัปดาห์ 2 |
+| Balance pass Lv.1–15 | ✅ | incomeLvMult + costs + miss loss |
 | Debug panel | 📋 | ดู Core Loop |
 
 ---

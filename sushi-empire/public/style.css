@@ -564,6 +564,26 @@ nav{ display:none; } /* hide old nav — keep for goTab compat */
 /* ── LEADERBOARD ── */
 .lb-mode{flex:1;padding:8px 10px;border-radius:12px;border:1px solid var(--rim);background:var(--glass);color:var(--muted);font-weight:800;font-size:12px;font-family:'Noto Sans Thai',sans-serif;cursor:pointer;transition:all .15s;}
 .lb-mode.on{border-color:rgba(232,196,106,.45);background:rgba(232,196,106,.12);color:var(--gold);}
+
+/* Rival weekly */
+.rival-banner{margin:0 0 10px;padding:10px 12px;border-radius:14px;border:1px solid rgba(255,77,109,.35);
+  background:linear-gradient(135deg,rgba(255,77,109,.12),rgba(167,139,250,.08));}
+.rival-head{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:900;margin-bottom:6px}
+.rival-bar{height:6px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden;margin-bottom:6px}
+.rival-fill{height:100%;background:linear-gradient(90deg,#ff4d6d,#f0d080);border-radius:4px;transition:width .3s}
+.rival-meta{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px}
+.rival-status{font-size:11px;font-weight:700;color:var(--gold)}
+.rival-claim{margin-top:8px;width:100%;padding:8px;border:none;border-radius:10px;background:var(--goldg);
+  color:#1a0e00;font-weight:900;font-size:12px;font-family:'Noto Sans Thai',sans-serif;cursor:pointer}
+
+/* Deco multi-slot */
+.deco-slots{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.deco-slot{background:rgba(0,0,0,.2);border:1px solid var(--rim);border-radius:12px;padding:8px 4px;text-align:center;cursor:pointer}
+.deco-slot-lbl{font-size:9px;color:var(--muted);letter-spacing:.06em;margin-bottom:4px}
+.deco-slot-ico{font-size:20px;line-height:1.2}
+.deco-slot-n{font-size:9px;color:var(--text);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kitchen-deco-strip{position:absolute;top:8px;right:10px;display:flex;gap:3px;font-size:14px;z-index:4;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));pointer-events:none;opacity:.9}
 .lb-row{display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:14px;margin-bottom:6px;background:var(--glass);border:1px solid var(--rim);transition:all .2s;}
 .lb-row.you{border-color:rgba(232,196,106,.4);background:rgba(232,196,106,.06);}
 .lb-rank{font-size:18px;font-weight:900;width:28px;text-align:center;flex-shrink:0;}

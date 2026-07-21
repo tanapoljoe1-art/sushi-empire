@@ -118,6 +118,9 @@ export function calcServeEarn(menuId, opts = {}) {
     * BAL.incomeLvMult(G.level)
     * (G.goldenBonus || 1)
     * (1 + (G.shopIncomeBonus || 0))
+    * (1 + (G.storyFlags?.storyIncome || 0))
+    * (G.storyFlags?.rivalPride ? 1.03 : 1)
+    * (G.storyFlags?.staffAffinity ? 1.02 : 1)
   );
   if (G.staffOmakaseBonus && (m.id === 'omakase' || m.id === 'omakase_ex')) earn = Math.round(earn * 1.5);
   if (G.staffPremiumBonus && isPremiumMenu(m)) earn = Math.round(earn * 1.3);
@@ -312,7 +315,7 @@ export function tickAnger(custId) {
     sfxAngry();
     G.missToday = (G.missToday || 0) + 1;
     const isCritic   = G.activeEvent === 'critic';
-    const ratingLoss = ev?.missRatingLossOverride ?? -5;
+    const ratingLoss = ev?.missRatingLossOverride ?? BAL.missRatingLoss(G);
     if (!G.staffCriticProof || !isCritic) {
       G.rating = Math.max(0, G.rating + ratingLoss);
       spawnFE(ratingLoss + ' ⭐', true);
@@ -522,6 +525,14 @@ export function serve() {
   G.streak++;
   G.served++;
   G.rating  = Math.min(100, G.rating + ratingGain);
+
+  // Rival weekly progress
+  try {
+    import('./rival.js').then(m => {
+      m.trackRivalEarn(earn);
+      m.renderRivalBanner();
+    }).catch(() => {});
+  } catch (_) {}
 
   // Speed Burst charge: every 5 serves, next cook is 2× (if skill owned)
   if (G.staffSpeedBurst && G.served > 0 && G.served % 5 === 0) {
@@ -842,6 +853,8 @@ export function doPrestige() {
     vipServed:           G.vipServed,
     rushCleared:         G.rushCleared,
     storyData:           G.storyData,
+    storyFlags:          G.storyFlags || {},
+    rivalWeekly:         G.rivalWeekly || { weekKey:'', playerEarn:0, rivalTarget:0, claimed:false },
     playerName:          G.playerName,
     mgHighScores:        G.mgHighScores,
     fusion:              G.fusion,

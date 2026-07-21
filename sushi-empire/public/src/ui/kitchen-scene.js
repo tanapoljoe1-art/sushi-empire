@@ -231,7 +231,39 @@ export function updateKitchenTheme(G) {
     if (hired.length) mood = hired.reduce((a, s) => a + (s.mood ?? 100), 0) / hired.length;
   }
   resto.dataset.mood = mood >= 70 ? 'good' : mood >= 40 ? 'ok' : 'low';
-  setBranchColor(theme.color || 0xc8962a);
+
+  // Decoration → kitchen visual (emoji strip + tint)
+  const slots = (G && G.deco && G.deco.slots) || {};
+  const eq = ['wall', 'counter', 'light', 'floor'].map(s => slots[s]).filter(Boolean);
+  let decoStrip = getEl('kitchenDecoStrip');
+  if (!decoStrip && resto) {
+    decoStrip = document.createElement('div');
+    decoStrip.id = 'kitchenDecoStrip';
+    decoStrip.className = 'kitchen-deco-strip';
+    resto.appendChild(decoStrip);
+  }
+  if (decoStrip) {
+    // Resolve emoji from equipped ids if DECO_DATA available via data attributes
+    const emojiMap = {
+      lantern:'🏮', bamboo:'🎋', koi:'🐠', bonsai:'🌿', noren:'🎏', taiko:'🥁',
+      sakura:'🌸', moon:'🌕', fountain:'⛲', statue:'🐉', garden:'🏞️', crystal:'💠',
+    };
+    decoStrip.innerHTML = eq.map(id => `<span title="${id}">${emojiMap[id] || '✨'}</span>`).join('')
+      || '<span style="opacity:.35">🏚️</span>';
+  }
+  // Set-based tint overrides
+  let color = theme.color || 0xc8962a;
+  if (eq.includes('sakura') || eq.includes('noren')) {
+    resto.style.setProperty('--kitchen-accent', 'rgba(244,114,182,.28)');
+    color = 0xf472b6;
+  } else if (eq.includes('moon') || eq.includes('crystal')) {
+    resto.style.setProperty('--kitchen-accent', 'rgba(125,211,252,.28)');
+    color = 0x7dd3fc;
+  } else if (eq.includes('garden') || eq.includes('bamboo')) {
+    resto.style.setProperty('--kitchen-accent', 'rgba(74,222,128,.25)');
+    color = 0x4ade80;
+  }
+  setBranchColor(color);
   // Lazy-init 3D after first theme paint
   ensureThree();
 }

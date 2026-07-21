@@ -22,9 +22,10 @@ import {
 import { closeEvent, closeVip, challengeVip, tickEventScheduler, updateEventForecastUI } from './systems/events.js';
 import { refreshUnlockUI, markExistingUnlocksSeen } from './systems/unlocks.js';
 import { ensureDailySpecial } from './systems/daily.js';
+import { ensureRivalWeekly, renderRivalBanner, claimRivalReward } from './systems/rival.js';
 import { ctxMgTap, ctxMgSkip } from './systems/context-mg.js';
 import { applyAllStaffBonuses, renderStaff, hireStaff, levelUpStaff, restStaff, fireStaff, unlockSkill } from './systems/staff.js';
-import { applyDecoBonus, buyDeco } from './systems/decoration.js';
+import { applyDecoBonus, buyDeco, unequipSlot } from './systems/decoration.js';
 import { initQuests, claimQuest, submitScore, savePlayerName, setLbMode } from './systems/progress.js';
 import { initStory, checkStoryTriggers, openStoryPing, storyChoose, storyTapOutside } from './systems/story.js';
 import { initFusion, doFusion, pickFusionIng, clearFusionSlot } from './systems/fusion.js';
@@ -75,6 +76,8 @@ updateEarnPreview();
 refreshUnlockUI();
 markExistingUnlocksSeen();
 ensureDailySpecial();
+ensureRivalWeekly();
+renderRivalBanner();
 updateEventForecastUI();
 connectNet().then(() => initSpectate()); // online LB + spectate handlers
 
@@ -143,14 +146,14 @@ setInterval(() => syncBgmToGame(G), 4000);
 // clicks that exact button, not at load time.
 Object.assign(window, {
   assignBranchManager, bnavDrawer, bnavGo, buyBranch, buyDeco, buyIngredient, buyPrestigeItem, buyUpgrade, claimQuest,
-  challengeVip, clearFusionSlot, closeAch, closeConfirm, closeDrawer, closeEvent, closeIdle,
+  challengeVip, claimRivalReward, clearFusionSlot, closeAch, closeConfirm, closeDrawer, closeEvent, closeIdle,
   closePause, closePrest, closeSettings, closeSpectateModal, closeVip, confirmOk, cook, ctxMgSkip, ctxMgTap, doFusion,
   doPrestige, drawerGo, fireStaff, goTab, hireStaff, hostFromModal, joinFromModal, leaveSpectateRoom, levelUpStaff, openPause,
   openSpectateModal, openStoryPing, pauseNewGame, pauseSettings, pauseToTitle, pickFusionIng,
   restStaff, rhTap, savePlayerName, selMenu, selectMG, sendReaction, sendSpectateChat, serve, setLbMode, showPrestModal,
   startMemory, startSlice, storyChoose, storyTapOutside, submitScore,
   switchBranch, titleContinue, titleDeleteSave, titleNewGame, titleSettings,
-  toggleSetting, unlockSkill,
+  toggleSetting, unequipSlot, unlockSkill,
   exportSaveFile, exportSaveCopy, importSaveFromText, importSaveFromFile,
 });
 

@@ -20,12 +20,12 @@ export const MENUS = [
 ];
 
 export const INGREDIENTS = {
-  rice:  {name:'ข้าว',    emoji:'🍚',buyAmt:10,buyCost:50,  maxAmt:50},
-  salmon:{name:'แซลมอน',  emoji:'🐟',buyAmt:5, buyCost:80,  maxAmt:30},
-  tuna:  {name:'ทูน่า',   emoji:'🐠',buyAmt:5, buyCost:90,  maxAmt:30},
-  shrimp:{name:'กุ้ง',    emoji:'🦐',buyAmt:5, buyCost:70,  maxAmt:30},
+  rice:  {name:'ข้าว',    emoji:'🍚',buyAmt:10,buyCost:40,  maxAmt:50},
+  salmon:{name:'แซลมอน',  emoji:'🐟',buyAmt:5, buyCost:70,  maxAmt:30},
+  tuna:  {name:'ทูน่า',   emoji:'🐠',buyAmt:5, buyCost:85,  maxAmt:30},
+  shrimp:{name:'กุ้ง',    emoji:'🦐',buyAmt:5, buyCost:65,  maxAmt:30},
   uni:   {name:'อูนิ',    emoji:'🎣',buyAmt:3, buyCost:150, maxAmt:15},
-  nori:  {name:'สาหร่าย', emoji:'🌿',buyAmt:10,buyCost:40,  maxAmt:50},
+  nori:  {name:'สาหร่าย', emoji:'🌿',buyAmt:10,buyCost:35,  maxAmt:50},
   // NEW: Premium Ingredients
   gold:  {name:'ทองคำ',   emoji:'🥇',buyAmt:2, buyCost:500, maxAmt:10},
   caviar:{name:'คาเวียร์', emoji:'⚫',buyAmt:2, buyCost:600, maxAmt:10},
@@ -35,16 +35,16 @@ export const INGREDIENTS = {
 };
 
 export const UPGRADES = [
-  {id:'kitchen',  name:'ครัวพรีเมียม', emoji:'🍳',desc:'ทำเร็วขึ้น +25%', max:5,base:200,  fx:g=>{g.speedMult=1+g.up.kitchen*.25;}},
-  {id:'waiter',   name:'พนักงานเสิร์ฟ',emoji:'🧑‍🍽️',desc:'เสิร์ฟอัตโนมัติ', max:1,base:600,  fx:g=>{g.autoServe=g.up.waiter>=1;}},
-  {id:'marketing',name:'โฆษณา',        emoji:'📢',desc:'ลูกค้า +1/คิว',  max:3,base:500,  fx:g=>{g.qSize=1+g.up.marketing;}},
-  {id:'patience', name:'บริการที่ยอดเยี่ยม',emoji:'😊',desc:'ลูกค้ารออดทนขึ้น',max:3,base:400,  fx:g=>{g.patMult=1+g.up.patience*.5;}},
-  {id:'storage',  name:'คลังวัตถุดิบ', emoji:'📦',desc:'ปริมาณวัตถุดิบเพิ่ม x1.5',max:3,base:350, fx:g=>{g.storageMult=1+g.up.storage*.5;}},
-  {id:'autoChef', name:'เชฟ AI',       emoji:'🤖',desc:'ทำอาหารอัตโนมัติ',max:1,base:1500, fx:g=>{g.autoChef=g.up.autoChef>=1;}},
-  // NEW: Advanced Upgrades
-  {id:'golden',   name:'ครัวทองคำ',    emoji:'🏆',desc:'รายได้ +50% ถาวร / เลเวล',max:3,base:5000, fx:g=>{g.goldenBonus=1+g.up.golden*.5;}},
-  {id:'mastery',  name:'ปรมาจารย์ซูชิ', emoji:'🎓',desc:'Rating ต่อเสิร์ฟ x2',max:1,base:8000, fx:g=>{g.xpMult=g.up.mastery>=1?2:1;}},
-  {id:'franchise',name:'แฟรนไชส์',     emoji:'🌐',desc:'Idle income x2',max:1,base:12000,fx:g=>{g.idleMult=g.up.franchise>=1?2:1;}},
+  // Early curve softened (base + BAL.upgradeCost); golden less explosive (+35%/lv)
+  {id:'kitchen',  name:'ครัวพรีเมียม', emoji:'🍳',desc:'ทำเร็วขึ้น +25%', max:5,base:180,  fx:g=>{g.speedMult=1+g.up.kitchen*.25;}},
+  {id:'waiter',   name:'พนักงานเสิร์ฟ',emoji:'🧑‍🍽️',desc:'เสิร์ฟอัตโนมัติ', max:1,base:500,  fx:g=>{g.autoServe=g.up.waiter>=1;}},
+  {id:'marketing',name:'โฆษณา',        emoji:'📢',desc:'ลูกค้า +1/คิว',  max:3,base:450,  fx:g=>{g.qSize=1+g.up.marketing;}},
+  {id:'patience', name:'บริการที่ยอดเยี่ยม',emoji:'😊',desc:'ลูกค้ารออดทนขึ้น',max:3,base:350,  fx:g=>{g.patMult=1+g.up.patience*.5;}},
+  {id:'storage',  name:'คลังวัตถุดิบ', emoji:'📦',desc:'ปริมาณวัตถุดิบเพิ่ม x1.5',max:3,base:300, fx:g=>{g.storageMult=1+g.up.storage*.5;}},
+  {id:'autoChef', name:'เชฟ AI',       emoji:'🤖',desc:'ทำอาหารอัตโนมัติ',max:1,base:1200, fx:g=>{g.autoChef=g.up.autoChef>=1;}},
+  {id:'golden',   name:'ครัวทองคำ',    emoji:'🏆',desc:'รายได้ +35% ถาวร / เลเวล',max:3,base:4500, fx:g=>{g.goldenBonus=1+g.up.golden*.35;}},
+  {id:'mastery',  name:'ปรมาจารย์ซูชิ', emoji:'🎓',desc:'Rating ต่อเสิร์ฟ x2',max:1,base:7500, fx:g=>{g.xpMult=g.up.mastery>=1?2:1;}},
+  {id:'franchise',name:'แฟรนไชส์',     emoji:'🌐',desc:'Idle income x2',max:1,base:11000,fx:g=>{g.idleMult=g.up.franchise>=1?2:1;}},
 ];
 
 export const ACHIEVEMENTS = [
@@ -216,29 +216,50 @@ export const RARITY_STYLE = {
   legendary: {label:'Legendary', color:'rgba(232,196,106,.95)', bg:'rgba(232,196,106,.1)'},
 };
 
+// slot: wall | counter | light | floor — can equip one per slot (stack bonuses)
+// set: group id for set bonuses (e.g. sakura set)
 export const DECO_DATA = [
-  {id:'lantern',  name:'โคมไฟญี่ปุ่น',emoji:'🏮',cost:300,  bonus:'+5% Rating gain',   fx:g=>{g.decoRatingBonus=.05;}},
-  {id:'bamboo',   name:'ไม้ไผ่',       emoji:'🎋',cost:500,  bonus:'+8% Income',        fx:g=>{g.decoIncomeBonus=.08;}},
-  {id:'koi',      name:'ปลาคาร์ฟ',     emoji:'🐠',cost:1200, bonus:'VIP มาบ่อยขึ้น',    fx:g=>{g.decoVipBonus=true;}},
-  {id:'bonsai',   name:'ต้นบอนไซ',    emoji:'🌿',cost:800,  bonus:'+10% Patience',     fx:g=>{g.decoPatienceBonus=.10;}},
-  {id:'noren',    name:'ผ้าม่านประตู',emoji:'🎏',cost:2000, bonus:'Streak bonus x1.5', fx:g=>{g.decoStreakMult=1.5;}},
-  {id:'taiko',    name:'กลองไทโกะ',   emoji:'🥁',cost:3500, bonus:'Rush Hour ยาวขึ้น +30s',fx:g=>{g.decoRushBonus=true;}},
-  {id:'sakura',   name:'ซากุระ',       emoji:'🌸',cost:5000, bonus:'+15% Income ถาวร',  fx:g=>{g.decoIncomeBonus=.15;}},
-  {id:'moon',     name:'จันทร์เพ็ญเต็มดวง',emoji:'🌕',cost:8000, bonus:'Idle income x2',    fx:g=>{g.decoIdleBonus=true;}},
-  // NEW: Premium Decorations
-  {id:'fountain', name:'น้ำพุทองคำ',  emoji:'⛲',cost:15000,bonus:'+25% Income + VIP rate',fx:g=>{g.decoIncomeBonus+=.25;g.decoVipBonus=true;}},
-  {id:'statue',   name:'รูปปั้นมังกร', emoji:'🐉',cost:25000,bonus:'Streak bonus x2',    fx:g=>{g.decoStreakMult=2;}},
-  {id:'garden',   name:'สวนเซน',       emoji:'🏞️',cost:40000,bonus:'+30% Patience + Income',fx:g=>{g.decoPatienceBonus+=.30;g.decoIncomeBonus+=.10;}},
-  {id:'crystal',  name:'คริสตัลวิเศษ', emoji:'💠',cost:75000,bonus:'ทุกโบนัส x1.5',       fx:g=>{
-    g.decoIncomeBonus   = .15 * 1.5;
-    g.decoPatienceBonus = .30 * 1.5;
-    g.decoRatingBonus   = .05 * 1.5;
-    g.decoStreakMult    = 2   * 1.5;
-    g.decoVipBonus      = true;
-    g.decoRushBonus     = true;
-    g.decoIdleBonus     = true;
+  {id:'lantern',  name:'โคมไฟญี่ปุ่น',emoji:'🏮',cost:300,  slot:'light',   set:'sakura', bonus:'+5% Rating gain',   fx:g=>{g.decoRatingBonus+=.05;}},
+  {id:'bamboo',   name:'ไม้ไผ่',       emoji:'🎋',cost:500,  slot:'wall',    set:'zen',    bonus:'+8% Income',        fx:g=>{g.decoIncomeBonus+=.08;}},
+  {id:'koi',      name:'ปลาคาร์ฟ',     emoji:'🐠',cost:1200, slot:'counter', set:'zen',    bonus:'VIP มาบ่อยขึ้น',    fx:g=>{g.decoVipBonus=true;}},
+  {id:'bonsai',   name:'ต้นบอนไซ',    emoji:'🌿',cost:800,  slot:'counter', set:'sakura', bonus:'+10% Patience',     fx:g=>{g.decoPatienceBonus+=.10;}},
+  {id:'noren',    name:'ผ้าม่านประตู',emoji:'🎏',cost:2000, slot:'wall',    set:'sakura', bonus:'Streak bonus x1.5', fx:g=>{g.decoStreakMult=Math.max(g.decoStreakMult||1,1.5);}},
+  {id:'taiko',    name:'กลองไทโกะ',   emoji:'🥁',cost:3500, slot:'floor',   set:null,     bonus:'Rush Hour ยาวขึ้น',fx:g=>{g.decoRushBonus=true;}},
+  {id:'sakura',   name:'ซากุระ',       emoji:'🌸',cost:5000, slot:'wall',    set:'sakura', bonus:'+12% Income',       fx:g=>{g.decoIncomeBonus+=.12;}},
+  {id:'moon',     name:'จันทร์เพ็ญ',  emoji:'🌕',cost:8000, slot:'light',   set:null,     bonus:'Idle income x2',    fx:g=>{g.decoIdleBonus=true;}},
+  {id:'fountain', name:'น้ำพุทองคำ',  emoji:'⛲',cost:15000,slot:'floor',   set:null,     bonus:'+20% Income + VIP', fx:g=>{g.decoIncomeBonus+=.20;g.decoVipBonus=true;}},
+  {id:'statue',   name:'รูปปั้นมังกร', emoji:'🐉',cost:25000,slot:'counter', set:null,     bonus:'Streak bonus x2',   fx:g=>{g.decoStreakMult=Math.max(g.decoStreakMult||1,2);}},
+  {id:'garden',   name:'สวนเซน',       emoji:'🏞️',cost:40000,slot:'floor',   set:'zen',    bonus:'+25% Patience +10% ฿',fx:g=>{g.decoPatienceBonus+=.25;g.decoIncomeBonus+=.10;}},
+  {id:'crystal',  name:'คริสตัลวิเศษ', emoji:'💠',cost:75000,slot:'light',   set:null,     bonus:'+18% ฿ · VIP · Idle', fx:g=>{
+    g.decoIncomeBonus   += .18;
+    g.decoPatienceBonus += .12;
+    g.decoRatingBonus   += .08;
+    g.decoStreakMult     = Math.max(g.decoStreakMult||1, 2.2);
+    g.decoVipBonus       = true;
+    g.decoRushBonus      = true;
+    g.decoIdleBonus      = true;
   }},
 ];
+
+export const DECO_SLOT_LABEL = {
+  wall: 'ผนัง', counter: 'เคาน์เตอร์', light: 'แสง', floor: 'พื้น',
+};
+
+/** Set bonuses applied when ≥2 / ≥3 pieces of the set are equipped */
+export const DECO_SETS = {
+  sakura: {
+    name: 'ชุดซากุระ',
+    pieces: ['lantern', 'bonsai', 'noren', 'sakura'],
+    at2: g => { g.decoIncomeBonus += 0.05; g.decoSetBonus += 0.05; },
+    at3: g => { g.decoRatingBonus += 0.08; g.decoPatienceBonus += 0.05; g.decoSetBonus += 0.08; },
+  },
+  zen: {
+    name: 'ชุดเซน',
+    pieces: ['bamboo', 'koi', 'garden'],
+    at2: g => { g.decoPatienceBonus += 0.08; g.decoSetBonus += 0.05; },
+    at3: g => { g.decoIdleBonus = true; g.decoIncomeBonus += 0.06; g.decoSetBonus += 0.08; },
+  },
+};
 
 // reward = money; rewardIng = { ingredientId: amount }; rewardRating = flat rating
 export const DAILY_POOL = [
@@ -330,7 +351,7 @@ export const STORY_CHAPTERS = [
     scenes:[
       { speaker:'ซากุระ', role:'เชฟ', avatar:'👩‍🍳',
         text:'เฮ้! ฉันชื่อซากุระ เรียนทำซูชิมาจากญี่ปุ่นเลย ขอทำงานที่นี่ได้ไหม?',
-        choices:[{label:'ยินดีต้อนรับ! 🌸', next:1},{label:'ลองดูก่อนนะ', next:1}]},
+        choices:[{label:'ยินดีต้อนรับ! 🌸', next:1, flag:'staffAffinity'},{label:'ลองดูก่อนนะ', next:1}]},
       { speaker:'ซากุระ', role:'เชฟ', avatar:'👩‍🍳',
         text:'เยี่ยม! ฉันจะทำให้ร้านที่นี่เป็นที่รู้จักทั่วเมือง เดินหน้า!',
         choices:[{label:'เดินหน้าแล้ว! ⚡', next:null, reward:{money:100}, close:true}]},
@@ -342,7 +363,7 @@ export const STORY_CHAPTERS = [
     scenes:[
       { speaker:'นักวิจารณ์', role:'คอลัมนิสต์อาหาร', avatar:'🧐',
         text:'"ผมได้ยินมาว่าร้านที่นี่ดูดีที่สุด... ลองลิ้มรสสักที แต่ถ้าไม่ถูกปากเลย ผมจะเขียนถึงในคอลัมน์นะ!"',
-        choices:[{label:'รับมือได้! เดี๋ยวทำให้ดู', next:1},{label:'(กลัวนิดหน่อย...)', next:1}]},
+        choices:[{label:'รับมือได้! เดี๋ยวทำให้ดู', next:1, flag:'criticFriend'},{label:'(กลัวนิดหน่อย...)', next:1}]},
       { speaker:'ซากุระ', role:'เชฟ', avatar:'👩‍🍳',
         text:'ไม่ต้องกังวล! ทำซูชิให้ดีที่สุด Rating เราต้องสูงขึ้นแน่นอน',
         choices:[{label:'เดินหน้าเลย! 🍣', next:null, reward:{money:200, rating:5}, close:true}]},
@@ -354,7 +375,7 @@ export const STORY_CHAPTERS = [
     scenes:[
       { speaker:'ฮิระ', role:'บริกร', avatar:'🧑‍🍽️',
         text:'มีร้านใหม่เปิดตรงข้าม "Tsunami Sushi" — เขาโฆษณาเต็มไปหมด...',
-        choices:[{label:'ไม่กลัว! เดินเดินเลย!', next:1},{label:'ค้าเขาได้ห่วง...', next:1}]},
+        choices:[{label:'ไม่กลัว! เดินหน้าเลย!', next:1, flag:'rivalPride'},{label:'เขาดูน่ากลัว...', next:1, flag:'rivalHate'}]},
       { speaker:'เคนจิ', role:'เชฟ Sashimi', avatar:'👨‍🍳',
         text:'"ผมเคยทำงานที่ Tsunami Sushi มาก่อน ออกมาเพราะเจ้าของกระหายเงินมาก ที่นี่ดีว่ายะ"',
         choices:[{label:'ขอบคุณที่เลือกเรา 😊', next:2}]},
@@ -364,7 +385,19 @@ export const STORY_CHAPTERS = [
     ]
   },
   {
-    id:'first_branch', chapter:'CH.3', title:'ก้าวแรกสู่การขยาย',
+    id:'rival_war', chapter:'CH.3', title:'สงครามซูชิรายสัปดาห์',
+    triggerLv:8, triggerServed:40, triggerOnce:true,
+    scenes:[
+      { speaker:'ฮิระ', role:'บริกร', avatar:'🧑‍🍽️',
+        text:'Tsunami Sushi เริ่มแข่งยอดขายรายสัปดาห์กับเราแล้ว! ต้องทำเงินให้ถึงเป้าก่อนสิ้นอาทิตย์',
+        choices:[{label:'รับศึก! ⚔️', next:1, flag:'rivalPride'},{label:'...ระวังไว้', next:1, flag:'rivalHate'}]},
+      { speaker:'อายาเนะ', role:'ผู้จัดการ', avatar:'👩‍💼',
+        text:'ฉันติดตามยอดบนแบนเนอร์ "vs Tsunami" แล้ว — เสิร์ฟเยอะ ๆ แล้วกดรับรางวัลเมื่อชนะ!',
+        choices:[{label:'ลุยเลย! 🏆', next:null, reward:{money:250, rating:2}, close:true}]},
+    ]
+  },
+  {
+        id:'first_branch', chapter:'CH.3', title:'ก้าวแรกสู่การขยาย',
     triggerLv:10, triggerServed:0, triggerOnce:true,
     scenes:[
       { speaker:'อายาเนะ', role:'ผู้จัดการ', avatar:'👩‍💼',
