@@ -129,13 +129,23 @@
     </div>
     <div class="set-row">
       <div class="set-ico">✨</div>
-      <div class="set-inf"><div class="set-lbl">Animation</div><div class="set-sub">ลด motion ถ้าช้า</div></div>
+      <div class="set-inf"><div class="set-lbl">Animation</div><div class="set-sub">ปิด = reduce motion</div></div>
       <button class="toggle on" id="toggleAnim" onclick="toggleSetting('anim')"></button>
+    </div>
+    <div class="set-row">
+      <div class="set-ico">👆</div>
+      <div class="set-inf"><div class="set-lbl">ปุ่มใหญ่</div><div class="set-sub">cook / nav ใหญ่ขึ้น</div></div>
+      <button class="toggle" id="toggleBigTap" onclick="toggleSetting('bigTap')"></button>
     </div>
     <div class="set-row">
       <div class="set-ico">🌙</div>
       <div class="set-inf"><div class="set-lbl">Auto-save</div><div class="set-sub">บันทึกทุก 10 วินาที</div></div>
       <button class="toggle on" id="toggleAutoSave" onclick="toggleSetting('autosave')"></button>
+    </div>
+    <div class="set-row">
+      <div class="set-ico">🛠️</div>
+      <div class="set-inf"><div class="set-lbl">Debug panel</div><div class="set-sub">หรือ Ctrl+Shift+D</div></div>
+      <button class="mbtn" type="button" onclick="toggleDebugEnabled()" style="margin:0;padding:8px 12px;font-size:11px;min-width:auto">สลับ</button>
     </div>
     <div class="pm-div"></div>
     <div style="font-size:12px;font-weight:800;margin:4px 0 8px;color:var(--gold)">💾 เซฟเกม</div>

@@ -16,14 +16,14 @@ Sushi Empire = idle/incremental ทำซูชิในเบราว์เซ
 
 ## State
 
-- **HEAD:** รอบ 9 (ดู git log)
-- **Done รอบ 9:** Upgrade trees · Respec · Season Pass · 3D perfect punch · saveVersion 5
+- **HEAD:** รอบ 10 (ดู git log)
+- **Done รอบ 10:** Debug panel · Critic/Spy customers · A11y bigTap/reduce-motion
 - **Open infra:** Render **Connect** still manual (`POSTMORTEM-RENDER-AUTODEPLOY.md`)
 
 ## Next step (แนะนำ)
 1. Render Connect มือ + verify push→deploy
-2. Debug panel / critic-spy customers
-3. Accessibility pass
+2. Negative events 3 ทางเลือก
+3. Map UI สาขา
 4. Live smoke หลัง deploy
 
 ## Then (เทคนิคเดิม ยังใช้ได้)

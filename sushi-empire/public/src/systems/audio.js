@@ -1,5 +1,24 @@
 // ── Settings, SFX, and soft generative BGM ────────────────────────────────────
-export const settings = { sound: true, music: true, anim: true, autosave: true };
+const _defaultSettings = { sound: true, music: true, anim: true, autosave: true, bigTap: false };
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem('SE5_settings');
+    if (!raw) return { ..._defaultSettings };
+    return { ..._defaultSettings, ...JSON.parse(raw) };
+  } catch { return { ..._defaultSettings }; }
+}
+export const settings = loadSettings();
+export function persistSettings() {
+  try { localStorage.setItem('SE5_settings', JSON.stringify(settings)); } catch (_) {}
+}
+
+export function applyA11yClasses() {
+  try {
+    document.documentElement.classList.toggle('reduce-motion', !settings.anim);
+    document.documentElement.classList.toggle('big-tap', !!settings.bigTap);
+  } catch (_) {}
+}
+
 
 let _actx = null;
 let _bgmNodes = null;

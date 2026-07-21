@@ -119,19 +119,25 @@
 - [x] 3D Perfect camera punch  
 - [x] saveVersion → 5  
 
+## รอบ 10 — Debug / Critic·Spy / A11y (2026-07-21)
+- [x] Debug panel (Ctrl+Shift+D / ?debug=1 / ตั้งค่า)  
+- [x] Customer: Critic 📰 + Rival Spy 🕵️  
+- [x] Accessibility: reduce-motion + ปุ่มใหญ่ + persist settings  
+- [x] Spy ผิดเมนู → คิว −1 ชั่วคราว 60s  
+
 ### ยังค้าง (infra + ต่อ)
 - [ ] **Render auto-deploy** — Connect มือ (ดู post-mortem)  
-- [ ] Accessibility / coach expand / debug panel  
-- [ ] Battle pass premium track / seasonality เมนู  
+- [ ] Battle pass premium / seasonality เมนู  
+- [ ] Map UI / negative events  
 
 ---
 
 # 🔜 คิวถัดไป (แนะนำทำตามลำดับ)
 
 1. Render Connect มือ  
-2. Debug panel (dev)  
-3. Accessibility + reduce motion ขยาย  
-4. Critic/spy customer types  
+2. Negative events 3 ทางเลือก  
+3. Map UI สาขา  
+4. Seasonality / premium BP  
 5. …ตาม Roadmap 30 วัน
 
 ---
@@ -152,7 +158,7 @@
 | Daily fish market | ✅ | ราคา ing หมุนรายชั่วโมง/วัน |
 | Soft cap upgrades + diminishing | ✅ บางส่วน | BAL.upgradeCost โค้งนุ่ม + golden 35%/lv |
 | Upgrade trees 3 สาย | ✅ | Volume / Quality / Empire — respec แพง |
-| Debug panel (dev) | 📋 | ให้เงิน, skip time, force event |
+| Debug panel (dev) | ✅ | ให้เงิน, skip time, force event |
 
 ---
 
@@ -165,9 +171,9 @@
 | ประเภท: Tourist | ✅ | อดทนต่ำ, earn ×1.2, เมนูถูก |
 | ประเภท: Foodie | ✅ | อดทนสูง, ชอบ premium/fusion |
 | ประเภท: VIP | บางส่วน | tip modal; ยังไม่เต็ม cook-order flow |
-| ประเภท: Critic (ตอน event) | 📋 | miss แล้วเจ็บมาก |
+| ประเภท: Critic (ตอน event) | ✅ | miss แล้วเจ็บมาก |
 | ประเภท: Influencer | ✅ | เสิร์ฟสำเร็จ → คิว +1 ชั่วคราว 45s |
-| ประเภท: Rival spy | 📋 | เสิร์ฟผิด → ลด marketing ชั่วคราว |
+| ประเภท: Rival spy | ✅ | เสิร์ฟผิด → ลด marketing ชั่วคราว |
 | Unlock ประเภทตามสาขา | 📋 | สนามบิน=tourist, โตเกียว=foodie |
 | UI ไอคอนประเภท + tooltip | 📋 | |
 
@@ -361,7 +367,7 @@
 | Progressive unlock แท็บ | ✅ | unlocks.js — staff3 mg3 deco4 fusion5 br8 prest15 |
 | Coach marks ครั้งแรกต่อระบบ | ✅ | |
 | ลดแท็บล่าง / รวม meta ใต้ “อาณาจักร” | 📋 | |
-| Accessibility: ปุ่มใหญ่, reduce motion | 📋 | มี anim setting แล้ว ขยายผล |
+| Accessibility: ปุ่มใหญ่, reduce motion | ✅ | bigTap + reduce-motion class + OS prefers |
 | Title screen โชว์ ach / prestige skin | 📋 | |
 
 ---
@@ -398,7 +404,7 @@
 | Telemetry เบา | 📋 | time-to-Lv5, prestige rate, churn point |
 | Economy spreadsheet ฿/s ต่อ stage | 📋 | |
 | Balance pass Lv.1–15 | ✅ | incomeLvMult + costs + miss loss |
-| Debug panel | 📋 | ดู Core Loop |
+| Debug panel | ✅ | ดู Core Loop |
 
 ---
 

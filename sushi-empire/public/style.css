@@ -565,6 +565,47 @@ nav{ display:none; } /* hide old nav — keep for goTab compat */
 .lb-mode{flex:1;padding:8px 10px;border-radius:12px;border:1px solid var(--rim);background:var(--glass);color:var(--muted);font-weight:800;font-size:12px;font-family:'Noto Sans Thai',sans-serif;cursor:pointer;transition:all .15s;}
 .lb-mode.on{border-color:rgba(232,196,106,.45);background:rgba(232,196,106,.12);color:var(--gold);}
 
+/* Accessibility */
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after{
+  animation-duration:.01ms!important;
+  animation-iteration-count:1!important;
+  transition-duration:.01ms!important;
+  scroll-behavior:auto!important;
+}
+html.big-tap .cookbtn{padding:20px;font-size:19px;min-height:56px}
+html.big-tap .bnav{height:70px}
+html.big-tap .bntab-ico{font-size:24px}
+html.big-tap .bntab-lbl{font-size:10px}
+html.big-tap .cookwrap{bottom:70px}
+html.big-tap .ing-chip,html.big-tap .uc,html.big-tap .mi{min-height:48px}
+@media (prefers-reduced-motion: reduce){
+  html:not(.force-motion) *,
+  html:not(.force-motion) *::before,
+  html:not(.force-motion) *::after{
+    animation-duration:.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.01ms!important;
+  }
+}
+
+/* Debug panel */
+.debug-fab{position:fixed;right:10px;bottom:130px;z-index:700;width:44px;height:44px;border-radius:50%;
+  border:1px solid rgba(232,196,106,.4);background:rgba(14,14,26,.92);font-size:18px;cursor:pointer;
+  display:none;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(0,0,0,.45)}
+.debug-panel{position:fixed;right:10px;bottom:180px;z-index:710;width:min(320px,calc(100vw - 20px));
+  background:linear-gradient(145deg,#141018f7,#0a0c14f7);border:1px solid rgba(232,196,106,.35);
+  border-radius:16px;padding:12px;display:none;box-shadow:0 12px 40px rgba(0,0,0,.55);max-height:70vh;overflow:auto}
+.debug-panel.vis{display:block}
+.debug-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;color:var(--gold)}
+.debug-x{border:none;background:transparent;color:var(--muted);font-size:16px;cursor:pointer}
+.debug-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.debug-grid button{padding:8px 6px;border-radius:10px;border:1px solid var(--rim);background:var(--glass);
+  color:var(--text);font-size:11px;font-weight:700;font-family:'Noto Sans Thai',sans-serif;cursor:pointer}
+.debug-grid button:active{transform:scale(.97)}
+.debug-stat{margin-top:10px;font-size:10px;color:var(--muted);font-family:ui-monospace,monospace}
+
 /* Upgrade trees */
 .upg-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
 .upg-tab{padding:7px 10px;border-radius:10px;border:1px solid var(--rim);background:var(--glass);

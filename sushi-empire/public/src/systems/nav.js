@@ -14,7 +14,7 @@ import { UPGRADES } from '../data.js';
 import { getEl } from '../core/dom.js';
 import { toast, updateUI, renderUpgrades, renderIngredients, updateEarnPreview } from '../ui/render.js';
 import { startTitleBg } from '../ui/background.js';
-import { settings, startBgm, stopBgm, unlockAudio } from './audio.js';
+import { settings, startBgm, stopBgm, unlockAudio, applyA11yClasses, persistSettings } from './audio.js';
 import { renderStaff, applyAllStaffBonuses } from './staff.js';
 import { renderDeco, applyDecoBonus } from './decoration.js';
 import { renderQuests, renderLB, renderAch, hasUnclaimedQuests, initQuests } from './progress.js';
@@ -260,6 +260,7 @@ export function openSettings()  {
   getEl('settingsModal').classList.add('vis');
   const hint = getEl('importSaveHint');
   if (hint) hint.innerText = '';
+  syncSettingToggles();
 }
 export function closeSettings() { getEl('settingsModal').classList.remove('vis'); }
 
@@ -334,6 +335,7 @@ const TOGGLE_ID_MAP = {
   music: 'toggleMusic',
   anim: 'toggleAnim',
   autosave: 'toggleAutoSave',
+  bigTap: 'toggleBigTap',
 };
 
 export function toggleSetting(key) {
@@ -346,4 +348,14 @@ export function toggleSetting(key) {
     else stopBgm();
   }
   if (key === 'sound' && settings.sound) unlockAudio();
+  if (key === 'anim' || key === 'bigTap') applyA11yClasses();
+  persistSettings();
+}
+
+export function syncSettingToggles() {
+  Object.entries(TOGGLE_ID_MAP).forEach(([key, id]) => {
+    const el = getEl(id);
+    if (el) el.classList.toggle('on', !!settings[key]);
+  });
+  applyA11yClasses();
 }

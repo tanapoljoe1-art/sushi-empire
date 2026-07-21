@@ -229,20 +229,38 @@ export const CUSTOMER_TYPES = {
   tourist:     { id: 'tourist',     badge: '✈️', patienceMult: 0.72, earnMult: 1.2,  tipNote: 'นักท่องเที่ยว' },
   foodie:      { id: 'foodie',      badge: '🍽️', patienceMult: 1.15, earnMult: 1.12, tipNote: 'สายกิน' },
   influencer:  { id: 'influencer',  badge: '📱', patienceMult: 0.88, earnMult: 1.08, tipNote: 'อินฟลู' },
+  // Critic: high stakes — miss hurts; match pays well
+  critic:      { id: 'critic',      badge: '📰', patienceMult: 0.85, earnMult: 1.35, tipNote: 'นักวิจารณ์', missRating: -12 },
+  // Rival spy: wrong order sabotages marketing temporarily
+  spy:         { id: 'spy',         badge: '🕵️', patienceMult: 0.9,  earnMult: 1.05, tipNote: 'สายลับ Tsunami', spy: true },
 };
 
 export function pickCustomerType() {
+  // Debug force
+  if (G._debugForceCtype && CUSTOMER_TYPES[G._debugForceCtype]) {
+    return CUSTOMER_TYPES[G._debugForceCtype];
+  }
   // Early game = only regulars
   if (G.level < 3) return CUSTOMER_TYPES.regular;
   const spec = activeBranchSpec() || {};
   const roll = Math.random();
-  // Branch-weighted mix (weights are cumulative bands)
+  // Special types unlock later
+  let criticW = G.level >= 7 ? 0.05 : 0;
+  if (G.activeEvent === 'critic') criticW += 0.25;
+  if (G.storyFlags?.criticFriend) criticW *= 0.6; // friendlier world
+  let spyW = G.level >= 8 ? 0.04 : 0;
+  if (G.storyFlags?.rivalHate) spyW += 0.08;
+  if (G.storyFlags?.rivalPride) spyW += 0.02;
+  // Branch-weighted mix
   const influW = (spec.influW ?? 0.08) + (G.level >= 6 ? 0.04 : 0);
   const foodieW = (spec.foodieW ?? 0.12) + (G.level >= 4 ? 0.05 : 0);
   const touristW = (spec.touristW ?? 0.2) + (G.level >= 3 ? 0.08 : 0);
-  if (roll < influW) return CUSTOMER_TYPES.influencer;
-  if (roll < influW + foodieW) return CUSTOMER_TYPES.foodie;
-  if (roll < influW + foodieW + touristW) return CUSTOMER_TYPES.tourist;
+  let acc = 0;
+  acc += criticW; if (roll < acc) return CUSTOMER_TYPES.critic;
+  acc += spyW;    if (roll < acc) return CUSTOMER_TYPES.spy;
+  acc += influW;  if (roll < acc) return CUSTOMER_TYPES.influencer;
+  acc += foodieW; if (roll < acc) return CUSTOMER_TYPES.foodie;
+  acc += touristW; if (roll < acc) return CUSTOMER_TYPES.tourist;
   return CUSTOMER_TYPES.regular;
 }
 
@@ -275,9 +293,16 @@ export function spawnQueue() {
     G.tempQSizeUntil = 0;
   }
 
-  let size = G.qSize + (G.tempQSizeBonus || 0);
+  // Expire spy marketing nerf
+  if (G.tempMarketingUntil && Date.now() > G.tempMarketingUntil) {
+    G.tempMarketingNerf = 0;
+    G.tempMarketingUntil = 0;
+  }
+
+  let size = G.qSize + (G.tempQSizeBonus || 0) - (G.tempMarketingNerf || 0);
   const ev = activeEvent(G, EVENTS);
   if (ev?.queueDelta) size = Math.max(1, size + ev.queueDelta);
+  size = Math.max(1, size);
 
   const basePatience = getPatience();
 
@@ -297,6 +322,8 @@ export function spawnQueue() {
       typeBadge: ctype.badge,
       patienceMult: ctype.patienceMult,
       earnMult: ctype.earnMult,
+      missRating: ctype.missRating || null,
+      isSpy: !!ctype.spy,
     });
   }
 
@@ -325,13 +352,17 @@ export function tickAnger(custId) {
     if (!G.staffStreakGuard && !ev?.streakProtect) G.streak = 0;
     sfxAngry();
     G.missToday = (G.missToday || 0) + 1;
-    const isCritic   = G.activeEvent === 'critic';
-    const ratingLoss = ev?.missRatingLossOverride ?? BAL.missRatingLoss(G);
-    if (!G.staffCriticProof || !isCritic) {
+    const isCriticEv = G.activeEvent === 'critic';
+    const isCriticCust = c.ctype === 'critic';
+    let ratingLoss = ev?.missRatingLossOverride ?? BAL.missRatingLoss(G);
+    if (isCriticCust && c.missRating != null) ratingLoss = c.missRating;
+    if (isCriticCust && !G.staffCriticProof) ratingLoss = Math.min(ratingLoss, -10);
+    if (!G.staffCriticProof || !(isCriticEv || isCriticCust)) {
       G.rating = Math.max(0, G.rating + ratingLoss);
       spawnFE(ratingLoss + ' ⭐', true);
     }
-    toast('😤 ลูกค้าเดินออก!' + (isCritic && !G.staffCriticProof ? ' -8 Rating!!' : ''));
+    const harsh = (isCriticEv || isCriticCust) && !G.staffCriticProof;
+    toast('😤 ลูกค้าเดินออก!' + (harsh ? ' นักวิจารณ์โกรธ!' : '') + (c.isSpy ? ' 🕵️' : ''));
     updateUI();
 
     setTimeout(() => {
@@ -579,7 +610,22 @@ export function serve() {
   if (isDailySpecial(menuId)) spawnFE('⭐ Special!');
 
   if (orderMatch === true)  spawnFE('👍 สั่งตรง!');
-  if (orderMatch === false) { spawnFE('😕 ผิดเมนู', true); toast('😕 ลูกค้าสั่งคนละเมนู — รายได้ลด'); }
+  if (orderMatch === false) {
+    spawnFE('😕 ผิดเมนู', true);
+    toast('😕 ลูกค้าสั่งคนละเมนู — รายได้ลด');
+    // Rival spy sabotage
+    if (cust?.isSpy || cust?.ctype === 'spy') {
+      G.tempMarketingNerf = 1; // queue size -1
+      G.tempMarketingUntil = Date.now() + 60000;
+      G.qSize = Math.max(1, (G.qSize || 1) - 0); // visual only via spawn
+      toast('🕵️ สายลับ Tsunami! โฆษณาอ่อน 60 วิ (คิว −1)');
+      spawnFE('🕵️ sabotage', true);
+    }
+  }
+  if (cust?.ctype === 'critic' && orderMatch === true) {
+    toast('📰 นักวิจารณ์พอใจ!');
+    G.rating = Math.min(100, G.rating + 2);
+  }
   if (cust?.typeBadge && orderMatch === true) spawnFE(cust.typeBadge + ' tip!');
 
   if (G.rating >= 100) {

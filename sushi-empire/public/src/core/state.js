@@ -46,6 +46,8 @@ export function defaultState() {
     // Temporary boosts (influencer etc.)
     tempQSizeBonus: 0,
     tempQSizeUntil: 0,
+    tempMarketingNerf: 0,
+    tempMarketingUntil: 0,
     // Daily special: { dayKey, menuId, mult }
     dailySpecial: { dayKey: '', menuId: null, mult: 1.75 },
     // Quest counters beyond defaults

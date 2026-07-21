@@ -26,6 +26,12 @@ import { ensureRivalWeekly, renderRivalBanner, claimRivalReward } from './system
 import { ensureFishMarket, renderMarketBanner, tickSpoil } from './systems/market.js';
 import { runCoachSequence, dismissCoachTip } from './systems/coach.js';
 import { ensureBattlePass, renderBattlePass, claimBattlePassTier, claimAllBattlePass } from './systems/battlepass.js';
+import {
+  initDebug, openDebugPanel, closeDebugPanel, toggleDebugEnabled, debugCloseAndDisable,
+  debugGiveMoney, debugAddLevel, debugSetLevel, debugFillIng, debugSkipTime, debugForceEvent,
+  debugSpawnSpy, debugSpawnCriticCust, debugBpXp, debugMaxUpgrades, debugResetDay,
+} from './systems/debug.js';
+import { applyA11yClasses } from './systems/audio.js';
 import { ctxMgTap, ctxMgSkip } from './systems/context-mg.js';
 import { applyAllStaffBonuses, renderStaff, hireStaff, levelUpStaff, restStaff, fireStaff, unlockSkill } from './systems/staff.js';
 import { applyDecoBonus, buyDeco, unequipSlot } from './systems/decoration.js';
@@ -85,6 +91,8 @@ ensureFishMarket();
 renderMarketBanner();
 ensureBattlePass();
 renderBattlePass();
+applyA11yClasses();
+initDebug();
 updateEventForecastUI();
 connectNet().then(() => initSpectate()); // online LB + spectate handlers
 
@@ -165,6 +173,9 @@ Object.assign(window, {
   switchBranch, titleContinue, titleDeleteSave, titleNewGame, titleSettings,
   toggleSetting, unequipSlot, unlockSkill, dismissCoachTip,
   exportSaveFile, exportSaveCopy, importSaveFromText, importSaveFromFile,
+  toggleDebugEnabled, openDebugPanel, closeDebugPanel, debugCloseAndDisable,
+  debugGiveMoney, debugAddLevel, debugSetLevel, debugFillIng, debugSkipTime, debugForceEvent,
+  debugSpawnSpy, debugSpawnCriticCust, debugBpXp, debugMaxUpgrades, debugResetDay,
 });
 
 // Show title screen last (after everything is initialised)

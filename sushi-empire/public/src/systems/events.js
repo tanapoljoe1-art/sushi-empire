@@ -284,3 +284,26 @@ export function challengeVip() {
     onLose: (info) => finishVipPayout(info?.skipped ? 1 : 0.5),
   });
 }
+
+
+/** Debug / tests: force a named event by id */
+export function forceEvent(id) {
+  import('../core/state.js').then(({ G, save }) => {
+    import('../data.js').then(({ EVENTS }) => {
+      import('../ui/render.js').then(({ toast, updateUI }) => {
+        const def = EVENTS.find(e => e.id === id);
+        if (!def) { toast('ไม่พบ event ' + id); return; }
+        if (id === 'vip') {
+          triggerVIP();
+          return;
+        }
+        G.activeEvent = id;
+        G.eventTimeLeft = def.instant ? 0 : (def.dur || 60);
+        showEventBanner();
+        toast('Event: ' + (def.name || id));
+        updateUI();
+        save();
+      });
+    });
+  });
+}
