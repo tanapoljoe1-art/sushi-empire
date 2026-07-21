@@ -3,7 +3,7 @@
 // prestige. Event *triggering/lifecycle* lives in ./events.js — this file only
 // *reads* the active event's declarative data via core/effects.js, it never
 // hardcodes an event id.
-import { G, save, BAL, defaultState, resetForPrestige } from '../core/state.js';
+import { G, save, BAL, defaultState, resetForPrestige, applyUpgradeFxWithCaps } from '../core/state.js';
 import { MENUS, INGREDIENTS, BRANCHES, UPGRADES, ACHIEVEMENTS, EVENTS, FUSION_RECIPES, STAFF_DATA } from '../data.js';
 import { activeEvent } from '../core/effects.js';
 import { getEl } from '../core/dom.js';
@@ -787,15 +787,7 @@ export function buyUpgrade(id) {
 
 /** Reset derived upgrade fields, re-run all fx, then soft-cap stack totals. */
 export function reapplyUpgradeFx() {
-  G.speedMult = 1; G.autoServe = false; G.qSize = 1; G.patMult = 1; G.storageMult = 1;
-  G.autoChef = false; G.goldenBonus = 1; G.xpMult = 1; G.idleMult = 1;
-  G.perfectPad = 0; G.branchIdleBonus = 0;
-  UPGRADES.forEach(up => up.fx(G));
-  // Soft caps — keep late game from exploding via pure upgrade stacks
-  G.qSize = Math.min(BAL.maxQSize ?? 6, Math.max(1, G.qSize || 1));
-  G.speedMult = Math.min(BAL.maxSpeedMult ?? 3, Math.max(1, G.speedMult || 1));
-  G.storageMult = Math.min(BAL.maxStorageMult ?? 3, Math.max(1, G.storageMult || 1));
-  G.patMult = Math.min(BAL.maxPatMult ?? 3, Math.max(1, G.patMult || 1));
+  applyUpgradeFxWithCaps();
 }
 
 /** Respec all upgrades — refund 40%, costs 15% of total spent */
@@ -1052,8 +1044,10 @@ export function assignBranchManager(branchId, staffId) {
 export function showPrestModal() {
   if (G.level < 20) { toast('✕ ต้องการ Level 20 ขึ้นไป!'); return; }
   const nextLv = G.prestigeLevel + 1;
-  getEl('prestMA').innerText = `+${nextLv * 10}% รายได้ + Bonus อื่น`;
-  getEl('prestigeModal').classList.add('vis');
+  const nextPct = Math.round((prestigeIncomeMultAt(nextLv) - 1) * 100);
+  const el = getEl('prestMA');
+  if (el) el.innerText = `รายได้ +${nextPct}% (soft-cap) · ความเร็ว · ทุนเริ่ม · ★`;
+  getEl('prestigeModal')?.classList.add('vis');
 }
 
 export function closePrest() { getEl('prestigeModal').classList.remove('vis'); }

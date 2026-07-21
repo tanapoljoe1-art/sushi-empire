@@ -5,7 +5,16 @@ import { getEl, escapeHtml } from '../core/dom.js';
 import { toast, updateUI } from '../ui/render.js';
 
 export function initQuests() {
-  if (!G.quests) G.quests = { daily:{}, weekly:{}, lastDailyReset:0, lastWeeklyReset:0, activeDailyIds:[], activeWeeklyIds:[] };
+  if (!G.quests || typeof G.quests !== 'object') {
+    G.quests = { daily:{}, weekly:{}, lastDailyReset:0, lastWeeklyReset:0, activeDailyIds:[], activeWeeklyIds:[] };
+  }
+  if (!G.quests.daily || typeof G.quests.daily !== 'object') G.quests.daily = {};
+  if (!G.quests.weekly || typeof G.quests.weekly !== 'object') G.quests.weekly = {};
+  if (!Array.isArray(G.quests.activeDailyIds)) G.quests.activeDailyIds = [];
+  if (!Array.isArray(G.quests.activeWeeklyIds)) G.quests.activeWeeklyIds = [];
+  if (!Number.isFinite(G.quests.lastDailyReset)) G.quests.lastDailyReset = 0;
+  if (!Number.isFinite(G.quests.lastWeeklyReset)) G.quests.lastWeeklyReset = 0;
+
   const now    = Date.now();
   const dayMs  = 86400000;
   const weekMs = 604800000;
@@ -73,6 +82,8 @@ export function claimQuest(id, isWeekly) {
 /** Claim every ready daily + weekly quest at once. */
 export function claimAllReadyQuests() {
   initQuests();
+  if (!G.quests.daily) G.quests.daily = {};
+  if (!G.quests.weekly) G.quests.weekly = {};
   let n = 0;
   (G.quests.activeDailyIds || []).forEach(id => {
     const q = DAILY_POOL.find(x => x.id === id);
@@ -101,7 +112,8 @@ export function renderQuests() {
   initQuests();
   const msLeft = 86400000 - (Date.now() - G.quests.lastDailyReset);
   const h = Math.floor(msLeft / 3600000), m = Math.floor((msLeft % 3600000) / 60000);
-  getEl('questReset').innerText = `รีเซ็ตใน ${h}ชม ${m}น.`;
+  const resetEl = getEl('questReset');
+  if (resetEl) resetEl.innerText = `รีเซ็ตใน ${h}ชม ${m}น.`;
 
   const claimAllWrap = getEl('questClaimAllWrap');
   if (claimAllWrap) {
@@ -110,7 +122,9 @@ export function renderQuests() {
       : '';
   }
 
-  getEl('dailyQuests').innerHTML = G.quests.activeDailyIds.map(id => {
+  const dailyEl = getEl('dailyQuests');
+  if (!dailyEl) return;
+  dailyEl.innerHTML = (G.quests.activeDailyIds || []).map(id => {
     const q = DAILY_POOL.find(x => x.id === id); if (!q) return '';
     const cur     = Math.min(getQuestVal(q.field), q.target);
     const pct     = Math.round(cur / q.target * 100);
@@ -129,7 +143,9 @@ export function renderQuests() {
     </div>`;
   }).join('');
 
-  getEl('weeklyQuests').innerHTML = G.quests.activeWeeklyIds.map(id => {
+  const weeklyEl = getEl('weeklyQuests');
+  if (!weeklyEl) return;
+  weeklyEl.innerHTML = (G.quests.activeWeeklyIds || []).map(id => {
     const q = WEEKLY_POOL.find(x => x.id === id); if (!q) return '';
     const cur     = Math.min(getQuestVal(q.field), q.target);
     const pct     = Math.round(cur / q.target * 100);
@@ -172,11 +188,15 @@ export function getQuestVal(field) {
 // Quest state is stored as 'claimed' or undefined — never as {done, claimed}
 export function hasUnclaimedQuests() {
   if (!G.quests) return false;
-  const dailyReady  = G.quests.activeDailyIds.some(id => {
+  const dailyIds = G.quests.activeDailyIds || [];
+  const weeklyIds = G.quests.activeWeeklyIds || [];
+  if (!G.quests.daily) G.quests.daily = {};
+  if (!G.quests.weekly) G.quests.weekly = {};
+  const dailyReady  = dailyIds.some(id => {
     const q = DAILY_POOL.find(x => x.id === id);
     return q && getQuestVal(q.field) >= q.target && G.quests.daily[id] !== 'claimed';
   });
-  const weeklyReady = G.quests.activeWeeklyIds.some(id => {
+  const weeklyReady = weeklyIds.some(id => {
     const q = WEEKLY_POOL.find(x => x.id === id);
     return q && getQuestVal(q.field) >= q.target && G.quests.weekly[id] !== 'claimed';
   });

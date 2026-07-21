@@ -1,3 +1,27 @@
+# Handoff — Sushi Empire (2026-07-21, รอบ 20.1 bugfix audit)
+
+## State
+- **version:** `1.6.1` (bugfix after deep audit)
+- Previous feature: 1.6.0 situational caps / fusion cookbook
+
+### Bugs fixed in audit
+1. **load idle used uncapped upgrades** — `applyUpgradeFxWithCaps()` now runs inside `load()` before AFK idle pay
+2. **initQuests crash** on missing/null `activeDailyIds` / `daily:null` (corrupted save)
+3. **hasUnclaimedQuests / renderQuests** null-safe
+4. **showPrestModal** showed wrong flat +10%×lv text (now soft-cap curve)
+5. **Spectate XSS** — host name in snapshot panel now `escapeHtml`
+6. **Server chat/reaction** strip `<>` and cap emoji length
+7. **updateUI** null-safe getEl (no throw if HUD node missing)
+
+### Audit suite (Playwright) — 18/18 pass
+load, version, soft-caps q/speed/idle/golden, staff 0.85, deco 0.50, corrupt quests, ach 35/secret 14, mobile overflow, settings stats, prestige ETA, fusion hints+clue, earn preview, no fatal errors
+
+### Open
+- Render Manual Deploy after push
+
+
+---
+
 # Handoff — Sushi Empire (2026-07-21, รอบ 20)
 
 ## Paths

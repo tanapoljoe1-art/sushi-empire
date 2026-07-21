@@ -271,7 +271,11 @@ function normalizeLoadedState(parsed) {
   if (!G.fusion) G.fusion = { discovered:[], newDisc:[] };
   if (!G.storyData) G.storyData = { seenChapters:{}, pendingChapters:[] };
   if (!G.mgHighScores) G.mgHighScores = { rhythm:null, fish:null, memory:null };
-  if (!G.quests) G.quests = defaultState().quests;
+  if (!G.quests || typeof G.quests !== 'object') G.quests = defaultState().quests;
+  if (!G.quests.daily || typeof G.quests.daily !== 'object') G.quests.daily = {};
+  if (!G.quests.weekly || typeof G.quests.weekly !== 'object') G.quests.weekly = {};
+  if (!Array.isArray(G.quests.activeDailyIds)) G.quests.activeDailyIds = [];
+  if (!Array.isArray(G.quests.activeWeeklyIds)) G.quests.activeWeeklyIds = [];
   if (!G.qDaily) G.qDaily = defaultState().qDaily;
   else G.qDaily = { ...defaultState().qDaily, ...G.qDaily };
   if (!G.qWeekly) G.qWeekly = defaultState().qWeekly;
@@ -316,6 +320,21 @@ export function save() {
   localStorage.setItem(SAVE_KEY, JSON.stringify(G));
 }
 
+/**
+ * Reset derived upgrade fields, run every upgrade fx, then hard soft-caps.
+ * Shared by load() and game.reapplyUpgradeFx() so AFK idle and live play match.
+ */
+export function applyUpgradeFxWithCaps() {
+  G.speedMult = 1; G.autoServe = false; G.qSize = 1; G.patMult = 1; G.storageMult = 1;
+  G.autoChef = false; G.goldenBonus = 1; G.xpMult = 1; G.idleMult = 1;
+  G.perfectPad = 0; G.branchIdleBonus = 0;
+  UPGRADES.forEach(u => u.fx(G));
+  G.qSize = Math.min(BAL.maxQSize ?? 6, Math.max(1, G.qSize || 1));
+  G.speedMult = Math.min(BAL.maxSpeedMult ?? 3, Math.max(1, G.speedMult || 1));
+  G.storageMult = Math.min(BAL.maxStorageMult ?? 3, Math.max(1, G.storageMult || 1));
+  G.patMult = Math.min(BAL.maxPatMult ?? 3, Math.max(1, G.patMult || 1));
+}
+
 export function load() {
   const raw = localStorage.getItem(SAVE_KEY);
   if (!raw) return;
@@ -325,15 +344,16 @@ export function load() {
     const prevVer = Number(parsed.saveVersion) || 1;
     normalizeLoadedState(parsed);
 
-    // Re-apply upgrade effects
-    UPGRADES.forEach(u => u.fx(G));
+    // Re-apply upgrade effects THEN soft-caps before idle math (idle used to
+    // run on uncapped stacks if caps were only applied later in main.js)
+    applyUpgradeFxWithCaps();
 
     // Persist migrations immediately so next load sees current SAVE_VERSION
     if (prevVer < SAVE_VERSION) {
       localStorage.setItem(SAVE_KEY, JSON.stringify(G));
     }
 
-    // Idle earnings while away
+    // Idle earnings while away (after caps so AFK pay matches live balance)
     const elapsed = (Date.now() - G.lastSave) / 1000;
     if (elapsed > 30 && G.autoChef) {
       _applyIdleEarnings(elapsed);

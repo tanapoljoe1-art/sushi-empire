@@ -130,7 +130,12 @@ io.on('connection', (socket) => {
   socket.on('reaction', ({ emoji }) => {
     const room = rooms.get(socket.roomCode);
     if (!room || room.host === socket.id) return;
-    io.to(socket.roomCode).emit('reaction', { name: socket.viewerName || 'ผู้ชม', emoji: emoji || '👏' });
+    // Only allow short emoji / symbol (block HTML/scripts)
+    const cleanEmoji = String(emoji ?? '👏').replace(/[<>&"'`]/g, '').slice(0, 8) || '👏';
+    io.to(socket.roomCode).emit('reaction', {
+      name: socket.viewerName || 'ผู้ชม',
+      emoji: cleanEmoji,
+    });
   });
 
   socket.on('chat', ({ msg }) => {
@@ -138,7 +143,13 @@ io.on('connection', (socket) => {
     const room = rooms.get(code);
     if (!room || !msg?.trim()) return;
     const isHost = room.host === socket.id;
-    io.to(code).emit('chat', { name: isHost ? room.hostName : (socket.viewerName || 'ผู้ชม'), msg: msg.trim().slice(0, 60), isHost });
+    const cleanMsg = String(msg).trim().slice(0, 60).replace(/[<>]/g, '');
+    if (!cleanMsg) return;
+    io.to(code).emit('chat', {
+      name: isHost ? room.hostName : (socket.viewerName || 'ผู้ชม'),
+      msg: cleanMsg,
+      isHost,
+    });
   });
 
   socket.on('submitScore', ({ name, score, level, served, prestige, money, day }) => {

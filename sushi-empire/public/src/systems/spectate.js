@@ -129,11 +129,11 @@ function applySpectatorView(snapshot) {
   const panel = getEl('spectatePanel');
   if (!panel) return;
   panel.innerHTML = `
-    <div class="sp-big">${snapshot.playerName || 'เชฟ'}</div>
+    <div class="sp-big">${escapeHtml(snapshot.playerName || 'เชฟ')}</div>
     <div class="sp-stats">
       <div><span>เงิน</span><b>${(snapshot.money || 0).toLocaleString()}฿</b></div>
-      <div><span>Level</span><b>${snapshot.level || 1}</b></div>
-      <div><span>Streak</span><b>${snapshot.streak || 0}</b></div>
+      <div><span>Level</span><b>${Number(snapshot.level) || 1}</b></div>
+      <div><span>Streak</span><b>${Number(snapshot.streak) || 0}</b></div>
       <div><span>เสิร์ฟ</span><b>${snapshot.served || 0}</b></div>
       <div><span>คิว</span><b>${snapshot.queueLen || 0}</b></div>
       <div><span>เมนู</span><b>${snapshot.menu || '—'}</b></div>

@@ -95,18 +95,22 @@ export function spawnFE(txt, bad = false) {
 }
 
 export function updateUI() {
-  getEl('money').innerText   = G.money.toLocaleString();
-  getEl('rating').innerText  = G.rating;
-  getEl('prestige').innerText= G.prestigeLevel;
-  getEl('rval').innerText    = G.rating;
-  getEl('lvlDisplay').innerText = G.level;
-  getEl('bfill').style.width = G.rating + '%';
-  getEl('sbadge').innerText  = G.streak >= 5 ? '🔥 Streak x' + G.streak : '';
-  getEl('prestbadge').style.display = G.prestigeLevel > 0 ? '' : 'none';
-  getEl('idleBadge').style.display  = G.autoChef ? 'flex' : 'none';
+  const setTxt = (id, v) => { const el = getEl(id); if (el) el.innerText = v; };
+  setTxt('money', Number(G.money || 0).toLocaleString());
+  setTxt('rating', G.rating);
+  setTxt('prestige', G.prestigeLevel);
+  setTxt('rval', G.rating);
+  setTxt('lvlDisplay', G.level);
+  const fill = getEl('bfill');
+  if (fill) fill.style.width = (G.rating || 0) + '%';
+  setTxt('sbadge', G.streak >= 5 ? '🔥 Streak x' + G.streak : '');
+  const pb = getEl('prestbadge');
+  if (pb) pb.style.display = G.prestigeLevel > 0 ? '' : 'none';
+  const idle = getEl('idleBadge');
+  if (idle) idle.style.display = G.autoChef ? 'flex' : 'none';
 
   const br = BRANCHES.find(b => b.id === G.activeBranch);
-  getEl('branchName').innerText = br ? br.name : 'หลัก';
+  setTxt('branchName', br ? br.name : 'หลัก');
   const rh = getEl('rhRwd');
   if (rh) rh.innerText = 'รางวัล: +' + (200 + G.level * 25) + '฿';
 
