@@ -1,0 +1,18 @@
+name: Deploy to Render
+
+# Render's own GitHub-App auto-deploy has been unreliable for this repo (pushes
+# to main don't trigger a build even with Auto-Deploy set to "On Commit" and
+# the repo reconnected through Render's GitHub picker). This workflow calls
+# Render's private Deploy Hook URL directly on every push to main, bypassing
+# that integration entirely.
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deploy
+        run: curl -fsS "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
