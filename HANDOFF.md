@@ -58,3 +58,4 @@ load, version, soft-caps q/speed/idle/golden, staff 0.85, deco 0.50, corrupt que
 cd /Users/noblemonobluefin/projects/sushi-empire-review/sushi-empire
 node server.js && npx vite build
 ```
+
