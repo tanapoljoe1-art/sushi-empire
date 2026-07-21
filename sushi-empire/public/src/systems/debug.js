@@ -69,10 +69,17 @@ export function initDebug() {
     logo.addEventListener('pointerup', end);
     logo.addEventListener('pointerleave', end);
   }
-  // Keyboard: Ctrl+Shift+D
+  // Keyboard cheats
   if (!window._debugKey) {
     window._debugKey = true;
     window.addEventListener('keydown', (e) => {
+      // F1 = +100,000฿ each press
+      if (e.key === 'F1' || e.code === 'F1') {
+        e.preventDefault();
+        debugGiveMoney(100000);
+        return;
+      }
+      // Ctrl+Shift+D = open debug panel
       if (e.ctrlKey && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
         e.preventDefault();
         setDebugEnabled(true);
@@ -96,7 +103,7 @@ function panelEl() {
     <div class="debug-grid">
       <button type="button" onclick="debugGiveMoney(1000)">+1k ฿</button>
       <button type="button" onclick="debugGiveMoney(10000)">+10k ฿</button>
-      <button type="button" onclick="debugGiveMoney(100000)">+100k ฿</button>
+      <button type="button" onclick="debugGiveMoney(100000)">+100k ฿ (F1)</button>
       <button type="button" onclick="debugAddLevel(1)">+1 Lv</button>
       <button type="button" onclick="debugAddLevel(5)">+5 Lv</button>
       <button type="button" onclick="debugSetLevel(20)">Lv.20</button>
