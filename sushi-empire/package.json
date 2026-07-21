@@ -9,7 +9,8 @@
     "dev:server": "node server.js",
     "dev:client": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:deep": "node scripts/deep-test.mjs"
   },
   "dependencies": {
     "express": "^4.18.2",

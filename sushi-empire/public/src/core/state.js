@@ -268,7 +268,9 @@ function normalizeLoadedState(parsed) {
   if (!G.upgTreeFilter) G.upgTreeFilter = 'all';
   G.perfectPad = G.perfectPad || 0;
   G.branchIdleBonus = G.branchIdleBonus || 0;
-  if (!G.fusion) G.fusion = { discovered:[], newDisc:[] };
+  if (!G.fusion || typeof G.fusion !== 'object') G.fusion = { discovered:[], newDisc:[] };
+  if (!Array.isArray(G.fusion.discovered)) G.fusion.discovered = [];
+  if (!Array.isArray(G.fusion.newDisc)) G.fusion.newDisc = [];
   if (!G.storyData) G.storyData = { seenChapters:{}, pendingChapters:[] };
   if (!G.mgHighScores) G.mgHighScores = { rhythm:null, fish:null, memory:null };
   if (!G.quests || typeof G.quests !== 'object') G.quests = defaultState().quests;

@@ -183,7 +183,7 @@ Object.assign(window, {
   openSpectateModal, openStoryPing, pauseNewGame, pauseSettings, pauseToTitle, pickFusionIng,
   respecUpgrades, restStaff, rhTap, setUpgTreeFilter, savePlayerName, selMenu, selectMG, sendReaction, sendSpectateChat, serve, setLbMode, showPrestModal,
   startMemory, startSlice, storyChoose, storyTapOutside, submitScore,
-  switchBranch, titleContinue, titleDeleteSave, titleNewGame, titleSettings, openAchFromTitle,
+  switchBranch, titleContinue, titleDeleteSave, titleNewGame, titleSettings, initTitleScreen, openAchFromTitle,
   openSettings, closeSettings, refreshPlayStats, resetPlayStats, openAchFromSettings,
   toggleSetting, unequipSlot, unlockSkill, dismissCoachTip,
   exportSaveFile, exportSaveCopy, importSaveFromText, importSaveFromFile,
