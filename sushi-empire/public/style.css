@@ -572,6 +572,10 @@ nav{ display:none; } /* hide old nav — keep for goTab compat */
 /* ── QUESTS ── */
 .quest-card{background:var(--glass);border:1px solid var(--rim);border-radius:16px;padding:13px;margin-bottom:8px;position:relative;overflow:hidden;}
 .quest-card.done{border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.04);}
+.quest-card.ready{border-color:rgba(232,196,106,.55);box-shadow:0 0 14px rgba(232,196,106,.12);}
+.quest-claim-all-wrap{margin:0 0 10px}
+.quest-claim-all{width:100%;padding:10px;border:none;border-radius:12px;background:linear-gradient(135deg,#c45c26,#e8a44a);color:#1a0e00;font-weight:900;font-size:12px;font-family:'Noto Sans Thai',sans-serif;cursor:pointer}
+.quest-claim-all:active{transform:scale(.98)}
 .quest-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
 .quest-icon{font-size:24px;}
 .quest-info{flex:1;}

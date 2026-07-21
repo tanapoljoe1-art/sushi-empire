@@ -1,5 +1,5 @@
 // ── Staff system ──────────────────────────────────────────────────────────────
-import { G, save } from '../core/state.js';
+import { G, save, BAL } from '../core/state.js';
 import { STAFF_DATA, CHEMISTRY, RARITY_COLOR } from '../data.js';
 import { getEl } from '../core/dom.js';
 import { toast, updateUI } from '../ui/render.js';
@@ -44,6 +44,11 @@ export function applyAllStaffBonuses() {
 
   if (G.staffLeaderBonus) G.staffIncomeBonus += hiredIds.length * 0.03;
   applyChemistry(hiredIds);
+
+  // Soft-cap stacked staff bonuses so full roster + chemistry doesn't explode earn
+  G.staffIncomeBonus = Math.min(BAL.maxStaffIncome ?? 0.85, Math.max(0, G.staffIncomeBonus || 0));
+  G.staffSpeedBonus  = Math.min(BAL.maxStaffSpeed  ?? 0.70, Math.max(0, G.staffSpeedBonus  || 0));
+  G.staffPatBonus    = Math.min(BAL.maxStaffPat    ?? 0.90, Math.max(0, G.staffPatBonus    || 0));
 }
 
 export function applyChemistry(hiredIds) {

@@ -1,38 +1,37 @@
-# Handoff — Sushi Empire (2026-07-21, รอบ 18)
+# Handoff — Sushi Empire (2026-07-21, รอบ 19)
 
 ## Paths
-- Working: `/Users/noblemonobluefin/projects/sushi-empire-review/` · code in `sushi-empire/`
+- Working: `/Users/noblemonobluefin/projects/sushi-empire-review/` · `sushi-empire/`
 - GitHub: `tanapoljoe1-art/sushi-empire` · `main`
 - Live: `sushi-empire.onrender.com` · Root Directory = `sushi-empire`
-- **อย่าใช้** `~/sushi-empire`
+- อย่าใช้ `~/sushi-empire`
 
 ## State
-- **version:** `1.4.0`
+- **version:** `1.5.0`
 - **HEAD:** ดู `git log -1`
 
-### Done รอบ 18
-1. **Empire soft-caps**
-   - kitchen diminishing rates · express +6% (was 8%)
-   - franchise idle **x1.75** (was x2) · outpost **+12%/lv** (was 15%)
-   - storage/patience slightly softer
-   - hard caps: `qSize≤6`, `speedMult≤3`, storage/pat ≤3 via `reapplyUpgradeFx()`
-2. **UX**
-   - Settings: 🏆 ความสำเร็จ · ↻ รีเฟรช · ล้างสถิติ
-   - `openSettings` บน `window`
-   - floating text (spawnFE) max 6 concurrent
-3. Load path เรียก `reapplyUpgradeFx()` หลัง load
+### Done รอบ 19
+1. **Staff soft-caps** — income ≤+85%, speed ≤+70%, patience ≤+90% หลัง chemistry/skills
+2. **Deco soft-caps** — income ≤+50%, patience ≤+80%, rating ≤+40%
+3. **Prestige mult soft-curve** — +10%×5 แล้ว +6%/+3% cap ×2.6; speed bonus cap 45%; `recomputePrestigeMult()` ตอน load
+4. **Quest UX** — การ์ด `.ready` · ปุ่ม **รับทั้งหมดที่พร้อม** · claim กัน claim ก่อนครบเป้า
+5. Earn breakdown แสดง `≈` ใกล้ soft-cap · stats โชว์ทีม/ตกแต่ง %
+
+### Smoke
+- full roster → staff income **85%** (cap)
+- claim-all quests: ready→0, no errors
+- vite build ผ่าน
 
 ### Open
-- Render auto-deploy ยังพัง → **Manual Deploy** ทุกครั้งหลัง push
+- Render auto-deploy ยังพัง → **Manual Deploy** หลัง push
 
 ## Next
-1. Manual deploy + เช็ค v1.4.0 บน title
-2. Staff income stack soft-cap ถ้ายังระเบิด
-3. UX เล็ก / bug bash ต่อ
+1. Manual deploy + เช็ค v1.5.0
+2. Soft-cap situational mults (omakase/premium/event) ถ้ายังรู้สึกระเบิด
+3. UX เล็ก / content
 
 ## Dev
 ```bash
 cd /Users/noblemonobluefin/projects/sushi-empire-review/sushi-empire
-node server.js
-npx vite build
+node server.js && npx vite build
 ```

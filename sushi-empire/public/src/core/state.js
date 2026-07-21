@@ -51,6 +51,11 @@ export const BAL = {
   maxSpeedMult: 3.0,
   maxStorageMult: 3.0,
   maxPatMult: 3.0,
+  // Staff / deco income soft caps (additive bonuses before ×earn)
+  maxStaffIncome: 0.85,  // +85%
+  maxStaffSpeed: 0.70,
+  maxStaffPat: 0.90,
+  maxDecoIncome: 0.50,   // +50% from décor (staff deco mult already clamps to 0.55)
 };
 
 export function defaultState() {

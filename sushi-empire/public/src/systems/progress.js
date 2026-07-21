@@ -61,11 +61,39 @@ export function claimQuest(id, isWeekly) {
   if (!q) return;
   const qstate = isWeekly ? G.quests.weekly : G.quests.daily;
   if (qstate[id] === 'claimed') { toast('รับแล้ว!'); return; }
+  if (getQuestVal(q.field) < q.target) { toast('ยังไม่ครบเป้า'); return; }
   applyQuestRewards(q);
   qstate[id] = 'claimed';
   toast('🎉 Quest สำเร็จ! ' + formatQuestReward(q));
   const cv = getEl('money');
   cv.classList.remove('pop'); void cv.offsetWidth; cv.classList.add('pop');
+  updateUI(); renderQuests(); save();
+}
+
+/** Claim every ready daily + weekly quest at once. */
+export function claimAllReadyQuests() {
+  initQuests();
+  let n = 0;
+  (G.quests.activeDailyIds || []).forEach(id => {
+    const q = DAILY_POOL.find(x => x.id === id);
+    if (!q || G.quests.daily[id] === 'claimed') return;
+    if (getQuestVal(q.field) < q.target) return;
+    applyQuestRewards(q);
+    G.quests.daily[id] = 'claimed';
+    n++;
+  });
+  (G.quests.activeWeeklyIds || []).forEach(id => {
+    const q = WEEKLY_POOL.find(x => x.id === id);
+    if (!q || G.quests.weekly[id] === 'claimed') return;
+    if (getQuestVal(q.field) < q.target) return;
+    applyQuestRewards(q);
+    G.quests.weekly[id] = 'claimed';
+    n++;
+  });
+  if (!n) { toast('ยังไม่มีเควสที่รับได้'); return; }
+  toast(`🎉 รับ ${n} เควสแล้ว!`);
+  const cv = getEl('money');
+  if (cv) { cv.classList.remove('pop'); void cv.offsetWidth; cv.classList.add('pop'); }
   updateUI(); renderQuests(); save();
 }
 
@@ -75,21 +103,29 @@ export function renderQuests() {
   const h = Math.floor(msLeft / 3600000), m = Math.floor((msLeft % 3600000) / 60000);
   getEl('questReset').innerText = `รีเซ็ตใน ${h}ชม ${m}น.`;
 
+  const claimAllWrap = getEl('questClaimAllWrap');
+  if (claimAllWrap) {
+    claimAllWrap.innerHTML = hasUnclaimedQuests()
+      ? `<button type="button" class="quest-claim-all" onclick="claimAllReadyQuests()">🎁 รับทั้งหมดที่พร้อม</button>`
+      : '';
+  }
+
   getEl('dailyQuests').innerHTML = G.quests.activeDailyIds.map(id => {
     const q = DAILY_POOL.find(x => x.id === id); if (!q) return '';
     const cur     = Math.min(getQuestVal(q.field), q.target);
     const pct     = Math.round(cur / q.target * 100);
     const done    = cur >= q.target;
     const claimed = G.quests.daily[id] === 'claimed';
-    return `<div class="quest-card ${claimed ? 'done' : ''}">
+    const ready   = done && !claimed;
+    return `<div class="quest-card ${claimed ? 'done' : ''} ${ready ? 'ready' : ''}">
       <div class="quest-head">
         <div class="quest-icon">${q.emoji}</div>
         <div class="quest-info"><div class="quest-name">${q.name}</div><div class="quest-reward">${formatQuestReward(q)}</div></div>
-        ${claimed ? '<div style="font-size:20px">✅</div>' : ''}
+        ${claimed ? '<div style="font-size:20px">✅</div>' : ready ? '<div style="font-size:18px">🎁</div>' : ''}
       </div>
       <div class="quest-prog"><div class="quest-fill" style="width:${pct}%"></div></div>
       <div class="quest-progtext">${cur}/${q.target}</div>
-      ${done && !claimed ? `<button class="quest-claim" onclick="claimQuest('${id}',false)" style="margin-top:8px">รับรางวัล!</button>` : ''}
+      ${ready ? `<button class="quest-claim" onclick="claimQuest('${id}',false)" style="margin-top:8px">รับรางวัล!</button>` : ''}
     </div>`;
   }).join('');
 
@@ -99,16 +135,17 @@ export function renderQuests() {
     const pct     = Math.round(cur / q.target * 100);
     const done    = cur >= q.target;
     const claimed = G.quests.weekly[id] === 'claimed';
-    return `<div class="quest-card ${claimed ? 'done' : ''}">
+    const ready   = done && !claimed;
+    return `<div class="quest-card ${claimed ? 'done' : ''} ${ready ? 'ready' : ''}">
       <div class="weekly-badge">📅 Weekly</div>
       <div class="quest-head">
         <div class="quest-icon">${q.emoji}</div>
         <div class="quest-info"><div class="quest-name">${q.name}</div><div class="quest-reward">${formatQuestReward(q)}</div></div>
-        ${claimed ? '<div style="font-size:20px">✅</div>' : ''}
+        ${claimed ? '<div style="font-size:20px">✅</div>' : ready ? '<div style="font-size:18px">🎁</div>' : ''}
       </div>
       <div class="quest-prog"><div class="quest-fill" style="width:${pct}%"></div></div>
       <div class="quest-progtext">${cur}/${q.target}</div>
-      ${done && !claimed ? `<button class="quest-claim" onclick="claimQuest('${id}',true)" style="margin-top:8px">รับรางวัล!</button>` : ''}
+      ${ready ? `<button class="quest-claim" onclick="claimQuest('${id}',true)" style="margin-top:8px">รับรางวัล!</button>` : ''}
     </div>`;
   }).join('');
 }

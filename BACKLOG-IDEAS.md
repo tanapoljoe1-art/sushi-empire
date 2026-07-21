@@ -178,6 +178,13 @@
 - [x] Settings: เปิด ach / รีเฟรช / ล้างสถิติ · openSettings on window  
 - [x] spawnFE cap 6 · version 1.4.0  
 
+## รอบ 19 — Staff/deco/prestige soft-cap + quest claim-all (2026-07-21)
+- [x] staff income/speed/pat caps  
+- [x] deco income/pat/rating caps  
+- [x] prestige mult curve + recompute on load  
+- [x] claim all ready quests · ready highlight  
+- [x] version → 1.5.0  
+
 ### ยังค้าง (infra + ต่อ)
 - [ ] **Render auto-deploy** — Connect มือ / Manual deploy หลัง push  
 
@@ -186,8 +193,8 @@
 # 🔜 คิวถัดไป (แนะนำทำตามลำดับ)
 
 1. Manual deploy บน Render + live smoke  
-2. Staff income soft-cap ถ้ายังระเบิด  
-3. Bug bash / UX เล็ก  
+2. Soft-cap situational mults ถ้ายังระเบิด  
+3. Content / UX เล็ก  
 
 
 ---

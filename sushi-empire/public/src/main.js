@@ -17,6 +17,7 @@ import {
 import {
   assignBranchManager, cook, serve, buyIngredient, buyUpgrade, respecUpgrades, setUpgTreeFilter,
   buyBranch, switchBranch, showPrestModal, closePrest, doPrestige, closeAch, spawnQueue, reapplyUpgradeFx,
+  recomputePrestigeMult,
 } from './systems/game.js';
 import { closeEvent, closeVip, challengeVip, tickEventScheduler, updateEventForecastUI, chooseEventOption, hostFestival, renderEventLog, renderFestivalBtn } from './systems/events.js';
 import { refreshUnlockUI, markExistingUnlocksSeen } from './systems/unlocks.js';
@@ -37,7 +38,7 @@ import { initTelemetry } from './systems/telemetry.js';
 import { ctxMgTap, ctxMgSkip } from './systems/context-mg.js';
 import { applyAllStaffBonuses, renderStaff, hireStaff, levelUpStaff, restStaff, fireStaff, unlockSkill } from './systems/staff.js';
 import { applyDecoBonus, buyDeco, unequipSlot } from './systems/decoration.js';
-import { initQuests, claimQuest, submitScore, savePlayerName, setLbMode } from './systems/progress.js';
+import { initQuests, claimQuest, claimAllReadyQuests, submitScore, savePlayerName, setLbMode } from './systems/progress.js';
 import { initStory, checkStoryTriggers, openStoryPing, storyChoose, storyTapOutside } from './systems/story.js';
 import { initFusion, doFusion, pickFusionIng, clearFusionSlot } from './systems/fusion.js';
 import { selectMG, rhTap, startSlice, startMemory } from './systems/minigames.js';
@@ -73,6 +74,7 @@ load();
 
 // Re-run upgrade fx + soft caps after load (kitchen diminishing, qSize cap, etc.)
 reapplyUpgradeFx();
+recomputePrestigeMult();
 applyAllStaffBonuses();
 applyDecoBonus();
 applyPrestigeShop();
@@ -174,7 +176,7 @@ setInterval(() => syncBgmToGame(G), 4000);
 // grep in sync; a name missing here throws ReferenceError only when a player
 // clicks that exact button, not at load time.
 Object.assign(window, {
-  applyPrestigeSkin, assignBranchManager, bnavDrawer, bnavGo, buyBranch, buyDeco, buyIngredient, buyPrestigeItem, buyUpgrade, buyPremiumPass, claimAllBattlePass, claimBattlePassTier, claimPremiumTier, claimQuest,
+  applyPrestigeSkin, assignBranchManager, bnavDrawer, bnavGo, buyBranch, buyDeco, buyIngredient, buyPrestigeItem, buyUpgrade, buyPremiumPass, claimAllBattlePass, claimBattlePassTier, claimPremiumTier, claimQuest, claimAllReadyQuests,
   challengeVip, claimRivalReward, clearFusionSlot, closeAch, closeConfirm, closeDrawer, chooseEventOption, closeEvent, closeIdle,
   closePause, closePrest, closeSettings, closeSpectateModal, closeVip, confirmOk, cook, ctxMgSkip, ctxMgTap, doFusion,
   doPrestige, drawerGo, fireStaff, goTab, hireStaff, hostFestival, hostFromModal, joinFromModal, leaveSpectateRoom, levelUpStaff, openPause,

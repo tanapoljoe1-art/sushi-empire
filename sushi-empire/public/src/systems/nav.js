@@ -324,10 +324,13 @@ export function renderPlayStats() {
   const el = getEl('playStatsLine');
   if (!el) return;
   const achN = Object.keys(G.ach || {}).length;
+  const staffPct = Math.round((G.staffIncomeBonus || 0) * 100);
+  const decoPct = Math.round((G.decoIncomeBonus || 0) * 100);
   const base = [
     `ร้าน Lv.${G.level} · Prestige ${G.prestigeLevel || 0} · เสิร์ฟ ${G.served || 0}`,
     `Perfect ${G.perfectCount || 0} · สั่งตรง ${G.orderMatchCount || 0} · 🏆 ${achN}`,
-    `เงิน ${Number(G.money || 0).toLocaleString()}฿ · Streak สูงสุด match ${G.maxOrderMatchStreak || 0}`,
+    `เงิน ${Number(G.money || 0).toLocaleString()}฿ · ทีม+${staffPct}% · ตกแต่ง+${decoPct}%`,
+    `รายได้ Prestige x${(G.prestigeIncomeMult || 1).toFixed(2)} · match chain ${G.maxOrderMatchStreak || 0}`,
   ];
   import('./telemetry.js').then(m => {
     const s = m.getTelemetrySummary();

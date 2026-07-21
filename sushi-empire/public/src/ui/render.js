@@ -287,8 +287,16 @@ export function updateEarnPreview() {
     parts.push(`ฐาน ${m.price}`);
     parts.push(`×Lv${G.level}`);
     if ((G.goldenBonus || 1) > 1) parts.push(`🏆x${(G.goldenBonus || 1).toFixed(1)}`);
-    if ((G.staffIncomeBonus || 0) > 0) parts.push(`ทีม+${Math.round(G.staffIncomeBonus * 100)}%`);
-    if ((G.decoIncomeBonus || 0) > 0) parts.push(`ตกแต่ง+${Math.round(G.decoIncomeBonus * 100)}%`);
+    if ((G.staffIncomeBonus || 0) > 0) {
+      const pct = Math.round(G.staffIncomeBonus * 100);
+      const capped = pct >= Math.round((0.85) * 100) - 1;
+      parts.push(`ทีม+${pct}%${capped ? '≈' : ''}`);
+    }
+    if ((G.decoIncomeBonus || 0) > 0) {
+      const pct = Math.round(G.decoIncomeBonus * 100);
+      const capped = pct >= 49;
+      parts.push(`ตกแต่ง+${pct}%${capped ? '≈' : ''}`);
+    }
     if (orderMatch === true) parts.push('ออเดอร์✓');
     if (orderMatch === false) parts.push('ออเดอร์✗');
     if (front?.ctype && front.ctype !== 'regular') parts.push(front.typeBadge || front.ctype);

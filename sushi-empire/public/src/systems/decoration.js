@@ -1,5 +1,5 @@
 // ── Decorations system (multi-slot + set bonuses) ─────────────────────────────
-import { G, save, DECO_SLOTS } from '../core/state.js';
+import { G, save, DECO_SLOTS, BAL } from '../core/state.js';
 import { DECO_DATA, DECO_SLOT_LABEL, DECO_SETS } from '../data.js';
 import { getEl } from '../core/dom.js';
 import { toast, updateUI } from '../ui/render.js';
@@ -48,9 +48,15 @@ export function applyDecoBonus() {
   if (G.staffDecoBonus) {
     const m = G.staffDecoMult || 1.2;
     G.decoRatingBonus  *= m;
-    G.decoIncomeBonus   = Math.min(0.55, G.decoIncomeBonus * m);
+    G.decoIncomeBonus   = G.decoIncomeBonus * m;
     G.decoPatienceBonus *= m;
   }
+
+  // Soft-cap décor income (even with artist mult + set bonuses)
+  const cap = BAL.maxDecoIncome ?? 0.50;
+  G.decoIncomeBonus = Math.min(cap, Math.max(0, G.decoIncomeBonus || 0));
+  G.decoPatienceBonus = Math.min(0.80, Math.max(0, G.decoPatienceBonus || 0));
+  G.decoRatingBonus = Math.min(0.40, Math.max(0, G.decoRatingBonus || 0));
 
   // Compat: equipped = first filled slot (for older UI / prestige)
   G.deco.equipped = equipped[0] || null;

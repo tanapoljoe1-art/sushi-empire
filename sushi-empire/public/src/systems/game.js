@@ -1030,8 +1030,14 @@ export function closePrest() { getEl('prestigeModal').classList.remove('vis'); }
 export function doPrestige() {
   getEl('prestigeModal').classList.remove('vis');
   G.prestigeLevel++;
-  G.prestigeIncomeMult = 1 + G.prestigeLevel * 0.1;
-  G.prestigeSpeedBonus = G.prestigeLevel * 0.05;
+  // Soft-cap prestige income: +10%/lv for first 5, then +6%, floor soft at ~2.5×
+  {
+    const p = G.prestigeLevel;
+    let mult = 1;
+    for (let i = 1; i <= p; i++) mult += i <= 5 ? 0.10 : i <= 10 ? 0.06 : 0.03;
+    G.prestigeIncomeMult = Math.min(2.6, mult);
+  }
+  G.prestigeSpeedBonus = Math.min(0.45, G.prestigeLevel * 0.04);
   // Earn 1★ base + 1★ every 2 prestige levels
   const starsGain = 1 + Math.floor(G.prestigeLevel / 2);
   G.prestigeStars = (G.prestigeStars || 0) + starsGain;
@@ -1141,9 +1147,11 @@ export function renderPrest() {
   getEl('prestLv').innerText     = lv;
   getEl('prestDesc').innerText   =
     `รีเซ็ตเกมเพื่อรับ Permanent Bonus + ★\n${G.level >= 20 ? 'พร้อม Prestige!' : 'ต้องการ Level 20 (ปัจจุบัน Lv.' + G.level + ')'}`;
+  const nextIncomePct = Math.round((prestigeIncomeMultAt(nextLv) - 1) * 100);
+  const nextSpeedPct = Math.round(Math.min(0.45, nextLv * 0.04) * 100);
   getEl('prestBonuses').innerHTML =
-    `<div class="pb">รายได้ +${nextLv * 10}%</div>
-     <div class="pb">ความเร็ว +${nextLv * 5}%</div>
+    `<div class="pb">รายได้ +${nextIncomePct}% (soft-cap)</div>
+     <div class="pb">ความเร็ว +${nextSpeedPct}%</div>
      <div class="pb">เริ่ม ${(100 + nextLv * 500 + (G.shopStartBonus || 0)).toLocaleString()}฿</div>
      <div class="pb">+${starGainNext}★ ร้านค้า</div>`
     + prestigeEtaHtml();
@@ -1169,6 +1177,19 @@ export function renderPrest() {
         </div>
       </div>`;
   renderPrestigeShop();
+}
+
+function prestigeIncomeMultAt(level) {
+  let mult = 1;
+  const p = Math.max(0, level || 0);
+  for (let i = 1; i <= p; i++) mult += i <= 5 ? 0.10 : i <= 10 ? 0.06 : 0.03;
+  return Math.min(2.6, mult);
+}
+
+/** Recompute prestige mult from level (for old saves / display). */
+export function recomputePrestigeMult() {
+  G.prestigeIncomeMult = prestigeIncomeMultAt(G.prestigeLevel || 0);
+  G.prestigeSpeedBonus = Math.min(0.45, (G.prestigeLevel || 0) * 0.04);
 }
 
 /** ETA helper: rating left + rough serves until prestige (Lv.20). */
