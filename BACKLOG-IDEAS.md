@@ -88,20 +88,31 @@
 - [x] Manager assign ต่อสาขา (idle boost)  
 - [x] Spectate host/join + chat/reactions  
 
+## รอบ 6 — Save integrity / Daily LB / Cook fix (2026-07-21)
+- [x] Export / import JSON + checksum (`SUSHI_EMPIRE_SAVE`)  
+- [x] `saveVersion` + migrate v1→v2 (persist ทันที)  
+- [x] Daily seed leaderboard (UTC day · local + socket)  
+- [x] Cook button z-index / stacking (นอก shell, z=180)  
+- [x] Live click-through mobile + desktop (Playwright)  
+- [x] Toast `pointer-events:none` ไม่บังปุ่ม  
+
 ### ยังค้าง (infra + ต่อ)
-- [ ] Live click-through มือถือเต็ม  
 - [ ] **Render auto-deploy** — Connect ใหม่  
 - [ ] **Post-mortem** webhook  
-- [ ] Polish 3D kitchen, daily seed LB, battle pass, …  
+- [ ] Balance pass Lv.1–15  
+- [ ] Story branching + rival weekly  
+- [ ] Deco multi-slot / visual kitchen  
+- [ ] Polish 3D kitchen ต่อ, battle pass, …  
 
 ---
 
 # 🔜 คิวถัดไป (แนะนำทำตามลำดับ)
 
-1. Live click-through มือถือ + desktop  
-2. Polish Three.js (texture/เมนูจริง)  
-3. Daily seed leaderboard  
-4. …ตาม Roadmap 30 วัน + BACKLOG
+1. Balance pass Lv.1–15  
+2. Story choice consequences + rival weekly เบา  
+3. Deco multi-slot + visual kitchen  
+4. Render Connect + post-mortem webhook  
+5. …ตาม Roadmap 30 วัน
 
 ---
 
@@ -303,7 +314,7 @@
 | API แยก 4 ฟังก์ชัน (swap point) | ✅ โครงเดิม | showCooking / showPlateReady / resetPlate / spawnSteam |
 | เฟส A: 2D sprites + ฉากตามสาขา | ✅ พื้นฐาน | gradient + chef emoji ต่อสาขา |
 | เฟส A: ควัน/แสงตามเมนู | 📋 | |
-| เฟส B: Three.js ใน kitchen-scene เท่านั้น | ✅ พื้นฐาน | lazy import three · เคาน์เตอร์/เชฟ/จาน/ไอน้ำ |
+| เฟส B: Three.js ใน kitchen-scene เท่านั้น | ✅ พื้นฐาน | lazy import three · เคาน์เตอร์/เชฟ/จาน/ไอน้ำ · tint เมนู |
 | เฟส C: camera punch / slow-mo perfect | 🧊 | streak 10+, perfect serve |
 | Deco/mood สะท้อนในฉาก | 📋 | |
 
@@ -340,8 +351,8 @@
 | ไอเดีย | สถานะ | รายละเอียด |
 |--------|--------|------------|
 | localStorage SE5 + merge | ที่มีอยู่ | |
-| Export / import JSON + checksum | 📋 | |
-| `saveVersion` + migrations ชัด | 📋 | |
+| Export / import JSON + checksum | ✅ | ตั้งค่า · ดาวน์โหลด / คัดลอก / วาง / ไฟล์ |
+| `saveVersion` + migrations ชัด | ✅ | SAVE_VERSION=2 · migrate ตอน load |
 | Cloud save (optional ภายหลัง) | 🧊 | |
 | Anti-cheat เบาสำหรับ LB จริง | 📋 | server validate |
 
@@ -354,7 +365,7 @@
 | Socket.IO ห้อง + spectate + chat บน server | ที่มีบน server | |
 | Client ยังไม่ connect socket | ✅ LB | net.js + submitScoreOnline |
 | **A. Spectate-first** | ✅ | host/join · snapshot · chat · reaction |
-| **B. Async daily leaderboard** | ✅ พื้นฐาน | submitScore ผ่าน socket (ยังไม่ daily seed) |
+| **B. Async daily leaderboard** | ✅ | daily seed UTC + โหมด วันนี้/รวม · server แยก board |
 | **C. Coop light** | 🧊 | ส่ง buff/วัตถุดิบวันละครั้ง |
 | PvP realtime เต็ม | 🚫 | ต้นทุนสูงเกิน idle |
 

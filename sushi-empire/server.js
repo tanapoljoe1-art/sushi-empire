@@ -26,7 +26,21 @@ app.use(express.static(staticDir, {
 
 // ── เก็บข้อมูลห้องและ leaderboard ──
 const rooms = new Map();
-let leaderboard = [];
+let leaderboard = [];          // all-time
+let dailyLeaderboard = [];     // current UTC day only
+let dailyDayKey = utcDayKey();
+
+function utcDayKey(d = new Date()) {
+  return d.toISOString().slice(0, 10);
+}
+
+function ensureDailyBoard() {
+  const key = utcDayKey();
+  if (key !== dailyDayKey) {
+    dailyDayKey = key;
+    dailyLeaderboard = [];
+  }
+}
 
 function makeRoomCode() {
   const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -105,15 +119,51 @@ io.on('connection', (socket) => {
     io.to(code).emit('chat', { name: isHost ? room.hostName : (socket.viewerName || 'ผู้ชม'), msg: msg.trim().slice(0, 60), isHost });
   });
 
-  socket.on('submitScore', ({ name, score, level, served, prestige }) => {
-    leaderboard = leaderboard.filter(r => r.name !== name);
-    leaderboard.push({ name, score, level, served, prestige: prestige || 0, ts: Date.now() });
-    leaderboard.sort((a, b) => b.score - a.score);
-    leaderboard = leaderboard.slice(0, 50);
-    io.emit('leaderboard', leaderboard.slice(0, 20));
+  socket.on('submitScore', ({ name, score, level, served, prestige, day }) => {
+    ensureDailyBoard();
+    const entry = {
+      name,
+      score: Number(score) || 0,
+      level: Number(level) || 1,
+      served: Number(served) || 0,
+      prestige: prestige || 0,
+      ts: Date.now(),
+      day: day || dailyDayKey,
+    };
+
+    // All-time (best score per name wins)
+    const prevAll = leaderboard.find(r => r.name === name);
+    if (!prevAll || entry.score >= prevAll.score) {
+      leaderboard = leaderboard.filter(r => r.name !== name);
+      leaderboard.push({ ...entry });
+      leaderboard.sort((a, b) => b.score - a.score);
+      leaderboard = leaderboard.slice(0, 50);
+    }
+
+    // Daily board — only if client day matches server UTC day
+    if (!day || day === dailyDayKey) {
+      const prevD = dailyLeaderboard.find(r => r.name === name);
+      if (!prevD || entry.score >= prevD.score) {
+        dailyLeaderboard = dailyLeaderboard.filter(r => r.name !== name);
+        dailyLeaderboard.push({ ...entry, day: dailyDayKey });
+        dailyLeaderboard.sort((a, b) => b.score - a.score);
+        dailyLeaderboard = dailyLeaderboard.slice(0, 50);
+      }
+    }
+
+    io.emit('leaderboard', { mode: 'all', rows: leaderboard.slice(0, 20) });
+    io.emit('leaderboard', { mode: 'daily', day: dailyDayKey, rows: dailyLeaderboard.slice(0, 20) });
   });
 
-  socket.on('getLeaderboard', () => socket.emit('leaderboard', leaderboard.slice(0, 20)));
+  socket.on('getLeaderboard', (opts = {}) => {
+    ensureDailyBoard();
+    const mode = opts && opts.mode === 'all' ? 'all' : 'daily';
+    if (mode === 'all') {
+      socket.emit('leaderboard', { mode: 'all', rows: leaderboard.slice(0, 20) });
+    } else {
+      socket.emit('leaderboard', { mode: 'daily', day: dailyDayKey, rows: dailyLeaderboard.slice(0, 20) });
+    }
+  });
   socket.on('getRoomList', () => broadcastRoomList());
 
   socket.on('disconnect', () => {
@@ -132,6 +182,15 @@ io.on('connection', (socket) => {
   });
 });
 
-app.get('/health', (_, res) => res.json({ ok: true, rooms: rooms.size }));
+app.get('/health', (_, res) => {
+  ensureDailyBoard();
+  res.json({
+    ok: true,
+    rooms: rooms.size,
+    day: dailyDayKey,
+    lbAll: leaderboard.length,
+    lbDaily: dailyLeaderboard.length,
+  });
+});
 
 server.listen(PORT, () => console.log(`Sushi Empire server :${PORT}`));

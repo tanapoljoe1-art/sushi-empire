@@ -6,7 +6,10 @@
 // module reads an imported binding at top-level module-evaluation time, only
 // inside function bodies. Every read below is inside a function, so plain
 // static imports are used throughout (no dynamic import() needed).
-import { G, save, defaultState } from '../core/state.js';
+import {
+  G, save, defaultState, SAVE_KEY,
+  exportSaveDownload, exportSaveClipboard, parseImportText, applyImportData,
+} from '../core/state.js';
 import { UPGRADES } from '../data.js';
 import { getEl } from '../core/dom.js';
 import { toast, updateUI, renderUpgrades, renderIngredients, updateEarnPreview } from '../ui/render.js';
@@ -166,9 +169,9 @@ export function initTitleScreen() {
 export function titleContinue() { hideTitle(); }
 
 export function titleNewGame() {
-  if (localStorage.getItem('SE5')) {
+  if (localStorage.getItem(SAVE_KEY)) {
     showConfirm('🔄', 'เริ่มเกมใหม่?', 'เซฟเดิมจะถูกลบทั้งหมด ไม่สามารถย้อนกลับได้!', 'danger', () => {
-      localStorage.removeItem('SE5');
+      localStorage.removeItem(SAVE_KEY);
       Object.assign(G, defaultState());
       UPGRADES.forEach(u => u.fx(G));
       applyAllStaffBonuses();
@@ -190,7 +193,7 @@ export function titleNewGame() {
 
 export function titleDeleteSave() {
   showConfirm('🗑️', 'ลบเซฟ?', 'ข้อมูลทั้งหมดจะหายถาวร ไม่สามารถกู้คืนได้!', 'danger', () => {
-    localStorage.removeItem('SE5');
+    localStorage.removeItem(SAVE_KEY);
     location.reload();
   });
 }
@@ -252,8 +255,75 @@ export function confirmOk()    { const cb = confirmCallback; closeConfirm(); if 
 
 // ── Settings ──────────────────────────────────────────────────────────────────
 
-export function openSettings()  { getEl('settingsModal').classList.add('vis'); }
+export function openSettings()  {
+  getEl('settingsModal').classList.add('vis');
+  const hint = getEl('importSaveHint');
+  if (hint) hint.innerText = '';
+}
 export function closeSettings() { getEl('settingsModal').classList.remove('vis'); }
+
+// ── Save export / import (settings modal) ─────────────────────────────────────
+export function exportSaveFile() {
+  try {
+    exportSaveDownload();
+    toast('📥 ดาวน์โหลดเซฟแล้ว');
+  } catch (e) {
+    toast('❌ ส่งออกไม่สำเร็จ');
+    console.error(e);
+  }
+}
+
+export async function exportSaveCopy() {
+  try {
+    const r = await exportSaveClipboard();
+    if (r.method === 'clipboard') toast('📋 คัดลอก JSON แล้ว');
+    else if (r.text) {
+      const ta = getEl('importSaveText');
+      if (ta) { ta.value = r.text; ta.select(); }
+      toast('📋 วาง JSON ในช่องด้านล่าง — คัดลอกเองได้');
+    }
+  } catch (e) {
+    toast('❌ คัดลอกไม่สำเร็จ');
+    console.error(e);
+  }
+}
+
+export function importSaveFromText() {
+  const ta = getEl('importSaveText');
+  const hint = getEl('importSaveHint');
+  const text = ta ? ta.value : '';
+  const parsed = parseImportText(text);
+  if (!parsed.ok) {
+    if (hint) hint.innerText = '❌ ' + parsed.error;
+    toast('❌ ' + parsed.error);
+    return;
+  }
+  showConfirm(
+    '📥',
+    'นำเข้าเซฟนี้?',
+    `Lv.${parsed.data.level || 1} · เงิน ${Number(parsed.data.money || 0).toLocaleString()}฿ · เซฟปัจจุบันจะถูกแทนที่`,
+    'danger',
+    () => {
+      applyImportData(parsed.data);
+      toast('✅ นำเข้าแล้ว — กำลังรีโหลด…');
+      setTimeout(() => location.reload(), 400);
+    }
+  );
+}
+
+export function importSaveFromFile(ev) {
+  const file = ev?.target?.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const ta = getEl('importSaveText');
+    if (ta) ta.value = String(reader.result || '');
+    importSaveFromText();
+    if (ev.target) ev.target.value = '';
+  };
+  reader.onerror = () => toast('❌ อ่านไฟล์ไม่สำเร็จ');
+  reader.readAsText(file);
+}
 
 // The original code built the element ID as `'toggle' + key[0].toUpperCase() + key.slice(1)`
 // which produces 'toggleAutosave' but the HTML uses id="toggleAutoSave". Use an

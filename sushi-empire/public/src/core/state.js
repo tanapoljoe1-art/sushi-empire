@@ -10,6 +10,7 @@ export const BAL = {
 
 export function defaultState() {
   return {
+    saveVersion: 2,
     money: 100, rating: 0, level: 1,
     menu: 'salmon', cooking: false, plateReady: false,
     streak: 0, served: 0, vipServed: 0, rushCleared: 0, mgWins: 0,
@@ -77,6 +78,10 @@ export function defaultState() {
 
 export let G = defaultState();
 
+/** Bump when save shape needs a migration. Written on every save. */
+export const SAVE_VERSION = 2;
+export const SAVE_KEY = 'SE5';
+
 // Reassigning the exported `G` binding (as opposed to mutating its fields) can
 // only happen inside this module — an importer holds a live *view* of G, not a
 // settable reference. doPrestige() needs a full replace-with-kept-fields reset,
@@ -86,44 +91,97 @@ export function resetForPrestige(keep) {
   return G;
 }
 
+/** UTC calendar day key for daily leaderboard / daily special alignment */
+export function dayKeyUTC(d = new Date()) {
+  return d.toISOString().slice(0, 10); // YYYY-MM-DD
+}
+
+// ── Migrations ────────────────────────────────────────────────────────────────
+function migrateSave(data) {
+  let v = Number(data.saveVersion) || 1;
+  // v1 → v2: ensure prestige shop + daily special shells
+  if (v < 2) {
+    if (!data.prestShop || typeof data.prestShop !== 'object') data.prestShop = {};
+    if (!data.dailySpecial || typeof data.dailySpecial !== 'object') {
+      data.dailySpecial = { dayKey: '', menuId: null, mult: 1.75 };
+    }
+    if (data.prestigeStars == null) data.prestigeStars = data.prestigeLevel || 0;
+    if (!data.branchManagers || typeof data.branchManagers !== 'object') data.branchManagers = {};
+    if (!data.eventCooldowns || typeof data.eventCooldowns !== 'object') data.eventCooldowns = {};
+    if (!data.featureUnlockToast || typeof data.featureUnlockToast !== 'object') data.featureUnlockToast = {};
+    v = 2;
+  }
+  data.saveVersion = SAVE_VERSION;
+  return data;
+}
+
+function normalizeLoadedState(parsed) {
+  const migrated = migrateSave({ ...parsed });
+  G = { ...defaultState(), ...migrated };
+
+  // Reset runtime-only state
+  G.queue    = [];
+  G.cooking  = false;
+  G.plateReady = false;
+  G.saveVersion = SAVE_VERSION;
+
+  // Guard nested objects that might be missing in old saves
+  if (!G.deco || typeof G.deco !== 'object') G.deco = { owned:[], equipped:null };
+  if (!G.fusion) G.fusion = { discovered:[], newDisc:[] };
+  if (!G.storyData) G.storyData = { seenChapters:{}, pendingChapters:[] };
+  if (!G.mgHighScores) G.mgHighScores = { rhythm:null, fish:null, memory:null };
+  if (!G.quests) G.quests = defaultState().quests;
+  if (!G.qDaily) G.qDaily = defaultState().qDaily;
+  if (!G.qWeekly) G.qWeekly = defaultState().qWeekly;
+  if (!G.qDailyExtra) G.qDailyExtra = { specialServed: 0 };
+  if (!G.dailySpecial) G.dailySpecial = defaultState().dailySpecial;
+  if (!G.prestShop) G.prestShop = {};
+  if (!G.branchManagers) G.branchManagers = {};
+  if (!G.eventCooldowns) G.eventCooldowns = {};
+  if (!G.featureUnlockToast) G.featureUnlockToast = {};
+  if (!G.staff || typeof G.staff !== 'object') G.staff = {};
+  if (!G.ach || typeof G.ach !== 'object') G.ach = {};
+
+  // Merge any upgrade keys added after the save was created
+  G.up = { ...defaultState().up, ...G.up };
+
+  // Merge any branches added after the save was created
+  if (!Array.isArray(G.branches)) G.branches = [];
+  defaultState().branches.forEach(def => {
+    if (!G.branches.find(b => b.id === def.id)) G.branches.push({ ...def });
+  });
+
+  // Clamp obvious corrupt numbers
+  if (!Number.isFinite(G.money) || G.money < 0) G.money = 0;
+  if (!Number.isFinite(G.level) || G.level < 1) G.level = 1;
+  if (!Number.isFinite(G.served) || G.served < 0) G.served = 0;
+
+  return G;
+}
+
 // ── Save / Load ───────────────────────────────────────────────────────────────
 export function save() {
   G.lastSave = Date.now();
-  localStorage.setItem('SE5', JSON.stringify(G));
+  G.saveVersion = SAVE_VERSION;
+  localStorage.setItem(SAVE_KEY, JSON.stringify(G));
 }
 
 export function load() {
-  const raw = localStorage.getItem('SE5');
+  const raw = localStorage.getItem(SAVE_KEY);
   if (!raw) return;
   try {
     const parsed = JSON.parse(raw);
-    G = { ...defaultState(), ...parsed };
-
-    // Reset runtime-only state
-    G.queue    = [];
-    G.cooking  = false;
-    G.plateReady = false;
-
-    // Guard nested objects that might be missing in old saves
-    if (!G.deco || typeof G.deco !== 'object') G.deco = { owned:[], equipped:null };
-    if (!G.fusion) G.fusion = { discovered:[], newDisc:[] };
-    if (!G.storyData) G.storyData = { seenChapters:{}, pendingChapters:[] };
-    if (!G.mgHighScores) G.mgHighScores = { rhythm:null, fish:null, memory:null };
-    if (!G.quests) G.quests = defaultState().quests;
-    if (!G.qDaily) G.qDaily = defaultState().qDaily;
-    if (!G.qWeekly) G.qWeekly = defaultState().qWeekly;
-
-    // Merge any upgrade keys added after the save was created
-    G.up = { ...defaultState().up, ...G.up };
-
-    // Merge any branches added after the save was created
-    if (!Array.isArray(G.branches)) G.branches = [];
-    defaultState().branches.forEach(def => {
-      if (!G.branches.find(b => b.id === def.id)) G.branches.push({ ...def });
-    });
+    if (!parsed || typeof parsed !== 'object') return;
+    const prevVer = Number(parsed.saveVersion) || 1;
+    normalizeLoadedState(parsed);
 
     // Re-apply upgrade effects
     UPGRADES.forEach(u => u.fx(G));
+
+    // Persist migrations immediately so next load sees current SAVE_VERSION
+    if (prevVer < SAVE_VERSION) {
+      localStorage.setItem(SAVE_KEY, JSON.stringify(G));
+    }
 
     // Idle earnings while away
     const elapsed = (Date.now() - G.lastSave) / 1000;
@@ -136,6 +194,108 @@ export function load() {
   } catch (e) {
     console.error('Save load error:', e);
   }
+}
+
+/** Export payload: wrapper with checksum for paste safety */
+export function buildExportPayload() {
+  G.saveVersion = SAVE_VERSION;
+  G.lastSave = Date.now();
+  const data = JSON.parse(JSON.stringify(G));
+  // Strip runtime noise
+  data.queue = [];
+  data.cooking = false;
+  data.plateReady = false;
+  const body = JSON.stringify(data);
+  const checksum = simpleChecksum(body);
+  return {
+    magic: 'SUSHI_EMPIRE_SAVE',
+    v: SAVE_VERSION,
+    exportedAt: new Date().toISOString(),
+    checksum,
+    data,
+  };
+}
+
+function simpleChecksum(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return (h >>> 0).toString(16).padStart(8, '0');
+}
+
+export function exportSaveDownload() {
+  const payload = buildExportPayload();
+  localStorage.setItem(SAVE_KEY, JSON.stringify(payload.data));
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `sushi-empire-${dayKeyUTC()}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  return payload;
+}
+
+export async function exportSaveClipboard() {
+  const payload = buildExportPayload();
+  localStorage.setItem(SAVE_KEY, JSON.stringify(payload.data));
+  const text = JSON.stringify(payload);
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return { ok: true, method: 'clipboard' };
+    }
+  } catch (_) {}
+  // Fallback: prompt select
+  return { ok: true, method: 'text', text };
+}
+
+/**
+ * Parse import text (raw SE5 JSON or wrapped payload).
+ * Returns { ok, error?, data? }
+ */
+export function parseImportText(text) {
+  if (!text || typeof text !== 'string') return { ok: false, error: 'ไม่มีข้อมูล' };
+  let raw = text.trim();
+  // Strip accidental markdown fences
+  if (raw.startsWith('```')) {
+    raw = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return { ok: false, error: 'JSON ไม่ถูกต้อง' };
+  }
+  let data = parsed;
+  if (parsed && parsed.magic === 'SUSHI_EMPIRE_SAVE' && parsed.data) {
+    if (parsed.checksum) {
+      const body = JSON.stringify(parsed.data);
+      if (simpleChecksum(body) !== parsed.checksum) {
+        return { ok: false, error: 'Checksum ไม่ตรง — ไฟล์อาจเสีย' };
+      }
+    }
+    data = parsed.data;
+  }
+  if (!data || typeof data !== 'object') return { ok: false, error: 'รูปแบบเซฟไม่รู้จัก' };
+  // Sanity: must look like a game save
+  if (data.money == null && data.level == null && !data.up) {
+    return { ok: false, error: 'ไม่ใช่เซฟ Sushi Empire' };
+  }
+  return { ok: true, data };
+}
+
+/** Apply import and persist. Caller should reload for clean re-init. */
+export function applyImportData(data) {
+  const cleaned = migrateSave({ ...data });
+  cleaned.queue = [];
+  cleaned.cooking = false;
+  cleaned.plateReady = false;
+  cleaned.saveVersion = SAVE_VERSION;
+  cleaned.lastSave = Date.now();
+  localStorage.setItem(SAVE_KEY, JSON.stringify(cleaned));
+  return cleaned;
 }
 
 function _idleIncomeMult() {

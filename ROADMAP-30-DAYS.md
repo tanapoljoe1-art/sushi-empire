@@ -14,7 +14,7 @@
 |-----|-----|------------------|
 | 1–2 | ✅ P0 Honesty Pass (wire bonus ตาย, prestige keep fusion/deco) | ซื้อ upgrade/skill แล้วตัวเลขเปลี่ยนจริง |
 | 2–3 | ✅ Order Engine + Perfect Cook | ลูกค้ามีออเดอร์, วงเขียว Perfect |
-| 3 | Live click-through มือถือ + desktop | ไม่มี regression ปุ่ม cook/serve/modal |
+| 3 | ✅ Live click-through มือถือ + desktop (+ แก้ cook stacking) | ไม่มี regression ปุ่ม cook/serve/modal |
 | 4 | ✅ Progressive unlock แท็บ | ผู้เล่นใหม่ไม่จมระบบ |
 | 5 | ✅ HUD: ฿/min + earn breakdown | เข้าใจว่าทำไมเงินขึ้น |
 | 6–7 | ✅ Event forecast + cooldown ต่อชนิด | event ไม่ spam, เตรียมตัวได้ |
@@ -60,7 +60,7 @@
 | 25 | ✅ BGM 3 ชั้น + SFX ครัวพื้นฐาน | อารมณ์ร้าน |
 | 26–27 | ✅ Three.js kitchen พื้นฐาน (polish ต่อได้) | ตาม handoff เดิม |
 | 28 | ✅ Leaderboard + Spectate Socket.IO | multiplayer ไม่โป๊ะ |
-| 29 | Export/import save + saveVersion | ไม่เสียเซฟ |
+| 29 | ✅ Export/import save + saveVersion + daily seed LB | ไม่เสียเซฟ · อันดับรายวัน |
 | 30 | Polish + bug bash + เขียน post-mortem สั้น | ship-ready checkpoint |
 
 **DoD สัปดาห์ 4:** คลิป 15 วินาทีโปรโมทได้ + อันดับ/แชร์มีอย่างน้อย 1 ช่องทางจริง

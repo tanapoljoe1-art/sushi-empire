@@ -117,10 +117,11 @@ nav{ display:none; } /* hide old nav — keep for goTab compat */
 .ditem-txt{font-size:12px;font-weight:700;}
 .ditem-sub{font-size:10px;color:var(--muted);margin-top:1px;}
 
-/* adjust page bottom padding for new nav */
-.pg{display:none;flex:1;padding:12px 12px 90px;}
+/* adjust page bottom padding for new nav + fixed cook button */
+.pg{display:none;flex:1;padding:12px 12px 110px;}
 .pg.on{display:block;}
-#pg-main{padding-bottom:152px;}
+/* Extra bottom space so menu grid never sits under the fixed cook button */
+#pg-main{padding-bottom:180px;}
 
 
 /* RESTAURANT CARD */
@@ -386,10 +387,12 @@ nav{ display:none; } /* hide old nav — keep for goTab compat */
 .uc-cost{font-size:13px;font-weight:900;}
 .uc-lbl{font-size:10px;color:var(--muted);}
 
-/* COOK BTN */
+/* COOK BTN — above page content, below bnav (200) and modals (300) */
 .cookwrap{position:fixed;bottom:62px;left:50%;transform:translateX(-50%);
   width:100%;max-width:480px;padding:10px 14px 22px;
-  background:linear-gradient(0deg,var(--ink) 55%,transparent);z-index:40;}
+  background:linear-gradient(0deg,var(--ink) 55%,transparent);
+  z-index:180;pointer-events:none;}
+.cookwrap .cookbtn{pointer-events:auto;}
 .cookbtn{width:100%;padding:16px;border:none;border-radius:18px;
   background:var(--goldg);color:#1a0e00;font-size:17px;font-weight:900;
   font-family:'Noto Sans Thai',sans-serif;letter-spacing:.05em;cursor:pointer;
@@ -416,7 +419,7 @@ nav{ display:none; } /* hide old nav — keep for goTab compat */
 /* TOAST */
 .toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(14px);
   background:rgba(14,14,26,.96);border:1px solid var(--rim);border-radius:14px;
-  padding:9px 18px;font-size:13px;font-weight:700;opacity:0;
+  padding:9px 18px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;
   transition:all .28s cubic-bezier(.34,1.56,.64,1);z-index:200;white-space:nowrap;
   backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 8px 28px rgba(0,0,0,.5);}
 .toast.vis{opacity:1;transform:translateX(-50%) translateY(0);}
@@ -559,6 +562,8 @@ nav{ display:none; } /* hide old nav — keep for goTab compat */
 .weekly-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:8px;background:rgba(167,139,250,.15);color:var(--purple);border:1px solid rgba(167,139,250,.25);margin-bottom:8px;}
 
 /* ── LEADERBOARD ── */
+.lb-mode{flex:1;padding:8px 10px;border-radius:12px;border:1px solid var(--rim);background:var(--glass);color:var(--muted);font-weight:800;font-size:12px;font-family:'Noto Sans Thai',sans-serif;cursor:pointer;transition:all .15s;}
+.lb-mode.on{border-color:rgba(232,196,106,.45);background:rgba(232,196,106,.12);color:var(--gold);}
 .lb-row{display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:14px;margin-bottom:6px;background:var(--glass);border:1px solid var(--rim);transition:all .2s;}
 .lb-row.you{border-color:rgba(232,196,106,.4);background:rgba(232,196,106,.06);}
 .lb-rank{font-size:18px;font-weight:900;width:28px;text-align:center;flex-shrink:0;}

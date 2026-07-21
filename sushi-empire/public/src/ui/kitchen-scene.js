@@ -269,9 +269,18 @@ export function showPlateReady(emoji) {
     thr.cooking = false;
     thr.sushi.visible = true;
     thr.steam.visible = true;
-    // Tint sushi by simple hash of emoji
-    const hue = ((emoji || '').codePointAt(0) || 0) % 360;
-    thr.sushi.material.color.setHSL(hue / 360, 0.55, 0.55);
+    // Menu-tinted sushi blob (known emojis → color; else hash)
+    const MENU_COLORS = {
+      '🍣': 0xff6b6b, '🐟': 0xf97316, '🦐': 0xfb7185, '🥚': 0xfde68a,
+      '🦑': 0xa78bfa, '🌊': 0x38bdf8, '⭐': 0xfbbf24, '👑': 0xeab308,
+      '🌸': 0xf9a8d4, '🔥': 0xef4444, '💎': 0x67e8f9, '🍽️': 0xe5e7eb,
+    };
+    const known = MENU_COLORS[emoji];
+    if (known != null) thr.sushi.material.color.setHex(known);
+    else {
+      const hue = ((emoji || '').codePointAt(0) || 0) % 360;
+      thr.sushi.material.color.setHSL(hue / 360, 0.55, 0.55);
+    }
   }
 }
 

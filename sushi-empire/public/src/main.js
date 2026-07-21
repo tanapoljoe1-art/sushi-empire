@@ -1,5 +1,6 @@
 // ── Entry point ────────────────────────────────────────────────────────────────
 import { G, load, save } from './core/state.js';
+// save export/import re-exported via nav
 import { MENUS, FUSION_RECIPES, BRANCHES } from './data.js';
 import { getEl } from './core/dom.js';
 import { startGameBg } from './ui/background.js';
@@ -24,7 +25,7 @@ import { ensureDailySpecial } from './systems/daily.js';
 import { ctxMgTap, ctxMgSkip } from './systems/context-mg.js';
 import { applyAllStaffBonuses, renderStaff, hireStaff, levelUpStaff, restStaff, fireStaff, unlockSkill } from './systems/staff.js';
 import { applyDecoBonus, buyDeco } from './systems/decoration.js';
-import { initQuests, claimQuest, submitScore, savePlayerName } from './systems/progress.js';
+import { initQuests, claimQuest, submitScore, savePlayerName, setLbMode } from './systems/progress.js';
 import { initStory, checkStoryTriggers, openStoryPing, storyChoose, storyTapOutside } from './systems/story.js';
 import { initFusion, doFusion, pickFusionIng, clearFusionSlot } from './systems/fusion.js';
 import { selectMG, rhTap, startSlice, startMemory } from './systems/minigames.js';
@@ -34,6 +35,7 @@ import {
   titleContinue, titleNewGame, titleDeleteSave, titleSettings, initTitleScreen,
   openPause, closePause, pauseSettings, pauseToTitle, pauseNewGame,
   closeConfirm, confirmOk, closeSettings, toggleSetting,
+  exportSaveFile, exportSaveCopy, importSaveFromText, importSaveFromFile,
 } from './systems/nav.js';
 
 // ── Background canvas ─────────────────────────────────────────────────────────
@@ -145,10 +147,11 @@ Object.assign(window, {
   closePause, closePrest, closeSettings, closeSpectateModal, closeVip, confirmOk, cook, ctxMgSkip, ctxMgTap, doFusion,
   doPrestige, drawerGo, fireStaff, goTab, hireStaff, hostFromModal, joinFromModal, leaveSpectateRoom, levelUpStaff, openPause,
   openSpectateModal, openStoryPing, pauseNewGame, pauseSettings, pauseToTitle, pickFusionIng,
-  restStaff, rhTap, savePlayerName, selMenu, selectMG, sendReaction, sendSpectateChat, serve, showPrestModal,
+  restStaff, rhTap, savePlayerName, selMenu, selectMG, sendReaction, sendSpectateChat, serve, setLbMode, showPrestModal,
   startMemory, startSlice, storyChoose, storyTapOutside, submitScore,
   switchBranch, titleContinue, titleDeleteSave, titleNewGame, titleSettings,
   toggleSetting, unlockSkill,
+  exportSaveFile, exportSaveCopy, importSaveFromText, importSaveFromFile,
 });
 
 // Show title screen last (after everything is initialised)

@@ -138,6 +138,21 @@
       <button class="toggle on" id="toggleAutoSave" onclick="toggleSetting('autosave')"></button>
     </div>
     <div class="pm-div"></div>
+    <div style="font-size:12px;font-weight:800;margin:4px 0 8px;color:var(--gold)">💾 เซฟเกม</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <button class="mbtn" type="button" onclick="exportSaveFile()" style="flex:1;min-width:120px;margin:0;padding:10px;font-size:12px">ดาวน์โหลด</button>
+      <button class="mbtn" type="button" onclick="exportSaveCopy()" style="flex:1;min-width:120px;margin:0;padding:10px;font-size:12px;background:var(--glass);color:var(--text);border:1px solid var(--rim)">คัดลอก JSON</button>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:6px">นำเข้าเซฟ (วาง JSON หรือเลือกไฟล์)</div>
+    <textarea id="importSaveText" rows="3" placeholder='{"magic":"SUSHI_EMPIRE_SAVE",...}' style="width:100%;box-sizing:border-box;background:rgba(0,0,0,.25);border:1px solid var(--rim);border-radius:10px;color:var(--text);font-size:11px;padding:8px;font-family:ui-monospace,monospace;resize:vertical;margin-bottom:8px"></textarea>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+      <label class="mbtn" style="flex:1;min-width:100px;margin:0;padding:10px;font-size:12px;background:var(--glass);color:var(--text);border:1px solid var(--rim);text-align:center;cursor:pointer">
+        เลือกไฟล์
+        <input type="file" id="importSaveFile" accept="application/json,.json,text/plain" style="display:none" onchange="importSaveFromFile(event)">
+      </label>
+      <button class="mbtn" type="button" onclick="importSaveFromText()" style="flex:1;min-width:100px;margin:0;padding:10px;font-size:12px;background:linear-gradient(135deg,#c45c26,#e8a44a)">นำเข้า</button>
+    </div>
+    <div id="importSaveHint" style="font-size:10px;color:var(--muted);margin-bottom:10px;min-height:14px"></div>
     <button class="mbtn" onclick="closeSettings()" style="margin-top:0">ปิด</button>
   </div>
 </div>
@@ -520,7 +535,12 @@
 <!-- ══ LEADERBOARD PAGE ══ -->
 <div class="pg" id="pg-lb">
   <div class="slbl">Leaderboard <span id="lbNetStatus" style="font-size:10px;font-weight:700;margin-left:6px;color:var(--gold)">🟡 กำลังเชื่อม...</span></div>
-  <div style="font-size:11px;color:var(--muted);margin-bottom:10px;padding:0 2px">ออนไลน์ผ่านเซิร์ฟเวอร์ · ถ้าออฟไลน์จะบันทึกในเครื่อง</div>
+  <div style="font-size:11px;color:var(--muted);margin-bottom:8px;padding:0 2px">Daily seed รีเซ็ตเที่ยงคืน UTC · ออฟไลน์ใช้บอร์ดในเครื่อง</div>
+  <div id="lbModeRow" style="display:flex;gap:8px;margin-bottom:10px">
+    <button type="button" id="lbModeDaily" class="lb-mode on" onclick="setLbMode('daily')">📅 วันนี้</button>
+    <button type="button" id="lbModeAll" class="lb-mode" onclick="setLbMode('all')">🏆 รวม</button>
+    <span id="lbDayKey" style="margin-left:auto;font-size:10px;color:var(--muted);align-self:center"></span>
+  </div>
   <div style="background:var(--glass);border:1px solid rgba(232,196,106,.2);border-radius:14px;padding:11px 13px;margin-bottom:10px;display:flex;align-items:center;gap:10px;">
     <div style="font-size:22px">👤</div>
     <div style="flex:1">
@@ -540,12 +560,12 @@
   <div class="deco-grid" id="decoGrid"></div>
 </div>
 
-<!-- ══ COOK BUTTON ══ -->
+</div><!-- end .shell -->
+
+<!-- COOK BUTTON — outside .shell so fixed stacking is not trapped by shell z-index -->
 <div class="cookwrap" id="cookWrap">
   <button class="cookbtn" id="cookBtn" onclick="cook()">🍣 ทำซูชิ!</button>
 </div>
-
-</div><!-- end .shell -->
 
 <!-- ══ MODALS ══ -->
 <div class="mbg" id="idleModal">

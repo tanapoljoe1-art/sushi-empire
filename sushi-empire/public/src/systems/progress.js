@@ -1,5 +1,5 @@
 // ── Quests ────────────────────────────────────────────────────────────────────
-import { G, save } from '../core/state.js';
+import { G, save, dayKeyUTC } from '../core/state.js';
 import { DAILY_POOL, WEEKLY_POOL, ACHIEVEMENTS, INGREDIENTS } from '../data.js';
 import { getEl } from '../core/dom.js';
 import { toast, updateUI } from '../ui/render.js';
@@ -157,13 +157,49 @@ const BOTS = [
   { name:'อายาเนะ',   emoji:'👩‍💼', score:0 },
 ];
 
+/** 'daily' | 'all' — which board UI shows */
+let lbMode = 'daily';
+
+export function getLbMode() { return lbMode; }
+
+export function setLbMode(mode) {
+  lbMode = mode === 'all' ? 'all' : 'daily';
+  const dBtn = getEl('lbModeDaily');
+  const aBtn = getEl('lbModeAll');
+  if (dBtn) dBtn.classList.toggle('on', lbMode === 'daily');
+  if (aBtn) aBtn.classList.toggle('on', lbMode === 'all');
+  const dayEl = getEl('lbDayKey');
+  if (dayEl) dayEl.innerText = lbMode === 'daily' ? `seed ${dayKeyUTC()}` : 'all-time';
+  renderLB();
+}
+
 export function calcScore() {
   return G.served * 10 + G.level * 50 + G.prestigeLevel * 500
     + (G.money > 0 ? Math.floor(Math.log10(G.money) * 20) : 0);
 }
 
-export function loadLB()       { try { return JSON.parse(localStorage.getItem(LB_KEY) || '[]'); } catch { return []; } }
-export function saveLB(rows)   { localStorage.setItem(LB_KEY, JSON.stringify(rows)); }
+function lbStorageKey(mode = lbMode) {
+  if (mode === 'daily') return `${LB_KEY}_D_${dayKeyUTC()}`;
+  return LB_KEY;
+}
+
+export function loadLB(mode = lbMode) {
+  try { return JSON.parse(localStorage.getItem(lbStorageKey(mode)) || '[]'); } catch { return []; }
+}
+export function saveLB(rows, mode = lbMode) {
+  localStorage.setItem(lbStorageKey(mode), JSON.stringify(rows));
+}
+
+/** Deterministic-ish bot scores for a day seed so offline daily board feels fresh */
+function seedBotScores(baseScore, day) {
+  let h = 0;
+  for (let i = 0; i < day.length; i++) h = (h * 31 + day.charCodeAt(i)) >>> 0;
+  const fracs = [0.28, 0.48, 0.62, 0.78, 0.91, 0.55, 0.38];
+  return fracs.map((f, i) => {
+    const wobble = ((h >> (i * 3)) & 31) / 100; // 0–0.31
+    return Math.max(10, Math.round(baseScore * (f + wobble * 0.15)));
+  });
+}
 
 export function savePlayerName() {
   G.playerName = getEl('playerName').value || 'คุณ';
@@ -174,31 +210,44 @@ export async function submitScore() {
   const name  = getEl('playerName').value || 'คุณ';
   G.playerName = name;
   const score = calcScore(); G.totalScore = score;
+  const day = dayKeyUTC();
 
-  // Always keep a local copy
-  let rows = loadLB();
-  rows = rows.filter(r => r.name !== name);
-  rows.push({ name, score, emoji:'⭐', lv:G.level, served:G.served, ts:Date.now() });
-  const botScores = [score*.3, score*.55, score*.7, score*.85, score*.95, score*.6, score*.4];
-  BOTS.forEach((b, i) => {
-    if (!rows.find(r => r.name === b.name))
-      rows.push({ name:b.name, score:Math.round(botScores[i] || 50), emoji:b.emoji,
-                  lv:Math.max(1, ~~(G.level*.5)), served:~~(G.served*.5),
-                  ts:Date.now() - i*10000, bot:true });
-  });
-  rows.sort((a, b) => b.score - a.score);
-  rows = rows.slice(0, 15);
-  saveLB(rows); save();
+  // Local: write both daily + all-time
+  for (const mode of ['daily', 'all']) {
+    let rows = loadLB(mode);
+    rows = rows.filter(r => r.name !== name);
+    rows.push({
+      name, score, emoji: '⭐', lv: G.level, served: G.served,
+      ts: Date.now(), day, mode,
+    });
+    const botScores = mode === 'daily'
+      ? seedBotScores(score, day)
+      : [score*.3, score*.55, score*.7, score*.85, score*.95, score*.6, score*.4].map(Math.round);
+    BOTS.forEach((b, i) => {
+      if (!rows.find(r => r.name === b.name))
+        rows.push({
+          name: b.name, score: botScores[i] || 50, emoji: b.emoji,
+          lv: Math.max(1, ~~(G.level * .5)), served: ~~(G.served * .5),
+          ts: Date.now() - i * 10000, bot: true, day, mode,
+        });
+    });
+    rows.sort((a, b) => b.score - a.score);
+    rows = rows.slice(0, 15);
+    saveLB(rows, mode);
+  }
+  save();
 
-  // Try online board (Socket.IO)
+  // Online board
   try {
     const net = await import('./net.js');
     await net.connectNet();
     const ok = net.submitScoreOnline({
-      name, score, level: G.level, served: G.served, prestige: G.prestigeLevel,
+      name, score, level: G.level, served: G.served, prestige: G.prestigeLevel, day,
     });
-    toast(ok ? '🌐 บันทึกอันดับออนไลน์แล้ว!' : '💾 บันทึกในเครื่องแล้ว (ออฟไลน์)');
-    net.requestLeaderboard();
+    toast(ok
+      ? (lbMode === 'daily' ? '🌐 บันทึกอันดับวันนี้แล้ว!' : '🌐 บันทึกอันดับออนไลน์แล้ว!')
+      : '💾 บันทึกในเครื่องแล้ว (ออฟไลน์)');
+    net.requestLeaderboard(lbMode);
   } catch {
     toast('💾 บันทึกในเครื่องแล้ว!');
   }
@@ -206,33 +255,33 @@ export async function submitScore() {
 }
 
 export async function renderLB() {
-  let rows = loadLB();
-  let source = 'local';
+  const dayEl = getEl('lbDayKey');
+  if (dayEl) dayEl.innerText = lbMode === 'daily' ? `seed ${dayKeyUTC()}` : 'all-time';
+  const dBtn = getEl('lbModeDaily');
+  const aBtn = getEl('lbModeAll');
+  if (dBtn) dBtn.classList.toggle('on', lbMode === 'daily');
+  if (aBtn) aBtn.classList.toggle('on', lbMode === 'all');
+
+  let rows = loadLB(lbMode);
   try {
     const net = await import('./net.js');
     await net.connectNet();
-    net.requestLeaderboard();
-    const online = net.getOnlineLB();
+    net.requestLeaderboard(lbMode);
+    const online = lbMode === 'daily' ? net.getOnlineDailyLB() : net.getOnlineLB();
     if (online && online.length) {
-      // Server rows: { name, score, level, served, prestige, ts }
       rows = online.map(r => ({
         name: r.name,
         score: r.score,
-        emoji: '🌐',
+        emoji: lbMode === 'daily' ? '📅' : '🌐',
         lv: r.level || r.lv || 1,
         served: r.served || 0,
         ts: r.ts,
         online: true,
       }));
-      source = 'online';
     }
   } catch (_) {}
 
   const myName = G.playerName || 'คุณ';
-  const status = getEl('lbNetStatus');
-  if (status && source === 'local') {
-    // leave net.js to set online status; only annotate if empty online
-  }
   if (!rows.length) {
     getEl('lbList').innerHTML =
       '<div style="text-align:center;color:var(--muted);padding:20px">กด "บันทึก" เพื่อเข้าอันดับ!</div>';
