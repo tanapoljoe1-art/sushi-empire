@@ -748,17 +748,26 @@ export function buyUpgrade(id) {
   if (G.money < cost) { sfxError(); toast('✕ เงินไม่พอ!'); return; }
   G.money -= Math.round(cost);
   G.up[id]++;
-  // re-apply all fx cleanly after level change
-  G.speedMult = 1; G.autoServe = false; G.qSize = 1; G.patMult = 1; G.storageMult = 1;
-  G.autoChef = false; G.goldenBonus = 1; G.xpMult = 1; G.idleMult = 1;
-  G.perfectPad = 0; G.branchIdleBonus = 0;
-  UPGRADES.forEach(up => up.fx(G));
+  reapplyUpgradeFx();
   sfxCoin();
   trackQuestProgress('upgrade');
   toast('✅ ' + u.name + '!');
   updateUI();
   renderUpgrades();
   save();
+}
+
+/** Reset derived upgrade fields, re-run all fx, then soft-cap stack totals. */
+export function reapplyUpgradeFx() {
+  G.speedMult = 1; G.autoServe = false; G.qSize = 1; G.patMult = 1; G.storageMult = 1;
+  G.autoChef = false; G.goldenBonus = 1; G.xpMult = 1; G.idleMult = 1;
+  G.perfectPad = 0; G.branchIdleBonus = 0;
+  UPGRADES.forEach(up => up.fx(G));
+  // Soft caps — keep late game from exploding via pure upgrade stacks
+  G.qSize = Math.min(BAL.maxQSize ?? 6, Math.max(1, G.qSize || 1));
+  G.speedMult = Math.min(BAL.maxSpeedMult ?? 3, Math.max(1, G.speedMult || 1));
+  G.storageMult = Math.min(BAL.maxStorageMult ?? 3, Math.max(1, G.storageMult || 1));
+  G.patMult = Math.min(BAL.maxPatMult ?? 3, Math.max(1, G.patMult || 1));
 }
 
 /** Respec all upgrades — refund 40%, costs 15% of total spent */
@@ -775,10 +784,7 @@ export function respecUpgrades() {
   G.money -= fee;
   G.money += refund;
   UPGRADES.forEach(u => { G.up[u.id] = 0; });
-  G.speedMult = 1; G.autoServe = false; G.qSize = 1; G.patMult = 1; G.storageMult = 1;
-  G.autoChef = false; G.goldenBonus = 1; G.xpMult = 1; G.idleMult = 1;
-  G.perfectPad = 0; G.branchIdleBonus = 0;
-  UPGRADES.forEach(u => u.fx(G));
+  reapplyUpgradeFx();
   toast(`🔄 Respec! คืน ${refund.toLocaleString()}฿ (ค่าธรรมเนียม ${fee.toLocaleString()}฿)`);
   updateUI();
   renderUpgrades();

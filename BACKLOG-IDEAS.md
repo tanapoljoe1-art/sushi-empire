@@ -172,6 +172,12 @@
 - [x] Prestige ETA (levels / rating / serves estimate)  
 - [x] version → 1.3.0  
 
+## รอบ 18 — Empire soft-cap + settings UX (2026-07-21)
+- [x] kitchen diminishing · franchise 1.75 · outpost 12% · express 6%  
+- [x] reapplyUpgradeFx + hard caps qSize/speed/storage/pat  
+- [x] Settings: เปิด ach / รีเฟรช / ล้างสถิติ · openSettings on window  
+- [x] spawnFE cap 6 · version 1.4.0  
+
 ### ยังค้าง (infra + ต่อ)
 - [ ] **Render auto-deploy** — Connect มือ / Manual deploy หลัง push  
 
@@ -180,7 +186,7 @@
 # 🔜 คิวถัดไป (แนะนำทำตามลำดับ)
 
 1. Manual deploy บน Render + live smoke  
-2. Soft-cap โหนด empire อื่นถ้ายังระเบิด  
+2. Staff income soft-cap ถ้ายังระเบิด  
 3. Bug bash / UX เล็ก  
 
 

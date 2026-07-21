@@ -14,10 +14,9 @@ import {
   initSpectate, openSpectateModal, closeSpectateModal, hostFromModal, joinFromModal,
   leaveSpectateRoom, sendReaction, sendSpectateChat,
 } from './systems/spectate.js';
-import { assignBranchManager } from './systems/game.js';
 import {
-  cook, serve, buyIngredient, buyUpgrade, respecUpgrades, setUpgTreeFilter, buyBranch, switchBranch,
-  showPrestModal, closePrest, doPrestige, closeAch, spawnQueue,
+  assignBranchManager, cook, serve, buyIngredient, buyUpgrade, respecUpgrades, setUpgTreeFilter,
+  buyBranch, switchBranch, showPrestModal, closePrest, doPrestige, closeAch, spawnQueue, reapplyUpgradeFx,
 } from './systems/game.js';
 import { closeEvent, closeVip, challengeVip, tickEventScheduler, updateEventForecastUI, chooseEventOption, hostFestival, renderEventLog, renderFestivalBtn } from './systems/events.js';
 import { refreshUnlockUI, markExistingUnlocksSeen } from './systems/unlocks.js';
@@ -47,9 +46,9 @@ import {
   goTab, bnavGo, bnavDrawer, drawerGo, closeDrawer,
   titleContinue, titleNewGame, titleDeleteSave, titleSettings, initTitleScreen, openAchFromTitle,
   openPause, closePause, pauseSettings, pauseToTitle, pauseNewGame,
-  closeConfirm, confirmOk, closeSettings, toggleSetting,
+  closeConfirm, confirmOk, closeSettings, openSettings, toggleSetting,
   exportSaveFile, exportSaveCopy, importSaveFromText, importSaveFromFile,
-  renderPlayStats,
+  renderPlayStats, refreshPlayStats, resetPlayStats, openAchFromSettings,
 } from './systems/nav.js';
 
 // ── Background canvas ─────────────────────────────────────────────────────────
@@ -72,6 +71,8 @@ load();
   }
 });
 
+// Re-run upgrade fx + soft caps after load (kitchen diminishing, qSize cap, etc.)
+reapplyUpgradeFx();
 applyAllStaffBonuses();
 applyDecoBonus();
 applyPrestigeShop();
@@ -181,6 +182,7 @@ Object.assign(window, {
   respecUpgrades, restStaff, rhTap, setUpgTreeFilter, savePlayerName, selMenu, selectMG, sendReaction, sendSpectateChat, serve, setLbMode, showPrestModal,
   startMemory, startSlice, storyChoose, storyTapOutside, submitScore,
   switchBranch, titleContinue, titleDeleteSave, titleNewGame, titleSettings, openAchFromTitle,
+  openSettings, closeSettings, refreshPlayStats, resetPlayStats, openAchFromSettings,
   toggleSetting, unequipSlot, unlockSkill, dismissCoachTip,
   exportSaveFile, exportSaveCopy, importSaveFromText, importSaveFromFile,
   toggleDebugEnabled, openDebugPanel, closeDebugPanel, debugCloseAndDisable,

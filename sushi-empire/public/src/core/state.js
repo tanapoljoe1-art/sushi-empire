@@ -46,6 +46,11 @@ export const BAL = {
     // Each level-up after full bar (100 rating) — approximate remaining in current bar
     return Math.max(0, (b - a) * 100);
   },
+  // Soft caps after all upgrade fx are applied (prevent infinite queue / speed stack)
+  maxQSize: 6,
+  maxSpeedMult: 3.0,
+  maxStorageMult: 3.0,
+  maxPatMult: 3.0,
 };
 
 export function defaultState() {

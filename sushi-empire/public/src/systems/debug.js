@@ -262,12 +262,15 @@ export function debugBpXp(n) {
 
 export function debugMaxUpgrades() {
   UPGRADES.forEach(u => { G.up[u.id] = u.max; });
-  G.speedMult = 1; G.autoServe = false; G.qSize = 1; G.patMult = 1; G.storageMult = 1;
-  G.autoChef = false; G.goldenBonus = 1; G.xpMult = 1; G.idleMult = 1;
-  G.perfectPad = 0; G.branchIdleBonus = 0;
-  UPGRADES.forEach(u => u.fx(G));
-  toast('อัปเกรด MAX');
-  renderUpgrades(); updateUI(); save(); refreshDebugStat();
+  import('./game.js').then(m => {
+    m.reapplyUpgradeFx();
+    toast('อัปเกรด MAX (soft-cap แล้ว)');
+    renderUpgrades(); updateUI(); save(); refreshDebugStat();
+  }).catch(() => {
+    UPGRADES.forEach(u => u.fx(G));
+    toast('อัปเกรด MAX');
+    renderUpgrades(); updateUI(); save(); refreshDebugStat();
+  });
 }
 
 export function debugResetDay() {

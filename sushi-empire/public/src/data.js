@@ -44,19 +44,26 @@ export const UPGRADE_TREES = {
 
 export const UPGRADES = [
   // ── Volume ──
-  {id:'kitchen',  name:'ครัวพรีเมียม', emoji:'🍳',tree:'volume', desc:'ทำเร็วขึ้น +25%', max:5,base:180,  fx:g=>{g.speedMult=1+g.up.kitchen*.25;}},
+  // Kitchen: diminishing per level (was flat +25%×5 = +125%)
+  {id:'kitchen',  name:'ครัวพรีเมียม', emoji:'🍳',tree:'volume', desc:'ทำเร็วขึ้น (ลดทอนหลัง Lv.3)', max:5,base:180,  fx:g=>{
+    const rates = [0, 0.25, 0.20, 0.16, 0.12, 0.10];
+    let b = 0;
+    const k = g.up.kitchen || 0;
+    for (let i = 1; i <= k; i++) b += rates[i] || 0.08;
+    g.speedMult = 1 + b;
+  }},
   {id:'waiter',   name:'พนักงานเสิร์ฟ',emoji:'🧑‍🍽️',tree:'volume', desc:'เสิร์ฟอัตโนมัติ', max:1,base:500,  fx:g=>{g.autoServe=g.up.waiter>=1;}},
-  {id:'marketing',name:'โฆษณา',        emoji:'📢',tree:'volume', desc:'ลูกค้า +1/คิว',  max:3,base:450,  fx:g=>{g.qSize=1+g.up.marketing;}},
+  {id:'marketing',name:'โฆษณา',        emoji:'📢',tree:'volume', desc:'ลูกค้า +1/คิว (cap 6)',  max:3,base:450,  fx:g=>{g.qSize=1+g.up.marketing;}},
   {id:'autoChef', name:'เชฟ AI',       emoji:'🤖',tree:'volume', desc:'ทำอาหารอัตโนมัติ',max:1,base:1200,
    require:{id:'kitchen',min:2}, fx:g=>{g.autoChef=g.up.autoChef>=1;}},
-  {id:'express',  name:'คิวด่วน',      emoji:'🚄',tree:'volume', desc:'ความเร็ว +8% + คิว +1', max:2,base:2800,
+  {id:'express',  name:'คิวด่วน',      emoji:'🚄',tree:'volume', desc:'ความเร็ว +6% + คิว +1', max:2,base:2800,
    require:{id:'marketing',min:1}, fx:g=>{
-     g.speedMult = (g.speedMult || 1) + g.up.express * 0.08;
+     g.speedMult = (g.speedMult || 1) + g.up.express * 0.06;
      g.qSize = (g.qSize || 1) + g.up.express;
    }},
   // ── Quality ──
-  {id:'patience', name:'บริการที่ยอดเยี่ยม',emoji:'😊',tree:'quality', desc:'ลูกค้ารออดทนขึ้น',max:3,base:350,  fx:g=>{g.patMult=1+g.up.patience*.5;}},
-  // Soft-cap: was +35%/lv (up to +105%); now +28%/lv so stack feels strong but not broken mid-late
+  {id:'patience', name:'บริการที่ยอดเยี่ยม',emoji:'😊',tree:'quality', desc:'ลูกค้ารออดทนขึ้น',max:3,base:350,  fx:g=>{g.patMult=1+g.up.patience*.4;}},
+  // Soft-cap: was +35%/lv; round 17 → +28%/lv
   {id:'golden',   name:'ครัวทองคำ',    emoji:'🏆',tree:'quality', desc:'รายได้ +28% ถาวร / เลเวล',max:3,base:4500, fx:g=>{g.goldenBonus=1+g.up.golden*.28;}},
   {id:'mastery',  name:'ปรมาจารย์ซูชิ', emoji:'🎓',tree:'quality', desc:'Rating ต่อเสิร์ฟ x2',max:1,base:7500,
    require:{id:'patience',min:1}, fx:g=>{g.xpMult=g.up.mastery>=1?2:1;}},
@@ -66,11 +73,11 @@ export const UPGRADES = [
      g.perfectPad = (g.up.taste || 0) * 0.03;
    }},
   // ── Empire ──
-  {id:'storage',  name:'คลังวัตถุดิบ', emoji:'📦',tree:'empire', desc:'ปริมาณวัตถุดิบเพิ่ม x1.5',max:3,base:300, fx:g=>{g.storageMult=1+g.up.storage*.5;}},
-  {id:'franchise',name:'แฟรนไชส์',     emoji:'🌐',tree:'empire', desc:'Idle income x2',max:1,base:11000,
-   require:{id:'storage',min:1}, fx:g=>{g.idleMult=g.up.franchise>=1?2:1;}},
-  {id:'outpost',  name:'ด่านหน้า',     emoji:'🏯',tree:'empire', desc:'Idle สาขา +15%/lv', max:3,base:5000,
-   require:{id:'franchise',min:1}, fx:g=>{ g.branchIdleBonus = (g.up.outpost || 0) * 0.15; }},
+  {id:'storage',  name:'คลังวัตถุดิบ', emoji:'📦',tree:'empire', desc:'ปริมาณวัตถุดิบ +40%/lv',max:3,base:300, fx:g=>{g.storageMult=1+g.up.storage*.4;}},
+  {id:'franchise',name:'แฟรนไชส์',     emoji:'🌐',tree:'empire', desc:'Idle income x1.75',max:1,base:11000,
+   require:{id:'storage',min:1}, fx:g=>{g.idleMult=g.up.franchise>=1?1.75:1;}},
+  {id:'outpost',  name:'ด่านหน้า',     emoji:'🏯',tree:'empire', desc:'Idle สาขา +12%/lv', max:3,base:5000,
+   require:{id:'franchise',min:1}, fx:g=>{ g.branchIdleBonus = (g.up.outpost || 0) * 0.12; }},
 ];
 
 /** Free battle pass track (30 days / 30 tiers) — XP from serves */

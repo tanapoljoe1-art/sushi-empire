@@ -188,3 +188,26 @@ export function formatTelemetryDebug() {
     `→Lv5 ${s.timeToLv5} · →Lv15 ${s.timeToLv15} · →P1 ${s.timeToP1}`,
   ].join('\n');
 }
+
+/** Clear local telemetry store (does not touch game save SE5). */
+export function resetTelemetry() {
+  store = {
+    firstPlayAt: Date.now(),
+    lastPlayAt: Date.now(),
+    totalPlayMs: 0,
+    lifetime: {
+      serves: 0,
+      perfects: 0,
+      levelUps: 0,
+      prestiges: 0,
+      timeToLv5Ms: null,
+      timeToLv15Ms: null,
+      timeToPrestige1Ms: null,
+    },
+    sessions: [],
+  };
+  session = blankSession();
+  lastTick = Date.now();
+  levelAtStart = G.level || 1;
+  persist();
+}

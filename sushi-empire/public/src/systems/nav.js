@@ -341,6 +341,29 @@ export function renderPlayStats() {
   });
 }
 
+export function refreshPlayStats() {
+  renderPlayStats();
+  toast('📊 รีเฟรชสถิติแล้ว');
+}
+
+export function resetPlayStats() {
+  showConfirm('🧹', 'ล้างสถิติการเล่น?', 'ลบเฉพาะสถิติเซสชัน/เวลาเล่นในเครื่อง — ไม่แตะเซฟเกม', 'danger', () => {
+    import('./telemetry.js').then(m => {
+      if (m.resetTelemetry) m.resetTelemetry();
+      renderPlayStats();
+      toast('ล้างสถิติแล้ว');
+    }).catch(() => toast('ล้างไม่สำเร็จ'));
+  });
+}
+
+/** Settings → achievements tab */
+export function openAchFromSettings() {
+  closeSettings();
+  goTab('ach');
+  document.querySelectorAll('.bntab').forEach(b => b.classList.remove('on'));
+  getEl('bnt-prog')?.classList.add('on');
+}
+
 // ── Save export / import (settings modal) ─────────────────────────────────────
 export function exportSaveFile() {
   try {

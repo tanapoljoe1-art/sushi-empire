@@ -49,7 +49,7 @@
       <span class="ts-btn-ico">🗑️</span><span class="ts-btn-txt">ลบเซฟ</span><span class="ts-btn-arr">›</span>
     </button>
   </div>
-  <div class="ts-ver">v1.3.0 · Sushi Empire</div>
+  <div class="ts-ver">v1.4.0 · Sushi Empire</div>
 </div>
 
 <!-- Spectate modal -->
@@ -152,6 +152,11 @@
     <div style="font-size:12px;font-weight:800;margin:4px 0 8px;color:var(--gold)">📊 สถิติการเล่น</div>
     <div class="play-stats" id="playStatsBox">
       <div class="play-stats-line" id="playStatsLine">ยังไม่มีข้อมูล</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 4px">
+      <button class="mbtn" type="button" onclick="openAchFromSettings()" style="flex:1;min-width:110px;margin:0;padding:9px;font-size:11px;background:var(--glass);color:var(--text);border:1px solid var(--rim)">🏆 ความสำเร็จ</button>
+      <button class="mbtn" type="button" onclick="refreshPlayStats()" style="flex:1;min-width:90px;margin:0;padding:9px;font-size:11px;background:var(--glass);color:var(--text);border:1px solid var(--rim)">↻ รีเฟรช</button>
+      <button class="mbtn" type="button" onclick="resetPlayStats()" style="flex:1;min-width:90px;margin:0;padding:9px;font-size:11px;background:var(--glass);color:var(--muted);border:1px solid var(--rim)">ล้างสถิติ</button>
     </div>
     <div class="pm-div"></div>
     <div style="font-size:12px;font-weight:800;margin:4px 0 8px;color:var(--gold)">💾 เซฟเกม</div>

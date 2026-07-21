@@ -77,6 +77,10 @@ export function haptic(ms = 12) {
 
 export function spawnFE(txt, bad = false) {
   const p  = getEl('restoCard');
+  if (!p) return;
+  // Cap concurrent floaters so rush/serve spam doesn't bury the kitchen
+  const existing = p.querySelectorAll('.fe');
+  if (existing.length >= 6) existing[0].remove();
   const el = document.createElement('div');
   el.className  = 'fe';
   el.innerText  = txt;
