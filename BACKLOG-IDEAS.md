@@ -131,6 +131,11 @@
 - [x] Seasonality เบา (โบนัสเมนู + ราคา ing ตามฤดู)  
 - [x] Debug force crisis events  
 
+## รอบ 13 — Soft staff prestige + title skins (2026-07-21)
+- [x] Soft keep staff on prestige (hired + skills, Lv รีเซ็ต)  
+- [x] Title prestige skins (fresh→void)  
+- [x] Title save preview แสดงทีม  
+
 ## รอบ 12 — Event log / Festival / Premium BP (2026-07-21)
 - [x] Event log 10 รายการ (แท็บ Quest)  
 - [x] Player-triggered festival (จ่ายเงิน · CD 3 นาที)  
@@ -147,9 +152,10 @@
 # 🔜 คิวถัดไป (แนะนำทำตามลำดับ)
 
 1. Render Connect มือ  
-2. Soft keep staff unlock on prestige  
-3. Title screen prestige skin  
-4. …ตาม Roadmap 30 วัน
+2. Hidden achievements  
+3. Telemetry / polish  
+4. Bug bash  
+
 
 ---
 
