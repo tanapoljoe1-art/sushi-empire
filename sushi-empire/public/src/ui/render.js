@@ -28,12 +28,51 @@ export function initInfoCarousel() {
   }, { passive: true });
 }
 
+/** Toast with dedupe + short queue so event spam doesn't flash unreadable. */
+const _toastQ = [];
+let _toastBusy = false;
+let _lastToastMsg = '';
+let _lastToastAt = 0;
+
 export function toast(msg) {
+  if (!msg) return;
+  const now = Date.now();
+  // Dedupe identical toast within 1.2s
+  if (msg === _lastToastMsg && now - _lastToastAt < 1200) return;
+  // Drop if queue is already stacked (keep newest 2)
+  if (_toastQ.length >= 2) _toastQ.shift();
+  _toastQ.push(String(msg));
+  try { import('../systems/telemetry.js').then(m => m.tel('toast')).catch(() => {}); } catch (_) {}
+  if (!_toastBusy) _drainToast();
+}
+
+function _drainToast() {
   const t = getEl('toast');
+  if (!t || !_toastQ.length) {
+    _toastBusy = false;
+    return;
+  }
+  _toastBusy = true;
+  const msg = _toastQ.shift();
+  _lastToastMsg = msg;
+  _lastToastAt = Date.now();
   t.innerText = msg;
   t.classList.add('vis');
   clearTimeout(t._t);
-  t._t = setTimeout(() => t.classList.remove('vis'), 2400);
+  const hold = msg.length > 28 ? 2800 : 2000;
+  t._t = setTimeout(() => {
+    t.classList.remove('vis');
+    // brief gap before next
+    setTimeout(_drainToast, 180);
+  }, hold);
+}
+
+/** Light haptic (mobile) — no-op if unsupported or reduce-motion. */
+export function haptic(ms = 12) {
+  try {
+    if (document.documentElement.classList.contains('reduce-motion')) return;
+    if (navigator.vibrate) navigator.vibrate(ms);
+  } catch (_) {}
 }
 
 export function spawnFE(txt, bad = false) {

@@ -34,6 +34,7 @@ import {
 } from './systems/debug.js';
 import { applyA11yClasses } from './systems/audio.js';
 import { applyPrestigeSkin } from './systems/prestige-skin.js';
+import { initTelemetry } from './systems/telemetry.js';
 import { ctxMgTap, ctxMgSkip } from './systems/context-mg.js';
 import { applyAllStaffBonuses, renderStaff, hireStaff, levelUpStaff, restStaff, fireStaff, unlockSkill } from './systems/staff.js';
 import { applyDecoBonus, buyDeco, unequipSlot } from './systems/decoration.js';
@@ -100,6 +101,7 @@ renderBattlePass();
 applyA11yClasses();
 applyPrestigeSkin(G.prestigeLevel || 0);
 initDebug();
+initTelemetry();
 updateEventForecastUI();
 connectNet().then(() => initSpectate()); // online LB + spectate handlers
 

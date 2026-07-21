@@ -90,11 +90,12 @@ function setLbStatus(on) {
   el.style.color = on ? 'var(--green)' : 'var(--gold)';
 }
 
-export function submitScoreOnline({ name, score, level, served, prestige, day }) {
+export function submitScoreOnline({ name, score, level, served, prestige, money, day }) {
   if (!socket || !socket.connected) return false;
   socket.emit('submitScore', {
     name, score, level, served,
     prestige: prestige || 0,
+    money: money || 0,
     day: day || null,
   });
   return true;

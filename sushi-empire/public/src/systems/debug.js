@@ -149,7 +149,20 @@ export function debugCloseAndDisable() {
 function refreshDebugStat() {
   const el = getEl('debugStat');
   if (!el) return;
-  el.innerText = `Lv.${G.level} · ฿${G.money} · เสิร์ฟ ${G.served} · rating ${G.rating} · prest ${G.prestigeLevel}`;
+  let telLine = '';
+  try {
+    // sync import path may not be ready; use dynamic
+  } catch (_) {}
+  import('./telemetry.js').then(m => {
+    const t = m.formatTelemetryDebug();
+    el.innerText =
+      `Lv.${G.level} · ฿${G.money.toLocaleString()} · เสิร์ฟ ${G.served}\n`
+      + `rating ${G.rating} · prest ${G.prestigeLevel} · Perfect ${G.perfectCount || 0}\n`
+      + `match ${G.orderMatchCount || 0} · chain max ${G.maxOrderMatchStreak || 0}\n`
+      + t;
+  }).catch(() => {
+    el.innerText = `Lv.${G.level} · ฿${G.money} · เสิร์ฟ ${G.served} · rating ${G.rating} · prest ${G.prestigeLevel}`;
+  });
 }
 
 export function debugGiveMoney(n) {

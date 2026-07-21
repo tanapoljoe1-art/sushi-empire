@@ -357,6 +357,7 @@ export function tickAnger(custId) {
     if (!G.staffStreakGuard && !ev?.streakProtect) G.streak = 0;
     sfxAngry();
     G.missToday = (G.missToday || 0) + 1;
+    try { import('./telemetry.js').then(m => m.tel('miss')).catch(() => {}); } catch (_) {}
     const isCriticEv = G.activeEvent === 'critic';
     const isCriticCust = c.ctype === 'critic';
     let ratingLoss = ev?.missRatingLossOverride ?? BAL.missRatingLoss(G);
@@ -392,8 +393,16 @@ export function renderQ() {
     const order = c.wantedEmoji
       ? `<div class="q-order" title="สั่งเมนูนี้">${c.wantedEmoji}</div>`
       : '';
+    const typeTip = ({
+      tourist: 'นักท่องเที่ยว — อดทนต่ำ รายได้สูง',
+      foodie: 'สายกิน — อดทนสูง ชอบพรีเมียม',
+      influencer: 'อินฟลู — เสิร์ฟดีแล้วคิว +1 ชั่วคราว',
+      critic: 'นักวิจารณ์ — ผิดแล้วเจ็บ rating',
+      spy: 'สายลับ Tsunami — ผิดเมนูแล้ว sabotage',
+      regular: 'ลูกค้าทั่วไป',
+    })[c.ctype] || c.ctype || '';
     const typeB = c.typeBadge
-      ? `<div class="q-type" title="${c.ctype || ''}">${c.typeBadge}</div>`
+      ? `<div class="q-type" title="${typeTip}">${c.typeBadge}</div>`
       : '';
     if (c.state === 'vip')
       return `<div class="qc vip">${c.e}${order}${typeB}<div class="vip-crown">👑</div></div>`;
@@ -534,10 +543,13 @@ export function doneCook(m) {
   sfxCoin();
   if (cookQuality === 'perfect') {
     G.perfectCount = (G.perfectCount || 0) + 1;
+    trackQuestProgress('perfect');
     toast('✨ PERFECT! +35% รายได้');
     spawnFE('✨ PERFECT');
     try { cameraPunchPerfect(); } catch (_) {}
     sfxPerfect();
+    try { import('../ui/render.js').then(m => m.haptic?.(18)).catch(() => {}); } catch (_) {}
+    try { import('./telemetry.js').then(m => m.tel('perfect')).catch(() => {}); } catch (_) {}
   }
   if (G.autoServe || G.autoChef) setTimeout(serve, 650);
   else {
@@ -575,6 +587,12 @@ export function serve() {
   G.streak++;
   G.served++;
   G.rating  = Math.min(100, G.rating + ratingGain);
+  try {
+    import('./telemetry.js').then(m => {
+      m.tel('serve');
+      m.tel('earn', { amount: earn });
+    }).catch(() => {});
+  } catch (_) {}
 
   // Rival weekly progress
   try {
@@ -650,6 +668,7 @@ export function serve() {
     G.rating = 20;
     sfxLevelUp();
     toast('🎉 Level Up! Lv.' + G.level);
+    try { import('./telemetry.js').then(m => m.tel('levelup')).catch(() => {}); } catch (_) {}
     checkFeatureUnlocks(prevLv, G.level);
     checkStoryTriggers();
     import('./coach.js').then(m => m.coachOnLevel(G.level)).catch(() => {});
@@ -694,12 +713,20 @@ export function trackQuestProgress(type, val = 1) {
     G.qDaily.served++;
     G.qWeekly.servedWeek++;
     if (!G.missToday) G.qDaily.servedNomiss++;
+    // Track best streak of the UTC/day quest window
+    if ((G.streak || 0) > (G.qDaily.maxStreakToday || 0)) {
+      G.qDaily.maxStreakToday = G.streak;
+    }
   }
   if (type === 'earn')    G.qDaily.moneyEarned += val;
   if (type === 'mg')    { G.qDaily.mgWinsToday++; G.qWeekly.mgWinsWeek++; }
   if (type === 'upgrade') G.qWeekly.upgradesWeek++;
   if (type === 'event')   G.qWeekly.eventsWeek++;
   if (type === 'special') G.qDailyExtra.specialServed = (G.qDailyExtra.specialServed || 0) + 1;
+  if (type === 'perfect') {
+    G.qDaily.perfects = (G.qDaily.perfects || 0) + 1;
+    G.qWeekly.perfectsWeek = (G.qWeekly.perfectsWeek || 0) + 1;
+  }
 }
 
 // ── Upgrades ──────────────────────────────────────────────────────────────────
@@ -1002,6 +1029,7 @@ export function doPrestige() {
   // Earn 1★ base + 1★ every 2 prestige levels
   const starsGain = 1 + Math.floor(G.prestigeLevel / 2);
   G.prestigeStars = (G.prestigeStars || 0) + starsGain;
+  try { import('./telemetry.js').then(m => m.tel('prestige')).catch(() => {}); } catch (_) {}
 
   // Soft-keep staff: still hired, levels reset to 1, skills kept, mood restored
   const softStaff = {};

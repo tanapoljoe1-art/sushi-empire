@@ -402,10 +402,12 @@ export const DECO_SETS = {
 export const DAILY_POOL = [
   {id:'d_serve10',  name:'เสิร์ฟ 10 ครั้ง',     emoji:'🍣',target:10, field:'served',     reward:200, rewardIng:{rice:5,salmon:2}},
   {id:'d_streak5',  name:'Streak 5 ครั้งติด',    emoji:'🔥',target:5,  field:'streak',     reward:150, rewardRating:3},
+  {id:'d_streak10', name:'Streak สูงสุด 10 วันนี้',emoji:'💫',target:10, field:'maxStreakToday', reward:220, rewardRating:2},
   {id:'d_money500', name:'หาเงิน 500฿',           emoji:'💰',target:500,field:'moneyEarned',reward:180, rewardIng:{nori:8}},
   {id:'d_nomiss',   name:'เสิร์ฟโดยไม่มีคนเดิน', emoji:'😊',target:5,  field:'servedNomiss',reward:250, rewardIng:{uni:1,egg:3}},
   {id:'d_mg1',      name:'ชนะ Mini-game 1 ครั้ง', emoji:'🎮',target:1,  field:'mgWinsToday', reward:120, rewardIng:{shrimp:3}},
   {id:'d_special3', name:'เสิร์ฟ Daily Special 3 จาน', emoji:'⭐',target:3, field:'specialServed', reward:220, rewardIng:{tuna:2}, rewardRating:2},
+  {id:'d_perfect5', name:'Perfect 5 ครั้งวันนี้',  emoji:'✨',target:5,  field:'perfects',    reward:280, rewardIng:{salmon:3}, rewardRating:3},
 ];
 
 export const WEEKLY_POOL = [
@@ -413,6 +415,7 @@ export const WEEKLY_POOL = [
   {id:'w_lv3',      name:'อัปเกรด 3 อย่าง',          emoji:'⬆️',target:3,  field:'upgradesWeek',reward:1500, rewardIng:{gold:1}, rewardRating:5},
   {id:'w_event5',   name:'ผ่าน Event 5 ครั้ง',        emoji:'⚡',target:5,  field:'eventsWeek',  reward:1800, rewardIng:{uni:3,caviar:1}},
   {id:'w_mg5',      name:'ชนะ Mini-game 5 ครั้ง',     emoji:'🎮',target:5,  field:'mgWinsWeek',  reward:2500, rewardIng:{wagyu:2,egg:10}},
+  {id:'w_perfect25',name:'Perfect 25 ครั้งในสัปดาห์', emoji:'✨',target:25, field:'perfectsWeek', reward:2200, rewardIng:{uni:2,gold:1}, rewardRating:4},
 ];
 
 export const FUSION_RECIPES = [

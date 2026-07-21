@@ -46,6 +46,24 @@ function sanitizeName(name, fallback) {
   return String(name ?? '').trim().slice(0, 20) || fallback;
 }
 
+/** Must match client `calcScore()` in progress.js */
+function calcScoreServer({ served, level, prestige, money }) {
+  const s = Math.max(0, Math.min(2_000_000, Number(served) || 0));
+  const lv = Math.max(1, Math.min(500, Number(level) || 1));
+  const p = Math.max(0, Math.min(100, Number(prestige) || 0));
+  const m = Math.max(0, Math.min(1e15, Number(money) || 0));
+  return s * 10 + lv * 50 + p * 500 + (m > 0 ? Math.floor(Math.log10(m) * 20) : 0);
+}
+
+function clampStatEntry(raw) {
+  return {
+    served: Math.max(0, Math.min(2_000_000, Number(raw.served) || 0)),
+    level: Math.max(1, Math.min(500, Number(raw.level) || 1)),
+    prestige: Math.max(0, Math.min(100, Number(raw.prestige) || 0)),
+    money: Math.max(0, Math.min(1e15, Number(raw.money) || 0)),
+  };
+}
+
 function makeRoomCode() {
   const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = '';
@@ -123,19 +141,28 @@ io.on('connection', (socket) => {
     io.to(code).emit('chat', { name: isHost ? room.hostName : (socket.viewerName || 'ผู้ชม'), msg: msg.trim().slice(0, 60), isHost });
   });
 
-  socket.on('submitScore', ({ name, score, level, served, prestige, day }) => {
+  socket.on('submitScore', ({ name, score, level, served, prestige, money, day }) => {
     const now = Date.now();
     if (socket._lastScoreAt && now - socket._lastScoreAt < 3000) return; // rate limit: 1 submit / 3s
     socket._lastScoreAt = now;
 
     ensureDailyBoard();
     const cleanName = sanitizeName(name, 'เชฟ');
+    const stats = clampStatEntry({ level, served, prestige, money });
+    // Server-authoritative score from stats (ignore inflated client score)
+    const expected = calcScoreServer(stats);
+    const clientScore = Number(score) || 0;
+    // Allow small lag if client formula drifts; never accept huge cheats
+    const scoreFinal = clientScore > expected + 50
+      ? expected
+      : Math.max(0, Math.min(clientScore || expected, expected + 50));
+
     const entry = {
       name: cleanName,
-      score: Number(score) || 0,
-      level: Number(level) || 1,
-      served: Number(served) || 0,
-      prestige: prestige || 0,
+      score: scoreFinal,
+      level: stats.level,
+      served: stats.served,
+      prestige: stats.prestige,
       ts: Date.now(),
       day: day || dailyDayKey,
     };

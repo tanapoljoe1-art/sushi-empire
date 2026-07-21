@@ -210,6 +210,7 @@ export function tickEventScheduler() {
 
 function fireEvent(ev) {
   G.activeEvent = ev.id;
+  try { import('./telemetry.js').then(m => m.tel('event')).catch(() => {}); } catch (_) {}
   pushEventLog({
     id: ev.id,
     name: ev.name,

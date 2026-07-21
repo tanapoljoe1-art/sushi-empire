@@ -162,17 +162,44 @@ export function initTitleScreen() {
       getEl('tsSavePreview').style.display = 'block';
       getEl('tsSaveName').innerText = `Lv.${sv.level || 1} · ${(sv.money || 0).toLocaleString()}฿`;
       const staffN = Object.values(sv.staff || {}).filter(s => s && s.hired).length;
+      const achN = Object.keys(sv.ach || {}).length;
       getEl('tsSaveSub').innerText  =
-        `เสิร์ฟ ${sv.served || 0} · Prestige ${prestLv}` + (staffN ? ` · ทีม ${staffN}` : '');
+        `เสิร์ฟ ${sv.served || 0} · Prestige ${prestLv}`
+        + (staffN ? ` · ทีม ${staffN}` : '')
+        + (achN ? ` · 🏆${achN}` : '');
       getEl('btnContinue').style.display  = 'flex';
       getEl('btnNewGame').className       = 'ts-btn secondary';
       getEl('btnDeleteSave').style.display = 'flex';
       // badge on preview
       const ico = getEl('tsSavePreview')?.querySelector('.ts-save-ico');
       if (ico && prestLv > 0) ico.innerText = prestLv >= 5 ? '🏯' : prestLv >= 2 ? '🥇' : '✨';
-    } catch (e) {}
+      // Showcase last unlocked achievements
+      renderTitleAchShowcase(sv);
+    } catch (e) {
+      const show = getEl('tsAchShowcase');
+      if (show) show.style.display = 'none';
+    }
+  } else {
+    const show = getEl('tsAchShowcase');
+    if (show) show.style.display = 'none';
   }
   import('./prestige-skin.js').then(m => m.applyPrestigeSkin(prestLv || G.prestigeLevel || 0)).catch(() => {});
+}
+
+function renderTitleAchShowcase(sv) {
+  const el = getEl('tsAchShowcase');
+  if (!el) return;
+  import('./progress.js').then(m => {
+    const list = m.getShowcaseAch(sv);
+    if (!list.length) {
+      el.style.display = 'none';
+      return;
+    }
+    el.style.display = 'flex';
+    el.innerHTML = list.map(a =>
+      `<div class="ts-ach-chip" title="${a.name}"><span>${a.icon}</span><span class="ts-ach-name">${a.name}</span></div>`
+    ).join('');
+  }).catch(() => { el.style.display = 'none'; });
 }
 
 export function titleContinue() { hideTitle(); }

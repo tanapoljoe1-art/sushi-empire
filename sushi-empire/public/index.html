@@ -30,6 +30,7 @@
       <div style="font-size:12px;color:var(--gold)">▶</div>
     </div>
   </div>
+  <div class="ts-ach-showcase" id="tsAchShowcase" style="display:none" aria-label="Achievements"></div>
 
   <div class="ts-btns" id="tsBtns">
     <button class="ts-btn primary" id="btnContinue" style="display:none" onclick="titleContinue()">
@@ -48,7 +49,7 @@
       <span class="ts-btn-ico">🗑️</span><span class="ts-btn-txt">ลบเซฟ</span><span class="ts-btn-arr">›</span>
     </button>
   </div>
-  <div class="ts-ver">v5.1 · Sushi Empire © 2025</div>
+  <div class="ts-ver">v1.2.0 · Sushi Empire</div>
 </div>
 
 <!-- Spectate modal -->
@@ -311,10 +312,12 @@
     <div id="marketBanner" class="market-banner" style="display:none"></div>
   </div>
   <div class="info-dots" id="infoDots"></div>
-  <div id="rivalBanner" class="rival-banner" style="display:none"></div>
-  <div class="fest-row">
-    <button type="button" class="fest-btn" id="festivalBtn" onclick="hostFestival()">🎊 จัดเทศกาล</button>
-    <span class="fest-sub" id="festivalBtnSub">รายได้ x2 + คิว</span>
+  <div class="home-action-strip" id="homeActionStrip">
+    <div id="rivalBanner" class="rival-banner" style="display:none"></div>
+    <div class="fest-row">
+      <button type="button" class="fest-btn" id="festivalBtn" onclick="hostFestival()">🎊 จัดเทศกาล</button>
+      <span class="fest-sub" id="festivalBtnSub">รายได้ x2 + คิว</span>
+    </div>
   </div>
   <div class="resto" id="restoCard">
     <div class="resto-bg"></div>

@@ -156,18 +156,27 @@
 - [x] UI spoiler + unlock modal “🔒 ปลดล็อคลับ!”  
 - [x] version → 1.1.0  
 
+## รอบ 16 — Telemetry / polish / LB trust (2026-07-21)
+- [x] Telemetry local (`SE5_tel`) + debug summary  
+- [x] Toast dedupe/queue · Perfect haptic  
+- [x] Title ach showcase + tier Bronze/Silver/Gold  
+- [x] Quest: perfect daily/weekly + maxStreakToday  
+- [x] Server calcScore authoritative + clamp  
+- [x] Home action strip · customer type tooltips  
+- [x] version → 1.2.0  
+
 ### ยังค้าง (infra + ต่อ)
 - [ ] **Render auto-deploy** — Connect มือ / Manual deploy หลัง push  
-- [ ] Telemetry เบา  
+- [ ] Telemetry โชว์ใน settings สำหรับผู้เล่น (optional)  
 
 ---
 
 # 🔜 คิวถัดไป (แนะนำทำตามลำดับ)
 
 1. Manual deploy บน Render + live smoke  
-2. Telemetry / polish  
-3. Tiered / showcase achievements (optional)  
-4. Bug bash  
+2. Balance / soft-cap mid-late (ถ้า grind หนัก)  
+3. Title showcase คลิกไปแท็บ ach  
+4. Bug bash ต่อเนื่อง  
 
 
 ---
@@ -205,7 +214,7 @@
 | ประเภท: Influencer | ✅ | เสิร์ฟสำเร็จ → คิว +1 ชั่วคราว 45s |
 | ประเภท: Rival spy | ✅ | เสิร์ฟผิด → ลด marketing ชั่วคราว |
 | Unlock ประเภทตามสาขา | 📋 | สนามบิน=tourist, โตเกียว=foodie |
-| UI ไอคอนประเภท + tooltip | 📋 | |
+| UI ไอคอนประเภท + tooltip | ✅ เบา | title ภาษาไทยบน .q-type |
 
 ---
 
@@ -322,7 +331,7 @@
 | รางวัลหลาก (ing, blueprint, staff XP, prestige dust) | ✅ บางส่วน | เงิน + ing + rating (ยังไม่มี dust/blueprint) |
 | Quest แนว skill | 📋 | Perfect 10 ครั้ง, VIP ถูกเมนู — มี daily special quest แล้ว |
 | Battle pass เบา 30 วัน | ✅ | free + premium track · season bucket |
-| `maxStreakToday` สำหรับ quest streak | 📋 | ตอนนี้ใช้ G.streak ปัจจุบัน คลุมเครือ |
+| `maxStreakToday` สำหรับ quest streak | ✅ | quest field + daily reset |
 
 ---
 
@@ -332,9 +341,9 @@
 |--------|--------|------------|
 | Ach + queue modal | ที่มีอยู่ (แก้ bug แล้ว) | |
 | Hidden / secret ach | ✅ | 14 รายการ · spoiler UI · counters persist prestige |
-| Tiered bronze/silver/gold | 📋 | |
+| Tiered bronze/silver/gold | ✅ | ตาม reward threshold |
 | Playstyle ach | ✅ บางส่วน | order-match chain, fusion-only, perfect |
-| Showcase บน title screen | 📋 | |
+| Showcase บน title screen | ✅ | 4 ชิปชั้นสูงสุด |
 
 ---
 
@@ -410,7 +419,7 @@
 | Export / import JSON + checksum | ✅ | ตั้งค่า · ดาวน์โหลด / คัดลอก / วาง / ไฟล์ |
 | `saveVersion` + migrations ชัด | ✅ | SAVE_VERSION=2 · migrate ตอน load |
 | Cloud save (optional ภายหลัง) | 🧊 | |
-| Anti-cheat เบาสำหรับ LB จริง | 📋 | server validate |
+| Anti-cheat เบาสำหรับ LB จริง | ✅ เบา | server calcScore + clamp + rate limit |
 
 ---
 
@@ -431,7 +440,7 @@
 
 | ไอเดีย | สถานะ | รายละเอียด |
 |--------|--------|------------|
-| Telemetry เบา | 📋 | time-to-Lv5, prestige rate, churn point |
+| Telemetry เบา | ✅ local | SE5_tel · time-to-Lv5/15/P1 · debug panel |
 | Economy spreadsheet ฿/s ต่อ stage | 📋 | |
 | Balance pass Lv.1–15 | ✅ | incomeLvMult + costs + miss loss |
 | Debug panel | ✅ | ดู Core Loop |

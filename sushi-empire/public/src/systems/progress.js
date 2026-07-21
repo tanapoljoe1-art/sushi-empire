@@ -17,9 +17,9 @@ export function initQuests() {
       const idx = ~~(Math.random() * pool.length);
       G.quests.activeDailyIds.push(pool[idx].id); pool.splice(idx, 1);
     }
-    if (!G.qDaily) G.qDaily = { served:0, streak:0, moneyEarned:0, servedNomiss:0, mgWinsToday:0 };
-    else Object.keys(G.qDaily).forEach(k => G.qDaily[k] = 0);
+    G.qDaily = { served:0, streak:0, moneyEarned:0, servedNomiss:0, mgWinsToday:0, perfects:0, maxStreakToday:0 };
     G.qDailyExtra = { specialServed: 0 };
+    G.missToday = 0;
   }
 
   if (now - G.quests.lastWeeklyReset > weekMs || !G.quests.activeWeeklyIds.length) {
@@ -29,8 +29,7 @@ export function initQuests() {
       const idx = ~~(Math.random() * pool.length);
       G.quests.activeWeeklyIds.push(pool[idx].id); pool.splice(idx, 1);
     }
-    if (!G.qWeekly) G.qWeekly = { servedWeek:0, upgradesWeek:0, eventsWeek:0, mgWinsWeek:0 };
-    else Object.keys(G.qWeekly).forEach(k => G.qWeekly[k] = 0);
+    G.qWeekly = { servedWeek:0, upgradesWeek:0, eventsWeek:0, mgWinsWeek:0, perfectsWeek:0 };
   }
 }
 
@@ -116,16 +115,19 @@ export function renderQuests() {
 
 export function getQuestVal(field) {
   const map = {
-    served:       G.qDaily.served        || 0,
-    streak:       G.streak,
-    moneyEarned:  G.qDaily.moneyEarned   || 0,
-    servedNomiss: G.qDaily.servedNomiss  || 0,
-    mgWinsToday:  G.qDaily.mgWinsToday   || 0,
-    specialServed:(G.qDailyExtra && G.qDailyExtra.specialServed) || 0,
-    servedWeek:   G.qWeekly.servedWeek   || 0,
-    upgradesWeek: G.qWeekly.upgradesWeek || 0,
-    eventsWeek:   G.qWeekly.eventsWeek   || 0,
-    mgWinsWeek:   G.qWeekly.mgWinsWeek   || 0,
+    served:         G.qDaily.served          || 0,
+    streak:         G.streak,
+    maxStreakToday: G.qDaily.maxStreakToday  || 0,
+    moneyEarned:    G.qDaily.moneyEarned     || 0,
+    servedNomiss:   G.qDaily.servedNomiss    || 0,
+    mgWinsToday:    G.qDaily.mgWinsToday     || 0,
+    perfects:       G.qDaily.perfects        || 0,
+    specialServed:  (G.qDailyExtra && G.qDailyExtra.specialServed) || 0,
+    servedWeek:     G.qWeekly.servedWeek     || 0,
+    upgradesWeek:   G.qWeekly.upgradesWeek   || 0,
+    eventsWeek:     G.qWeekly.eventsWeek     || 0,
+    mgWinsWeek:     G.qWeekly.mgWinsWeek     || 0,
+    perfectsWeek:   G.qWeekly.perfectsWeek   || 0,
   };
   return map[field] || 0;
 }
@@ -173,9 +175,14 @@ export function setLbMode(mode) {
   renderLB();
 }
 
-export function calcScore() {
-  return G.served * 10 + G.level * 50 + G.prestigeLevel * 500
-    + (G.money > 0 ? Math.floor(Math.log10(G.money) * 20) : 0);
+/** Shared with server.js — keep formulas identical. */
+export function calcScore(g = G) {
+  const served = Number(g.served) || 0;
+  const level = Number(g.level) || 1;
+  const prestige = Number(g.prestigeLevel) || 0;
+  const money = Number(g.money) || 0;
+  return served * 10 + level * 50 + prestige * 500
+    + (money > 0 ? Math.floor(Math.log10(money) * 20) : 0);
 }
 
 function lbStorageKey(mode = lbMode) {
@@ -211,6 +218,10 @@ export async function submitScore() {
   G.playerName = name;
   const score = calcScore(); G.totalScore = score;
   const day = dayKeyUTC();
+  const payload = {
+    name, score, level: G.level, served: G.served,
+    prestige: G.prestigeLevel || 0, money: G.money || 0, day,
+  };
 
   // Local: write both daily + all-time
   for (const mode of ['daily', 'all']) {
@@ -241,9 +252,7 @@ export async function submitScore() {
   try {
     const net = await import('./net.js');
     await net.connectNet();
-    const ok = net.submitScoreOnline({
-      name, score, level: G.level, served: G.served, prestige: G.prestigeLevel, day,
-    });
+    const ok = net.submitScoreOnline(payload);
     toast(ok
       ? (lbMode === 'daily' ? '🌐 บันทึกอันดับวันนี้แล้ว!' : '🌐 บันทึกอันดับออนไลน์แล้ว!')
       : '💾 บันทึกในเครื่องแล้ว (ออฟไลน์)');
@@ -306,6 +315,13 @@ export async function renderLB() {
 
 // ── Achievements ──────────────────────────────────────────────────────────────
 
+function achTier(reward) {
+  const r = Number(reward) || 0;
+  if (r >= 2000) return { id: 'gold', label: 'Gold', cls: 'tier-gold' };
+  if (r >= 600) return { id: 'silver', label: 'Silver', cls: 'tier-silver' };
+  return { id: 'bronze', label: 'Bronze', cls: 'tier-bronze' };
+}
+
 export function renderAch() {
   const total = ACHIEVEMENTS.length;
   const unlocked = ACHIEVEMENTS.filter(a => G.ach[a.id]).length;
@@ -319,18 +335,33 @@ export function renderAch() {
   getEl('achList').innerHTML = ACHIEVEMENTS.map(a => {
     const done = !!G.ach[a.id];
     const secret = !!a.hidden && !done;
+    const tier = achTier(a.reward);
     const ico = secret ? '❓' : a.icon;
     const name = secret ? '???' : a.name;
     const desc = secret ? 'เงื่อนไขลับ — ค้นหาเอาเอง' : a.desc;
-    const cls = done ? 'done' : (secret ? 'secret pend' : 'pend');
+    const cls = [
+      'ac',
+      done ? 'done' : 'pend',
+      secret ? 'secret' : '',
+      tier.cls,
+    ].filter(Boolean).join(' ');
     return `<div class="ac ${cls}">
       <div class="ac-ico">${ico}</div>
       <div class="ac-inf">
-        <div class="ac-n">${name}${a.hidden && done ? ' <span class="ac-secret-tag">ลับ</span>' : ''}</div>
+        <div class="ac-n">${name}${a.hidden && done ? ' <span class="ac-secret-tag">ลับ</span>' : ''} <span class="ac-tier ${tier.cls}">${tier.label}</span></div>
         <div class="ac-d">${desc}</div>
-        ${done ? `<div class="ac-r">+${a.reward}฿ ✓</div>` : (secret ? '<div class="ac-r">🔒 ลับ</div>' : '')}
+        ${done ? `<div class="ac-r">+${a.reward}฿ ✓</div>` : (secret ? '<div class="ac-r">🔒 ลับ</div>' : `<div class="ac-r">+${a.reward}฿</div>`)}
       </div>
       <div class="ac-chk">${done ? '✅' : '🔒'}</div>
     </div>`;
   }).join('');
+}
+
+/** Showcase achievements on title screen (up to 4, highest tier first). */
+export function getShowcaseAch(saveObj) {
+  const ach = (saveObj && saveObj.ach) || G.ach || {};
+  return ACHIEVEMENTS
+    .filter(a => ach[a.id])
+    .sort((a, b) => (b.reward || 0) - (a.reward || 0))
+    .slice(0, 4);
 }

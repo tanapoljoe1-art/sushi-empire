@@ -93,8 +93,8 @@ export function defaultState() {
     decoSetBonus:0,
     // Quests
     quests: { daily:{}, weekly:{}, lastDailyReset:0, lastWeeklyReset:0, activeDailyIds:[], activeWeeklyIds:[] },
-    qDaily:  { served:0, streak:0, moneyEarned:0, servedNomiss:0, mgWinsToday:0 },
-    qWeekly: { servedWeek:0, upgradesWeek:0, eventsWeek:0, mgWinsWeek:0 },
+    qDaily:  { served:0, streak:0, moneyEarned:0, servedNomiss:0, mgWinsToday:0, perfects:0, maxStreakToday:0 },
+    qWeekly: { servedWeek:0, upgradesWeek:0, eventsWeek:0, mgWinsWeek:0, perfectsWeek:0 },
     missToday: 0, totalScore: 0,
     // Fusion
     fusion: { discovered:[], newDisc:[] },
@@ -227,7 +227,9 @@ function normalizeLoadedState(parsed) {
   if (!G.mgHighScores) G.mgHighScores = { rhythm:null, fish:null, memory:null };
   if (!G.quests) G.quests = defaultState().quests;
   if (!G.qDaily) G.qDaily = defaultState().qDaily;
+  else G.qDaily = { ...defaultState().qDaily, ...G.qDaily };
   if (!G.qWeekly) G.qWeekly = defaultState().qWeekly;
+  else G.qWeekly = { ...defaultState().qWeekly, ...G.qWeekly };
   if (!G.qDailyExtra) G.qDailyExtra = { specialServed: 0 };
   if (!G.dailySpecial) G.dailySpecial = defaultState().dailySpecial;
   if (!G.prestShop) G.prestShop = {};
