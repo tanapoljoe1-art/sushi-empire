@@ -170,10 +170,12 @@ export function savePlayerName() {
   save();
 }
 
-export function submitScore() {
+export async function submitScore() {
   const name  = getEl('playerName').value || 'คุณ';
   G.playerName = name;
   const score = calcScore(); G.totalScore = score;
+
+  // Always keep a local copy
   let rows = loadLB();
   rows = rows.filter(r => r.name !== name);
   rows.push({ name, score, emoji:'⭐', lv:G.level, served:G.served, ts:Date.now() });
@@ -186,13 +188,51 @@ export function submitScore() {
   });
   rows.sort((a, b) => b.score - a.score);
   rows = rows.slice(0, 15);
-  saveLB(rows); save(); renderLB();
-  toast('💾 บันทึกคะแนนแล้ว!');
+  saveLB(rows); save();
+
+  // Try online board (Socket.IO)
+  try {
+    const net = await import('./net.js');
+    await net.connectNet();
+    const ok = net.submitScoreOnline({
+      name, score, level: G.level, served: G.served, prestige: G.prestigeLevel,
+    });
+    toast(ok ? '🌐 บันทึกอันดับออนไลน์แล้ว!' : '💾 บันทึกในเครื่องแล้ว (ออฟไลน์)');
+    net.requestLeaderboard();
+  } catch {
+    toast('💾 บันทึกในเครื่องแล้ว!');
+  }
+  renderLB();
 }
 
-export function renderLB() {
-  const rows   = loadLB();
+export async function renderLB() {
+  let rows = loadLB();
+  let source = 'local';
+  try {
+    const net = await import('./net.js');
+    await net.connectNet();
+    net.requestLeaderboard();
+    const online = net.getOnlineLB();
+    if (online && online.length) {
+      // Server rows: { name, score, level, served, prestige, ts }
+      rows = online.map(r => ({
+        name: r.name,
+        score: r.score,
+        emoji: '🌐',
+        lv: r.level || r.lv || 1,
+        served: r.served || 0,
+        ts: r.ts,
+        online: true,
+      }));
+      source = 'online';
+    }
+  } catch (_) {}
+
   const myName = G.playerName || 'คุณ';
+  const status = getEl('lbNetStatus');
+  if (status && source === 'local') {
+    // leave net.js to set online status; only annotate if empty online
+  }
   if (!rows.length) {
     getEl('lbList').innerHTML =
       '<div style="text-align:center;color:var(--muted);padding:20px">กด "บันทึก" เพื่อเข้าอันดับ!</div>';

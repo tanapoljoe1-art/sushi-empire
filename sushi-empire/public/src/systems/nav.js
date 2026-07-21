@@ -11,7 +11,7 @@ import { UPGRADES } from '../data.js';
 import { getEl } from '../core/dom.js';
 import { toast, updateUI, renderUpgrades, renderIngredients, updateEarnPreview } from '../ui/render.js';
 import { startTitleBg } from '../ui/background.js';
-import { settings } from './audio.js';
+import { settings, startBgm, stopBgm, unlockAudio } from './audio.js';
 import { renderStaff, applyAllStaffBonuses } from './staff.js';
 import { renderDeco, applyDecoBonus } from './decoration.js';
 import { renderQuests, renderLB, renderAch, hasUnclaimedQuests, initQuests } from './progress.js';
@@ -258,11 +258,21 @@ export function closeSettings() { getEl('settingsModal').classList.remove('vis')
 // The original code built the element ID as `'toggle' + key[0].toUpperCase() + key.slice(1)`
 // which produces 'toggleAutosave' but the HTML uses id="toggleAutoSave". Use an
 // explicit map to avoid the case-sensitivity mismatch.
-const TOGGLE_ID_MAP = { sound: 'toggleSound', anim: 'toggleAnim', autosave: 'toggleAutoSave' };
+const TOGGLE_ID_MAP = {
+  sound: 'toggleSound',
+  music: 'toggleMusic',
+  anim: 'toggleAnim',
+  autosave: 'toggleAutoSave',
+};
 
 export function toggleSetting(key) {
   settings[key] = !settings[key];
   const elId = TOGGLE_ID_MAP[key];
   const el   = elId ? getEl(elId) : null;
   if (el) el.classList.toggle('on', settings[key]);
+  if (key === 'music') {
+    if (settings.music) { unlockAudio(); startBgm(); }
+    else stopBgm();
+  }
+  if (key === 'sound' && settings.sound) unlockAudio();
 }

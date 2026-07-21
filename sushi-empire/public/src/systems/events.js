@@ -202,9 +202,10 @@ export function endEvent() {
   trackQuestProgress('event');
 
   const now = Date.now();
-  if (ev) G.eventCooldowns[ev.id] = now + (EVENT_COOLDOWN_MS[ev.id] || 60000);
+  const cdScale = G.shopEventCdMult || 1;
+  if (ev) G.eventCooldowns[ev.id] = now + Math.round((EVENT_COOLDOWN_MS[ev.id] || 60000) * cdScale);
   G._lastEventEndAt = now;
-  G.nextEventAt = now + GLOBAL_GAP_MS + 10000 + Math.random() * 20000;
+  G.nextEventAt = now + Math.round((GLOBAL_GAP_MS + 10000 + Math.random() * 20000) * cdScale);
 
   G.activeEvent = null; G.eventTimeLeft = 0;
   getEl('evBanner').style.display = 'none';
@@ -225,6 +226,7 @@ export function triggerVIP() {
   const br       = BRANCHES.find(b => b.id === G.activeBranch);
   let vipBonus   = Math.round(200 * G.level * (br ? br.mult : 1));
   if (G.staffVipBonus) vipBonus = Math.round(vipBonus * 1.5);
+  if (G.shopVipTipBonus) vipBonus = Math.round(vipBonus * (1 + G.shopVipTipBonus));
   const unlocked = MENUS.filter(m => m.unlockLv <= G.level && (!m.secret || G.staffSecretMenu));
   const premium  = unlocked.filter(m => m.price >= 100).sort((a, b) => b.price - a.price);
   const wanted   = (premium[0] || unlocked[unlocked.length - 1] || MENUS[0]);

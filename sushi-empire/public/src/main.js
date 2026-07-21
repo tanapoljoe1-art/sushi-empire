@@ -4,8 +4,11 @@ import { MENUS, FUSION_RECIPES, BRANCHES } from './data.js';
 import { getEl } from './core/dom.js';
 import { startGameBg } from './ui/background.js';
 import { updateUI, renderUpgrades, renderIngredients, updateEarnPreview, selMenu } from './ui/render.js';
-import { spawnSteam } from './ui/kitchen-scene.js';
-import { settings } from './systems/audio.js';
+import { spawnSteam, updateKitchenTheme } from './ui/kitchen-scene.js';
+import { settings, unlockAudio, startBgm, syncBgmToGame } from './systems/audio.js';
+import { applyPrestigeShop } from './systems/prestige-shop.js';
+import { buyPrestigeItem } from './systems/prestige-shop.js';
+import { connectNet } from './systems/net.js';
 import {
   cook, serve, buyIngredient, buyUpgrade, buyBranch, switchBranch,
   showPrestModal, closePrest, doPrestige, closeAch, spawnQueue,
@@ -50,12 +53,14 @@ load();
 
 applyAllStaffBonuses();
 applyDecoBonus();
+applyPrestigeShop();
 initQuests();
 initStory();
 initFusion();
 
 spawnQueue();
 spawnSteam();
+updateKitchenTheme(G);
 updateUI();
 renderUpgrades();
 renderIngredients();
@@ -64,6 +69,17 @@ refreshUnlockUI();
 markExistingUnlocksSeen();
 ensureDailySpecial();
 updateEventForecastUI();
+connectNet(); // online leaderboard (non-blocking)
+
+// Unlock audio + BGM on first gesture (browser autoplay policy)
+const _kickAudio = () => {
+  unlockAudio();
+  if (settings.music) startBgm();
+  document.removeEventListener('pointerdown', _kickAudio);
+  document.removeEventListener('keydown', _kickAudio);
+};
+document.addEventListener('pointerdown', _kickAudio, { once: true });
+document.addEventListener('keydown', _kickAudio, { once: true });
 
 // ── Periodic intervals ────────────────────────────────────────────────────────
 
@@ -100,6 +116,9 @@ setInterval(checkStoryTriggers, 20000);
 // Event scheduler + forecast UI (cooldown / marketing chance / pity)
 setInterval(tickEventScheduler, 1000);
 
+// BGM mode follows rush / prestige mood
+setInterval(() => syncBgmToGame(G), 4000);
+
 // ── window-attach: index.html and template-string HTML use onclick="fn(...)"
 // attributes, which only resolve against `window`. This is the definitive set —
 // verified by grepping every onclick/oninput across index.html and every JS
@@ -107,7 +126,7 @@ setInterval(tickEventScheduler, 1000);
 // grep in sync; a name missing here throws ReferenceError only when a player
 // clicks that exact button, not at load time.
 Object.assign(window, {
-  bnavDrawer, bnavGo, buyBranch, buyDeco, buyIngredient, buyUpgrade, claimQuest,
+  bnavDrawer, bnavGo, buyBranch, buyDeco, buyIngredient, buyPrestigeItem, buyUpgrade, claimQuest,
   challengeVip, clearFusionSlot, closeAch, closeConfirm, closeDrawer, closeEvent, closeIdle,
   closePause, closePrest, closeSettings, closeVip, confirmOk, cook, ctxMgSkip, ctxMgTap, doFusion,
   doPrestige, drawerGo, fireStaff, goTab, hireStaff, levelUpStaff, openPause,

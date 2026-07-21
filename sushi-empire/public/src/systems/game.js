@@ -17,6 +17,9 @@ import { applyDecoBonus } from './decoration.js';
 import { goTab } from './nav.js';
 import { checkFeatureUnlocks } from './unlocks.js';
 import { dailySpecialMult, isDailySpecial } from './daily.js';
+import { applyPrestigeShop, renderPrestigeShop } from './prestige-shop.js';
+import { updateKitchenTheme } from '../ui/kitchen-scene.js';
+import { sfxPerfect, syncBgmToGame } from './audio.js';
 
 let cookInt        = null;
 let nextCustomerId = 0;
@@ -114,6 +117,7 @@ export function calcServeEarn(menuId, opts = {}) {
     * (1 + (G.staffIncomeBonus || 0)) * (1 + (G.decoIncomeBonus || 0))
     * BAL.incomeLvMult(G.level)
     * (G.goldenBonus || 1)
+    * (1 + (G.shopIncomeBonus || 0))
   );
   if (G.staffOmakaseBonus && (m.id === 'omakase' || m.id === 'omakase_ex')) earn = Math.round(earn * 1.5);
   if (G.staffPremiumBonus && isPremiumMenu(m)) earn = Math.round(earn * 1.3);
@@ -199,6 +203,7 @@ export function getPatience() {
   if (ev?.patienceMult) base *= ev.patienceMult;
   const spec = activeBranchSpec();
   if (spec?.patienceMult) base *= spec.patienceMult;
+  if (G.shopPatBonus) base *= (1 + G.shopPatBonus);
   return base;
 }
 
@@ -384,7 +389,7 @@ export function cook() {
   if (!G.queue.length) spawnQueue();
 
   const m   = MENUS.find(x => x.id === G.menu);
-  let spd = G.speedMult + G.prestigeSpeedBonus + (G.staffSpeedBonus || 0);
+  let spd = G.speedMult + G.prestigeSpeedBonus + (G.staffSpeedBonus || 0) + (G.shopSpeedBonus || 0);
   // Speed Burst: next cook(s) at 2× after every 5 serves
   if ((G.speedBurstCooks || 0) > 0) {
     spd *= 2;
@@ -479,6 +484,7 @@ export function doneCook(m) {
   if (cookQuality === 'perfect') {
     toast('✨ PERFECT! +35% รายได้');
     spawnFE('✨ PERFECT');
+    sfxPerfect();
   }
   if (G.autoServe || G.autoChef) setTimeout(serve, 650);
   else {
@@ -704,6 +710,7 @@ export function switchBranch(id) {
   getEl('serveBtn').classList.remove('vis');
   getEl('ringWrap').style.display = 'none';
   spawnQueue();
+  updateKitchenTheme(G);
   updateUI();
   renderBr();
   save();
@@ -760,12 +767,17 @@ export function doPrestige() {
   G.prestigeLevel++;
   G.prestigeIncomeMult = 1 + G.prestigeLevel * 0.1;
   G.prestigeSpeedBonus = G.prestigeLevel * 0.05;
+  // Earn 1★ base + 1★ every 2 prestige levels
+  const starsGain = 1 + Math.floor(G.prestigeLevel / 2);
+  G.prestigeStars = (G.prestigeStars || 0) + starsGain;
 
   // Save persistent values (fusion recipes + deco collection persist — staff/upgrades reset)
   const keep = {
     prestigeLevel:       G.prestigeLevel,
     prestigeIncomeMult:  G.prestigeIncomeMult,
     prestigeSpeedBonus:  G.prestigeSpeedBonus,
+    prestigeStars:       G.prestigeStars,
+    prestShop:           G.prestShop || {},
     branches:            G.branches,
     ach:                 G.ach,
     mgWins:              G.mgWins,
@@ -779,7 +791,8 @@ export function doPrestige() {
   };
 
   resetForPrestige(keep);
-  G.money = 100 + keep.prestigeLevel * 500;
+  applyPrestigeShop();
+  G.money = 100 + keep.prestigeLevel * 500 + (G.shopStartBonus || 0);
   // Re-register discovered fusion menus into MENUS after reset
   (G.fusion && G.fusion.discovered || []).forEach(id => {
     if (!MENUS.find(m => m.id === id)) {
@@ -802,10 +815,11 @@ export function doPrestige() {
   angerTimers = {};
   cancelEventCountdown();
 
-  toast('✨ Prestige! เริ่มต้นใหม่ด้วย Bonus ถาวร!');
+  toast(`✨ Prestige! ได้ ${starsGain}★ · โบนัสถาวร!`);
   checkAch();
   spawnQueue();
   spawnSteam();
+  updateKitchenTheme(G);
   updateUI();
   renderUpgrades();
   renderIngredients();
@@ -816,26 +830,36 @@ export function doPrestige() {
 export function renderPrest() {
   const lv     = G.prestigeLevel;
   const nextLv = lv + 1;
+  const starGainNext = 1 + Math.floor(nextLv / 2);
   getEl('prestStars').innerText  = '★'.repeat(Math.min(lv, 5)) + '☆'.repeat(Math.max(0, 5 - lv));
   getEl('prestLv').innerText     = lv;
   getEl('prestDesc').innerText   =
-    `รีเซ็ตเกมเพื่อรับ Permanent Bonus ถาวร\n${G.level >= 20 ? 'พร้อม Prestige!' : 'ต้องการ Level 20 (ปัจจุบัน Lv.' + G.level + ')'}`;
+    `รีเซ็ตเกมเพื่อรับ Permanent Bonus + ★\n${G.level >= 20 ? 'พร้อม Prestige!' : 'ต้องการ Level 20 (ปัจจุบัน Lv.' + G.level + ')'}`;
   getEl('prestBonuses').innerHTML =
     `<div class="pb">รายได้ +${nextLv * 10}%</div>
      <div class="pb">ความเร็ว +${nextLv * 5}%</div>
-     <div class="pb">เริ่มด้วย ${(100 + nextLv * 500).toLocaleString()}฿</div>`;
+     <div class="pb">เริ่ม ${(100 + nextLv * 500 + (G.shopStartBonus || 0)).toLocaleString()}฿</div>
+     <div class="pb">+${starGainNext}★ ร้านค้า</div>`;
   getEl('prestBtnWrap').innerHTML =
     `<button class="mbtn purple" onclick="showPrestModal()" ${G.level < 20 ? 'style="opacity:.5"' : ''}>
        ✨ Prestige Lv.${nextLv}${G.level < 20 ? ' (ต้องการ Lv.20)' : ''}
      </button>`;
-  getEl('prestCurrentBonuses').innerHTML = lv === 0
-    ? '<div style="font-size:12px;color:var(--muted);text-align:center;padding:10px">ยังไม่มี Prestige</div>'
+  const shopBits = [];
+  if (G.shopIncomeBonus) shopBits.push(`ร้านค้า รายได้ +${Math.round(G.shopIncomeBonus * 100)}%`);
+  if (G.shopSpeedBonus)  shopBits.push(`เร็ว +${Math.round(G.shopSpeedBonus * 100)}%`);
+  if (G.shopStartBonus)  shopBits.push(`ทุน +${G.shopStartBonus}฿`);
+  if (G.shopPatBonus)    shopBits.push(`อดทน +${Math.round(G.shopPatBonus * 100)}%`);
+  if (G.shopVipTipBonus) shopBits.push(`VIP tip +${Math.round(G.shopVipTipBonus * 100)}%`);
+  getEl('prestCurrentBonuses').innerHTML = (lv === 0 && !shopBits.length)
+    ? '<div style="font-size:12px;color:var(--muted);text-align:center;padding:10px">ยังไม่มี Prestige — ทำถึง Lv.20 แล้วรีเซ็ตเพื่อรับ ★</div>'
     : `<div class="prestige-card" style="text-align:left">
-        <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Bonus ที่มีอยู่:</div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Bonus ที่มี · ★ ${G.prestigeStars || 0} ใช้ได้</div>
         <div style="display:flex;flex-wrap:wrap;gap:6px">
           <div class="pb">💰 รายได้ x${G.prestigeIncomeMult.toFixed(1)}</div>
           <div class="pb">⚡ ความเร็ว +${(G.prestigeSpeedBonus * 100).toFixed(0)}%</div>
-          <div class="pb">🎁 เริ่มด้วย ${(100 + lv * 500).toLocaleString()}฿</div>
+          <div class="pb">🎁 เริ่ม ${(100 + lv * 500 + (G.shopStartBonus || 0)).toLocaleString()}฿</div>
+          ${shopBits.map(s => `<div class="pb">${s}</div>`).join('')}
         </div>
       </div>`;
+  renderPrestigeShop();
 }

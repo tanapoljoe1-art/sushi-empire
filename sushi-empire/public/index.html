@@ -91,6 +91,11 @@
       <button class="toggle on" id="toggleSound" onclick="toggleSetting('sound')"></button>
     </div>
     <div class="set-row">
+      <div class="set-ico">🎵</div>
+      <div class="set-inf"><div class="set-lbl">เพลง</div><div class="set-sub">BGM เบา ๆ ในร้าน</div></div>
+      <button class="toggle on" id="toggleMusic" onclick="toggleSetting('music')"></button>
+    </div>
+    <div class="set-row">
       <div class="set-ico">✨</div>
       <div class="set-inf"><div class="set-lbl">Animation</div><div class="set-sub">ลด motion ถ้าช้า</div></div>
       <button class="toggle on" id="toggleAnim" onclick="toggleSetting('anim')"></button>
@@ -416,6 +421,7 @@
   </div>
   <div class="slbl">Bonus ปัจจุบัน</div>
   <div id="prestCurrentBonuses" style="padding:0 2px;"></div>
+  <div id="prestShop" style="margin-top:12px"></div>
 </div>
 
 <!-- ══ FUSION LAB PAGE ══ -->
@@ -480,8 +486,8 @@
 
 <!-- ══ LEADERBOARD PAGE ══ -->
 <div class="pg" id="pg-lb">
-  <div class="slbl">Leaderboard</div>
-  <div style="font-size:11px;color:var(--muted);margin-bottom:10px;padding:0 2px">คะแนนจากทุกผู้เล่นในอุปกรณ์นี้ (บันทึกใน localStorage)</div>
+  <div class="slbl">Leaderboard <span id="lbNetStatus" style="font-size:10px;font-weight:700;margin-left:6px;color:var(--gold)">🟡 กำลังเชื่อม...</span></div>
+  <div style="font-size:11px;color:var(--muted);margin-bottom:10px;padding:0 2px">ออนไลน์ผ่านเซิร์ฟเวอร์ · ถ้าออฟไลน์จะบันทึกในเครื่อง</div>
   <div style="background:var(--glass);border:1px solid rgba(232,196,106,.2);border-radius:14px;padding:11px 13px;margin-bottom:10px;display:flex;align-items:center;gap:10px;">
     <div style="font-size:22px">👤</div>
     <div style="flex:1">

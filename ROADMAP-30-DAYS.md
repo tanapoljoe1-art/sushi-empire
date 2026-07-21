@@ -44,7 +44,7 @@
 |-----|-----|--------|
 | 15–16 | ✅ Branch specialization พื้นฐาน | สลับสาขามีเหตุผล — ยังไม่มี manager assign |
 | 17 | Assign staff ประจำสาขา | staff ไม่ใช่แค่ % รวม |
-| 18–19 | Prestige shop (ใช้ดาวซื้อถาวร) | meta ไม่แบน |
+| 18–19 | ✅ Prestige shop (ใช้ดาวซื้อถาวร) | meta ไม่แบน |
 | 20 | Story branching เบา ๆ + rival weekly | เนื้อเรื่องมีผล |
 | 21 | Deco multi-slot (ผนัง/เคาน์เตอร์) + visual ครัว | collection มีความหมาย |
 
@@ -56,10 +56,10 @@
 
 | วัน | งาน | ผลลัพธ์ |
 |-----|-----|--------|
-| 22–24 | Kitchen 2D upgrade (ฉากตามสาขา, ท่าเชฟ) ก่อน 3D | ว้าวโดยยังไม่ Three.js |
-| 25 | BGM 3 ชั้น + SFX ชุดครัว | อารมณ์ร้าน |
+| 22–24 | ✅ Kitchen 2D theme ตามสาขา (3D ยังรอ) | ว้าวโดยยังไม่ Three.js |
+| 25 | ✅ BGM 3 ชั้น + SFX ครัวพื้นฐาน | อารมณ์ร้าน |
 | 26–27 | (Optional kickoff) Three.js ใน `kitchen-scene.js` | ตาม handoff เดิม |
-| 28 | Wire leaderboard จริงผ่าน Socket.IO **หรือ** spectate room | multiplayer ไม่โป๊ะ |
+| 28 | ✅ Leaderboard Socket.IO (spectate ยังรอ) | multiplayer ไม่โป๊ะ |
 | 29 | Export/import save + saveVersion | ไม่เสียเซฟ |
 | 30 | Polish + bug bash + เขียน post-mortem สั้น | ship-ready checkpoint |
 

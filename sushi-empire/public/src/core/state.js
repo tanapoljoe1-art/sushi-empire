@@ -40,6 +40,10 @@ export function defaultState() {
     activeBranch: 'main',
     activeEvent: null, eventTimeLeft: 0,
     prestigeLevel: 0, prestigeIncomeMult: 1, prestigeSpeedBonus: 0,
+    prestigeStars: 0,
+    prestShop: {},
+    shopIncomeBonus: 0, shopSpeedBonus: 0, shopStartBonus: 0,
+    shopPatBonus: 0, shopVipTipBonus: 0, shopEventCdMult: 1,
     // Staff
     staff: {},
     staffSpeedBonus:0, staffPatBonus:0, staffIncomeBonus:0,

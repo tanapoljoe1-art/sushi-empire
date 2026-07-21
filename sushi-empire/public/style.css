@@ -129,6 +129,12 @@ nav{ display:none; } /* hide old nav — keep for goTab compat */
   border:1px solid rgba(232,196,106,.18);
   box-shadow:0 20px 60px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.07);
   padding:16px;position:relative;margin-bottom:12px;}
+.resto.kitchen-themed{border-color:var(--kitchen-accent, rgba(232,196,106,.18));}
+.resto.kitchen-themed .resto-bg{
+  background:var(--kitchen-bg, radial-gradient(ellipse 80% 60% at 50% 120%,rgba(200,150,42,.08) 0%,transparent 70%));
+  transition:background .5s ease;}
+.resto[data-mood="low"] .chefemoji{filter:grayscale(.35) brightness(.9);}
+.resto[data-mood="good"] .chefglow.on{opacity:1;}
 .resto-bg{position:absolute;inset:0;pointer-events:none;
   background:radial-gradient(ellipse 80% 60% at 50% 120%,rgba(200,150,42,.08) 0%,transparent 70%);}
 .rlbl{font-size:10px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase;margin-bottom:12px;
@@ -219,6 +225,26 @@ nav{ display:none; } /* hide old nav — keep for goTab compat */
   border-left:1px solid rgba(74,222,128,.5);border-right:1px solid rgba(74,222,128,.5)}
 .ctx-bar{position:absolute;top:4px;bottom:4px;width:10px;margin-left:-5px;border-radius:6px;
   background:var(--goldg);box-shadow:0 0 10px rgba(232,196,106,.5);left:10%;transition:none}
+
+/* Prestige shop */
+.ps-head{display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:13px;margin-bottom:4px}
+.ps-stars{color:var(--gold);font-size:14px}
+.ps-hint{font-size:10px;color:var(--muted);margin-bottom:10px}
+.ps-grid{display:flex;flex-direction:column;gap:8px}
+.ps-card{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;
+  background:var(--glass);border:1px solid var(--rim)}
+.ps-card.max{opacity:.7}
+.ps-ico{font-size:26px;line-height:1}
+.ps-body{flex:1;min-width:0}
+.ps-name{font-size:12px;font-weight:800}
+.ps-lv{font-size:10px;opacity:.55;font-weight:700}
+.ps-desc{font-size:10px;color:var(--muted);margin-top:1px}
+.ps-dots{display:flex;gap:3px;margin-top:5px}
+.ps-dot{width:10px;height:4px;border-radius:2px;background:rgba(255,255,255,.1)}
+.ps-dot.on{background:var(--gold)}
+.ps-buy{border:none;border-radius:10px;padding:7px 11px;font-weight:900;font-size:12px;
+  font-family:inherit;cursor:pointer;background:var(--goldg);color:#1a0e00;flex-shrink:0}
+.ps-buy.dis,.ps-buy:disabled{opacity:.4;cursor:not-allowed;background:rgba(255,255,255,.08);color:var(--muted)}
 
 /* PLATE */
 .platecol{flex:0 0 78px;display:flex;flex-direction:column;align-items:center;gap:7px;}

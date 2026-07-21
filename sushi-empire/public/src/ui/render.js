@@ -6,6 +6,7 @@ import { hasIngredients, ingredientCost, calcServeEarn, effectiveIng } from '../
 import { updateNavDots } from '../systems/nav.js';
 import { refreshUnlockUI } from '../systems/unlocks.js';
 import { renderDailySpecialBanner, isDailySpecial, ensureDailySpecial } from '../systems/daily.js';
+import { updateKitchenTheme } from './kitchen-scene.js';
 
 export function toast(msg) {
   const t = getEl('toast');
@@ -49,6 +50,7 @@ export function updateUI() {
   updateBpmHud();
   ensureDailySpecial();
   renderDailySpecialBanner();
+  updateKitchenTheme(G);
   renderMenu();
   updateNavDots();
   refreshUnlockUI();
@@ -76,7 +78,7 @@ export function calcBahtPerMin() {
     isVipServe: front?.state === 'vip',
     custEarnMult: front?.earnMult || 1,
   });
-  const spd = (G.speedMult || 1) + (G.prestigeSpeedBonus || 0) + (G.staffSpeedBonus || 0);
+  const spd = (G.speedMult || 1) + (G.prestigeSpeedBonus || 0) + (G.staffSpeedBonus || 0) + (G.shopSpeedBonus || 0);
   const cookSec = (m.time / 1000) / Math.max(0.1, spd);
   const serveGap = (G.autoServe || G.autoChef) ? 0.7 : 1.4;
   const cycleSec = cookSec + serveGap;

@@ -229,7 +229,7 @@
 | ไอเดีย | สถานะ | รายละเอียด |
 |--------|--------|------------|
 | Keep fusion + deco | ✅ | |
-| Prestige shop / skill tree | 📋 | ใช้ดาว prestige ซื้อถาวร |
+| Prestige shop / skill tree | ✅ | prestige-shop.js · ★ ต่อ prestige |
 | Soft keep staff unlock (level รีเซ็ต) | 📋 | |
 | Prestige challenges | 📋 | Lv20 โดยไม่ใช้ autoChef |
 | NG+ skin / kitchen theme | 📋 | ตาม prestige level |
@@ -292,7 +292,7 @@
 | ไอเดีย | สถานะ | รายละเอียด |
 |--------|--------|------------|
 | API แยก 4 ฟังก์ชัน (swap point) | ✅ โครงเดิม | showCooking / showPlateReady / resetPlate / spawnSteam |
-| เฟส A: 2D sprites + ฉากตามสาขา | 📋 | idle/cook/serve; ชายหาด/โตเกียว |
+| เฟส A: 2D sprites + ฉากตามสาขา | ✅ พื้นฐาน | gradient + chef emoji ต่อสาขา |
 | เฟส A: ควัน/แสงตามเมนู | 📋 | |
 | เฟส B: Three.js ใน kitchen-scene เท่านั้น | 📋 | **ไม่แตะ HUD 2D**; คง signature เดิม |
 | เฟส C: camera punch / slow-mo perfect | 🧊 | streak 10+, perfect serve |
@@ -307,8 +307,8 @@
 | ไอเดีย | สถานะ | รายละเอียด |
 |--------|--------|------------|
 | WebAudio beeps | ที่มีอยู่ | |
-| BGM 3 ชั้น idle / rush / night | 📋 | |
-| SFX ครัว (มีด, ข้าว, จาน, กระดิ่ง) | 📋 | |
+| BGM 3 ชั้น idle / rush / night | ✅ | generative pad + pluck |
+| SFX ครัว (มีด, ข้าว, จาน, กระดิ่ง) | ✅ พื้นฐาน | cook/serve/perfect layered |
 | Ducking ตอน modal/story | 📋 | |
 | Haptic มือถือ (vibration) | 📋 | perfect / streak |
 
@@ -343,9 +343,9 @@
 | ไอเดีย | สถานะ | รายละเอียด |
 |--------|--------|------------|
 | Socket.IO ห้อง + spectate + chat บน server | ที่มีบน server | |
-| Client ยังไม่ connect socket | 🐛/📋 | LB ตอนนี้ localStorage + บอท |
+| Client ยังไม่ connect socket | ✅ LB | net.js + submitScoreOnline |
 | **A. Spectate-first** | 📋 แนะนำก่อน | Host เปิดห้อง → เพื่อนดู + เชียร์ emoji |
-| **B. Async daily leaderboard** | 📋 | seed เดียวกัน 24 ชม., server เก็บคะแนน |
+| **B. Async daily leaderboard** | ✅ พื้นฐาน | submitScore ผ่าน socket (ยังไม่ daily seed) |
 | **C. Coop light** | 🧊 | ส่ง buff/วัตถุดิบวันละครั้ง |
 | PvP realtime เต็ม | 🚫 | ต้นทุนสูงเกิน idle |
 
@@ -394,11 +394,11 @@
 | 3 | Perfect cook window | ✅ |
 | 4 | Progressive unlock | ✅ |
 | 5 | Branch มีกฎต่างกัน | ✅ พื้นฐาน |
-| 6 | Prestige shop | 🔜 |
-| 7 | Kitchen visual 2D→3D | 📋 |
-| 8 | BGM + SFX ชุดจริง | 📋 |
+| 6 | Prestige shop | ✅ |
+| 7 | Kitchen visual 2D→3D | 2D✅ / 3D📋 |
+| 8 | BGM + SFX ชุดจริง | ✅ พื้นฐาน |
 | 9 | Contextual minigame | ✅ |
-| 10 | Socket LB / spectate จริง | 📋 |
+| 10 | Socket LB / spectate จริง | LB✅ / spectate📋 |
 
 ---
 
