@@ -34,17 +34,76 @@ export const INGREDIENTS = {
   diamond:{name:'เพชร',   emoji:'💎',buyAmt:1, buyCost:1000,maxAmt:5},
 };
 
+// tree: volume | quality | empire — UI filter + milestone gates
+// require: optional { id, min } must own that upgrade level first
+export const UPGRADE_TREES = {
+  volume:  { name: 'วอลุ่ม',   emoji: '⚡', desc: 'เร็ว · คิว · ออโต้' },
+  quality: { name: 'คุณภาพ',  emoji: '✨', desc: 'rating · Perfect · รายได้' },
+  empire:  { name: 'อาณาจักร', emoji: '🌐', desc: 'idle · สาขา · คลัง' },
+};
+
 export const UPGRADES = [
-  // Early curve softened (base + BAL.upgradeCost); golden less explosive (+35%/lv)
-  {id:'kitchen',  name:'ครัวพรีเมียม', emoji:'🍳',desc:'ทำเร็วขึ้น +25%', max:5,base:180,  fx:g=>{g.speedMult=1+g.up.kitchen*.25;}},
-  {id:'waiter',   name:'พนักงานเสิร์ฟ',emoji:'🧑‍🍽️',desc:'เสิร์ฟอัตโนมัติ', max:1,base:500,  fx:g=>{g.autoServe=g.up.waiter>=1;}},
-  {id:'marketing',name:'โฆษณา',        emoji:'📢',desc:'ลูกค้า +1/คิว',  max:3,base:450,  fx:g=>{g.qSize=1+g.up.marketing;}},
-  {id:'patience', name:'บริการที่ยอดเยี่ยม',emoji:'😊',desc:'ลูกค้ารออดทนขึ้น',max:3,base:350,  fx:g=>{g.patMult=1+g.up.patience*.5;}},
-  {id:'storage',  name:'คลังวัตถุดิบ', emoji:'📦',desc:'ปริมาณวัตถุดิบเพิ่ม x1.5',max:3,base:300, fx:g=>{g.storageMult=1+g.up.storage*.5;}},
-  {id:'autoChef', name:'เชฟ AI',       emoji:'🤖',desc:'ทำอาหารอัตโนมัติ',max:1,base:1200, fx:g=>{g.autoChef=g.up.autoChef>=1;}},
-  {id:'golden',   name:'ครัวทองคำ',    emoji:'🏆',desc:'รายได้ +35% ถาวร / เลเวล',max:3,base:4500, fx:g=>{g.goldenBonus=1+g.up.golden*.35;}},
-  {id:'mastery',  name:'ปรมาจารย์ซูชิ', emoji:'🎓',desc:'Rating ต่อเสิร์ฟ x2',max:1,base:7500, fx:g=>{g.xpMult=g.up.mastery>=1?2:1;}},
-  {id:'franchise',name:'แฟรนไชส์',     emoji:'🌐',desc:'Idle income x2',max:1,base:11000,fx:g=>{g.idleMult=g.up.franchise>=1?2:1;}},
+  // ── Volume ──
+  {id:'kitchen',  name:'ครัวพรีเมียม', emoji:'🍳',tree:'volume', desc:'ทำเร็วขึ้น +25%', max:5,base:180,  fx:g=>{g.speedMult=1+g.up.kitchen*.25;}},
+  {id:'waiter',   name:'พนักงานเสิร์ฟ',emoji:'🧑‍🍽️',tree:'volume', desc:'เสิร์ฟอัตโนมัติ', max:1,base:500,  fx:g=>{g.autoServe=g.up.waiter>=1;}},
+  {id:'marketing',name:'โฆษณา',        emoji:'📢',tree:'volume', desc:'ลูกค้า +1/คิว',  max:3,base:450,  fx:g=>{g.qSize=1+g.up.marketing;}},
+  {id:'autoChef', name:'เชฟ AI',       emoji:'🤖',tree:'volume', desc:'ทำอาหารอัตโนมัติ',max:1,base:1200,
+   require:{id:'kitchen',min:2}, fx:g=>{g.autoChef=g.up.autoChef>=1;}},
+  {id:'express',  name:'คิวด่วน',      emoji:'🚄',tree:'volume', desc:'ความเร็ว +8% + คิว +1', max:2,base:2800,
+   require:{id:'marketing',min:1}, fx:g=>{
+     g.speedMult = (g.speedMult || 1) + g.up.express * 0.08;
+     g.qSize = (g.qSize || 1) + g.up.express;
+   }},
+  // ── Quality ──
+  {id:'patience', name:'บริการที่ยอดเยี่ยม',emoji:'😊',tree:'quality', desc:'ลูกค้ารออดทนขึ้น',max:3,base:350,  fx:g=>{g.patMult=1+g.up.patience*.5;}},
+  {id:'golden',   name:'ครัวทองคำ',    emoji:'🏆',tree:'quality', desc:'รายได้ +35% ถาวร / เลเวล',max:3,base:4500, fx:g=>{g.goldenBonus=1+g.up.golden*.35;}},
+  {id:'mastery',  name:'ปรมาจารย์ซูชิ', emoji:'🎓',tree:'quality', desc:'Rating ต่อเสิร์ฟ x2',max:1,base:7500,
+   require:{id:'patience',min:1}, fx:g=>{g.xpMult=g.up.mastery>=1?2:1;}},
+  {id:'taste',    name:'ฝีมือชิม',      emoji:'👅',tree:'quality', desc:'โซน Perfect กว้างขึ้น', max:2,base:3200,
+   require:{id:'kitchen',min:1}, fx:g=>{
+     // wider perfect window: default 0.78–0.92 → expand by 0.03 per level
+     g.perfectPad = (g.up.taste || 0) * 0.03;
+   }},
+  // ── Empire ──
+  {id:'storage',  name:'คลังวัตถุดิบ', emoji:'📦',tree:'empire', desc:'ปริมาณวัตถุดิบเพิ่ม x1.5',max:3,base:300, fx:g=>{g.storageMult=1+g.up.storage*.5;}},
+  {id:'franchise',name:'แฟรนไชส์',     emoji:'🌐',tree:'empire', desc:'Idle income x2',max:1,base:11000,
+   require:{id:'storage',min:1}, fx:g=>{g.idleMult=g.up.franchise>=1?2:1;}},
+  {id:'outpost',  name:'ด่านหน้า',     emoji:'🏯',tree:'empire', desc:'Idle สาขา +15%/lv', max:3,base:5000,
+   require:{id:'franchise',min:1}, fx:g=>{ g.branchIdleBonus = (g.up.outpost || 0) * 0.15; }},
+];
+
+/** Free battle pass track (30 days / 30 tiers) — XP from serves */
+export const BATTLE_PASS = [
+  { tier:1,  xp:10,  reward:{ money:80 }, label:'เงินเริ่มต้น' },
+  { tier:2,  xp:25,  reward:{ money:120 }, label:'ทุนซื้อของ' },
+  { tier:3,  xp:45,  reward:{ ing:{ rice:8, salmon:3 } }, label:'วัตถุดิบ' },
+  { tier:4,  xp:70,  reward:{ money:200, rating:3 }, label:'เงิน+ชื่อเสียง' },
+  { tier:5,  xp:100, reward:{ money:300 }, label:'ขั้น 5' },
+  { tier:6,  xp:140, reward:{ ing:{ tuna:4, nori:10 } }, label:'วัตถุดิบ 2' },
+  { tier:7,  xp:180, reward:{ money:400 }, label:'ทุนกลาง' },
+  { tier:8,  xp:230, reward:{ rating:5 }, label:'ชื่อเสียง' },
+  { tier:9,  xp:280, reward:{ money:500, ing:{ shrimp:4 } }, label:'ชุดคอมโบ' },
+  { tier:10, xp:340, reward:{ money:800 }, label:'หลักสิบ!' },
+  { tier:11, xp:400, reward:{ ing:{ uni:2, egg:5 } }, label:'ของพรีเมียม' },
+  { tier:12, xp:470, reward:{ money:600 }, label:'เงิน' },
+  { tier:13, xp:550, reward:{ money:700, rating:4 }, label:'บูสต์' },
+  { tier:14, xp:640, reward:{ ing:{ rice:15, salmon:6 } }, label:'สต็อก' },
+  { tier:15, xp:740, reward:{ money:1200 }, label:'ครึ่งทาง' },
+  { tier:16, xp:850, reward:{ money:900 }, label:'ต่อเนื่อง' },
+  { tier:17, xp:970, reward:{ ing:{ tuna:6, nori:12 } }, label:'วัตถุดิบ 3' },
+  { tier:18, xp:1100, reward:{ money:1000, rating:5 }, label:'คุณภาพ' },
+  { tier:19, xp:1250, reward:{ money:1100 }, label:'เกือบสุด' },
+  { tier:20, xp:1420, reward:{ money:2000 }, label:'หลัก 20' },
+  { tier:21, xp:1600, reward:{ ing:{ uni:3, gold:1 } }, label:'หายาก' },
+  { tier:22, xp:1800, reward:{ money:1500 }, label:'ทุนใหญ่' },
+  { tier:23, xp:2020, reward:{ money:1600, rating:6 }, label:'ชื่อเสียงสูง' },
+  { tier:24, xp:2260, reward:{ ing:{ wagyu:2, caviar:1 } }, label:'พรีเมียม' },
+  { tier:25, xp:2520, reward:{ money:2500 }, label:'ขั้น 25' },
+  { tier:26, xp:2800, reward:{ money:1800 }, label:'ใกล้จบ' },
+  { tier:27, xp:3100, reward:{ money:2000, rating:8 }, label:'บูสต์ใหญ่' },
+  { tier:28, xp:3450, reward:{ ing:{ gold:2, diamond:1 } }, label:'สมบัติ' },
+  { tier:29, xp:3850, reward:{ money:3000 }, label:'ก่อนสุดท้าย' },
+  { tier:30, xp:4300, reward:{ money:5000, rating:10 }, label:'จบซีซัน!' },
 ];
 
 export const ACHIEVEMENTS = [

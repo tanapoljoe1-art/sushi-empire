@@ -565,6 +565,36 @@ nav{ display:none; } /* hide old nav — keep for goTab compat */
 .lb-mode{flex:1;padding:8px 10px;border-radius:12px;border:1px solid var(--rim);background:var(--glass);color:var(--muted);font-weight:800;font-size:12px;font-family:'Noto Sans Thai',sans-serif;cursor:pointer;transition:all .15s;}
 .lb-mode.on{border-color:rgba(232,196,106,.45);background:rgba(232,196,106,.12);color:var(--gold);}
 
+/* Upgrade trees */
+.upg-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.upg-tab{padding:7px 10px;border-radius:10px;border:1px solid var(--rim);background:var(--glass);
+  color:var(--muted);font-size:11px;font-weight:800;font-family:'Noto Sans Thai',sans-serif;cursor:pointer}
+.upg-tab.on{border-color:rgba(232,196,106,.45);background:rgba(232,196,106,.12);color:var(--gold)}
+.upg-tab.respec{margin-left:auto;border-color:rgba(255,77,109,.3);color:var(--red)}
+.uc-tree{font-size:11px;margin-left:4px}
+
+/* Battle pass */
+.bp-panel{background:var(--glass);border:1px solid var(--rim);border-radius:16px;padding:12px;margin-bottom:12px}
+.bp-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px}
+.bp-title{font-size:13px;font-weight:900;color:var(--gold)}
+.bp-sub{font-size:10px;color:var(--muted);margin-top:2px}
+.bp-xp{font-size:12px;font-weight:800;color:var(--teal);white-space:nowrap}
+.bp-bar{height:6px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden;margin-bottom:8px}
+.bp-fill{height:100%;background:linear-gradient(90deg,#a78bfa,#f0d080);transition:width .3s}
+.bp-claim-all{width:100%;padding:8px;margin-bottom:8px;border:none;border-radius:10px;background:var(--goldg);
+  color:#1a0e00;font-weight:900;font-size:12px;font-family:'Noto Sans Thai',sans-serif;cursor:pointer}
+.bp-list{max-height:280px;overflow:auto;display:flex;flex-direction:column;gap:6px}
+.bp-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;background:rgba(0,0,0,.2);border:1px solid var(--rim)}
+.bp-row.ready{border-color:rgba(232,196,106,.4)}
+.bp-row.done{opacity:.55}
+.bp-row.lock{opacity:.7}
+.bp-tier{width:28px;height:28px;border-radius:8px;background:rgba(232,196,106,.12);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px;color:var(--gold);flex-shrink:0}
+.bp-inf{flex:1;min-width:0}
+.bp-name{font-size:12px;font-weight:800}
+.bp-rew{font-size:10px;color:var(--muted);margin-top:1px}
+.bp-claim{padding:6px 10px;border:none;border-radius:8px;background:var(--goldg);color:#1a0e00;font-weight:900;font-size:11px;cursor:pointer;font-family:'Noto Sans Thai',sans-serif}
+.bp-tag{font-size:10px;color:var(--muted);font-weight:700}
+
 /* Fish market */
 .market-banner{margin:0 0 8px;padding:8px 12px;border-radius:14px;border:1px solid rgba(56,189,248,.3);
   background:linear-gradient(135deg,rgba(56,189,248,.1),rgba(45,212,191,.06));

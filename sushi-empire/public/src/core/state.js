@@ -29,14 +29,14 @@ export const BAL = {
 
 export function defaultState() {
   return {
-    saveVersion: 4,
+    saveVersion: 5,
     money: 150, rating: 0, level: 1,
     menu: 'salmon', cooking: false, plateReady: false,
     streak: 0, served: 0, vipServed: 0, rushCleared: 0, mgWins: 0,
     queue: [],
-    up: { kitchen:0, waiter:0, marketing:0, patience:0, storage:0, autoChef:0, golden:0, mastery:0, franchise:0 },
+    up: { kitchen:0, waiter:0, marketing:0, patience:0, storage:0, autoChef:0, golden:0, mastery:0, franchise:0, express:0, taste:0, outpost:0 },
     speedMult: 1, autoServe: false, qSize: 1, patMult: 1, storageMult: 1, autoChef: false,
-    goldenBonus: 1, xpMult: 1, idleMult: 1,
+    goldenBonus: 1, xpMult: 1, idleMult: 1, perfectPad: 0, branchIdleBonus: 0,
     speedBurstCooks: 0, // remaining cooks at 2× speed (from staffSpeedBurst)
     // Events scheduler
     eventCooldowns: {}, // { eventId: timestamp when available again }
@@ -95,6 +95,8 @@ export function defaultState() {
     rivalWeekly: { weekKey:'', playerEarn:0, rivalTarget:0, claimed:false },
     fishMarket: { dayKey:'', prices:{}, spoilTick:0 },
     coachSeen: {},
+    battlePass: { season:'', xp:0, claimed:{}, lastDay:'' },
+    upgTreeFilter: 'all',
     // Player
     playerName: '',
   };
@@ -103,7 +105,7 @@ export function defaultState() {
 export let G = defaultState();
 
 /** Bump when save shape needs a migration. Written on every save. */
-export const SAVE_VERSION = 4;
+export const SAVE_VERSION = 5;
 export const SAVE_KEY = 'SE5';
 export const DECO_SLOTS = ['wall', 'counter', 'light', 'floor'];
 
@@ -163,6 +165,13 @@ function migrateSave(data) {
     if (!data.coachSeen || typeof data.coachSeen !== 'object') data.coachSeen = {};
     v = 4;
   }
+  if (v < 5) {
+    if (!data.battlePass) data.battlePass = { season:'', xp:0, claimed:{}, lastDay:'' };
+    if (!data.upgTreeFilter) data.upgTreeFilter = 'all';
+    if (!data.up) data.up = {};
+    ['express','taste','outpost'].forEach(k => { if (data.up[k] == null) data.up[k] = 0; });
+    v = 5;
+  }
   data.saveVersion = SAVE_VERSION;
   return data;
 }
@@ -185,6 +194,10 @@ function normalizeLoadedState(parsed) {
   if (!G.rivalWeekly) G.rivalWeekly = { weekKey:'', playerEarn:0, rivalTarget:0, claimed:false };
   if (!G.fishMarket) G.fishMarket = { dayKey:'', prices:{}, spoilTick:0 };
   if (!G.coachSeen) G.coachSeen = {};
+  if (!G.battlePass) G.battlePass = { season:'', xp:0, claimed:{}, lastDay:'' };
+  if (!G.upgTreeFilter) G.upgTreeFilter = 'all';
+  G.perfectPad = G.perfectPad || 0;
+  G.branchIdleBonus = G.branchIdleBonus || 0;
   if (!G.fusion) G.fusion = { discovered:[], newDisc:[] };
   if (!G.storyData) G.storyData = { seenChapters:{}, pendingChapters:[] };
   if (!G.mgHighScores) G.mgHighScores = { rhythm:null, fish:null, memory:null };

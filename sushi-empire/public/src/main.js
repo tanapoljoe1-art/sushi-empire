@@ -16,7 +16,7 @@ import {
 } from './systems/spectate.js';
 import { assignBranchManager } from './systems/game.js';
 import {
-  cook, serve, buyIngredient, buyUpgrade, buyBranch, switchBranch,
+  cook, serve, buyIngredient, buyUpgrade, respecUpgrades, setUpgTreeFilter, buyBranch, switchBranch,
   showPrestModal, closePrest, doPrestige, closeAch, spawnQueue,
 } from './systems/game.js';
 import { closeEvent, closeVip, challengeVip, tickEventScheduler, updateEventForecastUI } from './systems/events.js';
@@ -25,6 +25,7 @@ import { ensureDailySpecial } from './systems/daily.js';
 import { ensureRivalWeekly, renderRivalBanner, claimRivalReward } from './systems/rival.js';
 import { ensureFishMarket, renderMarketBanner, tickSpoil } from './systems/market.js';
 import { runCoachSequence, dismissCoachTip } from './systems/coach.js';
+import { ensureBattlePass, renderBattlePass, claimBattlePassTier, claimAllBattlePass } from './systems/battlepass.js';
 import { ctxMgTap, ctxMgSkip } from './systems/context-mg.js';
 import { applyAllStaffBonuses, renderStaff, hireStaff, levelUpStaff, restStaff, fireStaff, unlockSkill } from './systems/staff.js';
 import { applyDecoBonus, buyDeco, unequipSlot } from './systems/decoration.js';
@@ -82,6 +83,8 @@ ensureRivalWeekly();
 renderRivalBanner();
 ensureFishMarket();
 renderMarketBanner();
+ensureBattlePass();
+renderBattlePass();
 updateEventForecastUI();
 connectNet().then(() => initSpectate()); // online LB + spectate handlers
 
@@ -119,7 +122,7 @@ setInterval(() => {
         const mood = (G.staff[mid].mood ?? 100) / 100;
         m *= 1.2 + lv * 0.08 * (0.5 + 0.5 * mood);
       }
-      G.money += Math.round((bd.idleRate / 60) * m);
+      G.money += Math.round((bd.idleRate / 60) * m * (1 + (G.branchIdleBonus || 0)));
     }
   });
   updateUI();
@@ -152,12 +155,12 @@ setInterval(() => syncBgmToGame(G), 4000);
 // grep in sync; a name missing here throws ReferenceError only when a player
 // clicks that exact button, not at load time.
 Object.assign(window, {
-  assignBranchManager, bnavDrawer, bnavGo, buyBranch, buyDeco, buyIngredient, buyPrestigeItem, buyUpgrade, claimQuest,
+  assignBranchManager, bnavDrawer, bnavGo, buyBranch, buyDeco, buyIngredient, buyPrestigeItem, buyUpgrade, claimAllBattlePass, claimBattlePassTier, claimQuest,
   challengeVip, claimRivalReward, clearFusionSlot, closeAch, closeConfirm, closeDrawer, closeEvent, closeIdle,
   closePause, closePrest, closeSettings, closeSpectateModal, closeVip, confirmOk, cook, ctxMgSkip, ctxMgTap, doFusion,
   doPrestige, drawerGo, fireStaff, goTab, hireStaff, hostFromModal, joinFromModal, leaveSpectateRoom, levelUpStaff, openPause,
   openSpectateModal, openStoryPing, pauseNewGame, pauseSettings, pauseToTitle, pickFusionIng,
-  restStaff, rhTap, savePlayerName, selMenu, selectMG, sendReaction, sendSpectateChat, serve, setLbMode, showPrestModal,
+  respecUpgrades, restStaff, rhTap, setUpgTreeFilter, savePlayerName, selMenu, selectMG, sendReaction, sendSpectateChat, serve, setLbMode, showPrestModal,
   startMemory, startSlice, storyChoose, storyTapOutside, submitScore,
   switchBranch, titleContinue, titleDeleteSave, titleNewGame, titleSettings,
   toggleSetting, unequipSlot, unlockSkill, dismissCoachTip,

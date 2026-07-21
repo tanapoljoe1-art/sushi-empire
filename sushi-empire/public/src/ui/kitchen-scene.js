@@ -142,6 +142,7 @@ async function ensureThree() {
     thr = {
       scene, camera, renderer, chef: chefGroup, plate, sushi, steam, steamPhases: phases,
       trim, key, clock: new THREE.Clock(), host, cooking: false,
+      baseFov: 42, baseZ: 3.2, punchUntil: 0, punchDur: 280,
     };
     thrReady = true;
     host.classList.add('on');
@@ -176,6 +177,20 @@ async function ensureThree() {
       if (thr.sushi.visible) {
         thr.sushi.position.y = 0.38 + Math.sin(t * 4) * 0.02;
         thr.sushi.rotation.y = t * 0.8;
+      }
+      // Perfect camera punch / FOV ease-back
+      if (thr.punchUntil && thr.camera) {
+        const left = thr.punchUntil - performance.now();
+        if (left <= 0) {
+          thr.camera.fov = thr.baseFov || 42;
+          thr.camera.position.z = thr.baseZ ?? 3.2;
+          thr.punchUntil = 0;
+        } else {
+          const k = left / (thr.punchDur || 280);
+          thr.camera.fov = (thr.baseFov || 42) - 4 * k;
+          thr.camera.position.z = (thr.baseZ ?? 3.2) - 0.18 * k;
+        }
+        thr.camera.updateProjectionMatrix();
       }
       thr.renderer.render(thr.scene, thr.camera);
     };
@@ -329,6 +344,18 @@ export function resetPlate() {
     thr.sushi.visible = false;
     thr.steam.visible = false;
   }
+}
+
+/** Brief FOV punch on Perfect serve (3D layer only). */
+export function cameraPunchPerfect() {
+  if (!thr || thr === 'failed' || !thr.camera) return;
+  thr.baseFov = thr.baseFov || thr.camera.fov || 42;
+  thr.baseZ = thr.baseZ ?? thr.camera.position.z;
+  thr.punchDur = 320;
+  thr.punchUntil = performance.now() + thr.punchDur;
+  // Flash light
+  if (thr.key) thr.key.intensity = 2.2;
+  setTimeout(() => { if (thr && thr !== 'failed' && thr.key) thr.key.intensity = 1.2; }, 200);
 }
 
 export function spawnSteam() {

@@ -1,6 +1,6 @@
 // ── Core UI rendering ─────────────────────────────────────────────────────────
 import { G, save, BAL } from '../core/state.js';
-import { MENUS, INGREDIENTS, UPGRADES, BRANCHES } from '../data.js';
+import { MENUS, INGREDIENTS, UPGRADES, BRANCHES, UPGRADE_TREES } from '../data.js';
 import { getEl } from '../core/dom.js';
 import { hasIngredients, ingredientCost, calcServeEarn, effectiveIng } from '../systems/game.js';
 import { updateNavDots } from '../systems/nav.js';
@@ -133,29 +133,49 @@ export function selMenu(id) {
 }
 
 export function renderUpgrades() {
-  getEl('upgList').innerHTML = UPGRADES.map(u => {
+  const filter = G.upgTreeFilter || 'all';
+  const tabs = getEl('upgTreeTabs');
+  if (tabs) {
+    const allOn = filter === 'all' ? 'on' : '';
+    tabs.innerHTML = `
+      <button type="button" class="upg-tab ${allOn}" onclick="setUpgTreeFilter('all')">ทั้งหมด</button>
+      ${Object.entries(UPGRADE_TREES).map(([id, t]) =>
+        `<button type="button" class="upg-tab ${filter === id ? 'on' : ''}" onclick="setUpgTreeFilter('${id}')">${t.emoji} ${t.name}</button>`
+      ).join('')}
+      <button type="button" class="upg-tab respec" onclick="respecUpgrades()">🔄 Respec</button>
+    `;
+  }
+  const list = UPGRADES.filter(u => filter === 'all' || u.tree === filter);
+  getEl('upgList').innerHTML = list.map(u => {
+    if (G.up[u.id] == null) G.up[u.id] = 0;
     const lv     = G.up[u.id];
     const mx     = lv >= u.max;
     const cost   = mx ? 0 : BAL.upgradeCost(u.base, lv);
     const afford = G.money >= cost;
+    const reqOk  = !u.require || (G.up[u.require.id] || 0) >= (u.require.min || 1);
+    const tree   = UPGRADE_TREES[u.tree];
     const dots   = Array.from({length: u.max}, (_, i) =>
       `<div class="ud ${i < lv ? 'on' : ''}"></div>`).join('');
-    const pct = mx ? 100 : Math.min(100, Math.round(G.money / cost * 100));
-    return `<div class="uc ${mx?'mx':''} ${!afford&&!mx?'locked-uc':''}" onclick="buyUpgrade('${u.id}')">
+    const pct = mx ? 100 : Math.min(100, Math.round(G.money / Math.max(1, cost) * 100));
+    const reqTxt = u.require && !reqOk
+      ? `🔒 ต้อง ${u.require.id} Lv.${u.require.min}`
+      : '';
+    return `<div class="uc ${mx?'mx':''} ${(!afford||!reqOk)&&!mx?'locked-uc':''}" onclick="buyUpgrade('${u.id}')">
       <div class="uc-ico">${u.emoji}</div>
       <div class="uc-inf">
-        <div class="uc-nm">${u.name} <span style="font-size:10px;opacity:.5">Lv.${lv}/${u.max}</span></div>
-        <div class="uc-dc">${u.desc}</div>
+        <div class="uc-nm">${u.name} <span style="font-size:10px;opacity:.5">Lv.${lv}/${u.max}</span>
+          ${tree ? `<span class="uc-tree">${tree.emoji}</span>` : ''}</div>
+        <div class="uc-dc">${u.desc}${reqTxt ? ' · ' + reqTxt : ''}</div>
         <div class="uc-dots">${dots}</div>
         ${!mx ? `<div style="height:2px;background:rgba(255,255,255,.06);border-radius:1px;margin-top:5px;overflow:hidden">
-          <div style="height:100%;width:${pct}%;background:${afford?'var(--gold)':'rgba(255,77,109,.5)'};border-radius:1px;transition:width .4s"></div>
+          <div style="height:100%;width:${pct}%;background:${afford&&reqOk?'var(--gold)':'rgba(255,77,109,.5)'};border-radius:1px;transition:width .4s"></div>
         </div>` : ''}
       </div>
       <div class="uc-r">
         ${mx
           ? `<div class="uc-cost" style="color:var(--gold)">✨ MAX</div>`
-          : `<div class="uc-cost" style="color:${afford?'var(--gold)':'var(--muted)'}">${cost.toLocaleString()}฿</div>
-             <div class="uc-lbl" style="color:${afford?'var(--teal)':'var(--muted)'}">${afford?'ซื้อ!':'ยังขาด'}</div>`}
+          : `<div class="uc-cost" style="color:${afford&&reqOk?'var(--gold)':'var(--muted)'}">${cost.toLocaleString()}฿</div>
+             <div class="uc-lbl" style="color:${afford&&reqOk?'var(--teal)':'var(--muted)'}">${!reqOk?'ล็อก':afford?'ซื้อ!':'ยังขาด'}</div>`}
       </div>
     </div>`;
   }).join('');

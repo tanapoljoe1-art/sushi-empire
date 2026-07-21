@@ -111,18 +111,27 @@
 - [x] Post-mortem Render auto-deploy → `POSTMORTEM-RENDER-AUTODEPLOY.md`  
 - [x] saveVersion → 4  
 
+## รอบ 9 — Upgrade trees / Battle pass / 3D punch (2026-07-21)
+- [x] Upgrade trees 3 สาย (volume / quality / empire) + require gates  
+- [x] โหนดใหม่: express, taste, outpost  
+- [x] Respec (คืน 40% · ค่าธรรมเนียม 15%)  
+- [x] Free Season Pass 30 ขั้น (XP จาก serve)  
+- [x] 3D Perfect camera punch  
+- [x] saveVersion → 5  
+
 ### ยังค้าง (infra + ต่อ)
-- [ ] **Render auto-deploy** — ยังต้อง Connect มือบน dashboard (ดู post-mortem)  
-- [ ] Polish 3D kitchen ต่อ, battle pass, upgrade trees, …  
+- [ ] **Render auto-deploy** — Connect มือ (ดู post-mortem)  
+- [ ] Accessibility / coach expand / debug panel  
+- [ ] Battle pass premium track / seasonality เมนู  
 
 ---
 
 # 🔜 คิวถัดไป (แนะนำทำตามลำดับ)
 
-1. Render Connect (ทำมือ) แล้ว verify push → deploy  
-2. Upgrade trees / soft systems depth  
-3. Polish 3D + accessibility  
-4. Battle pass เบา / seasonality  
+1. Render Connect มือ  
+2. Debug panel (dev)  
+3. Accessibility + reduce motion ขยาย  
+4. Critic/spy customer types  
 5. …ตาม Roadmap 30 วัน
 
 ---
@@ -142,7 +151,7 @@
 | Resource tension / spoil | ✅ | วัตถุดิบหมดอายุ หรือราคาตลาดขึ้นลง |
 | Daily fish market | ✅ | ราคา ing หมุนรายชั่วโมง/วัน |
 | Soft cap upgrades + diminishing | ✅ บางส่วน | BAL.upgradeCost โค้งนุ่ม + golden 35%/lv |
-| Upgrade trees 3 สาย | 📋 | Volume / Quality / Empire — respec แพง |
+| Upgrade trees 3 สาย | ✅ | Volume / Quality / Empire — respec แพง |
 | Debug panel (dev) | 📋 | ให้เงิน, skip time, force event |
 
 ---
@@ -182,8 +191,8 @@
 | ไอเดีย | สถานะ | รายละเอียด |
 |--------|--------|------------|
 | Wire golden/mastery/franchise | ✅ | |
-| Upgrade tree 3 สาย | 📋 | Volume / Prestige Kitchen / Empire |
-| Milestone unlock จาก upgrade | 📋 | เช่น ครัว Lv3 เปิด fusion slot |
+| Upgrade tree 3 สาย | ✅ | Volume / Prestige Kitchen / Empire |
+| Milestone unlock จาก upgrade | ✅ บางส่วน | เช่น ครัว Lv3 เปิด fusion slot |
 | Soft cap / diminishing returns | 📋 | |
 
 ---
@@ -276,7 +285,7 @@
 | Daily/Weekly pool | ที่มีอยู่ | |
 | รางวัลหลาก (ing, blueprint, staff XP, prestige dust) | ✅ บางส่วน | เงิน + ing + rating (ยังไม่มี dust/blueprint) |
 | Quest แนว skill | 📋 | Perfect 10 ครั้ง, VIP ถูกเมนู — มี daily special quest แล้ว |
-| Battle pass เบา 30 วัน | 🧊 | free track |
+| Battle pass เบา 30 วัน | ✅ | free 30 tiers · season bucket |
 | `maxStreakToday` สำหรับ quest streak | 📋 | ตอนนี้ใช้ G.streak ปัจจุบัน คลุมเครือ |
 
 ---
@@ -326,7 +335,7 @@
 | เฟส A: 2D sprites + ฉากตามสาขา | ✅ พื้นฐาน | gradient + chef emoji ต่อสาขา |
 | เฟส A: ควัน/แสงตามเมนู | 📋 | |
 | เฟส B: Three.js ใน kitchen-scene เท่านั้น | ✅ พื้นฐาน | lazy import three · เคาน์เตอร์/เชฟ/จาน/ไอน้ำ · tint เมนู |
-| เฟส C: camera punch / slow-mo perfect | 🧊 | streak 10+, perfect serve |
+| เฟส C: camera punch / slow-mo perfect | ✅ พื้นฐาน | streak 10+, perfect serve |
 | Deco/mood สะท้อนในฉาก | 📋 | |
 
 **หลักการ:** แผง UI (เงิน, อัปเกรด, แท็บ, modal) อยู่ 2D ถาวร — แค่ครัว/เชฟ/จาน/ไอน้ำเป็น 3D ได้

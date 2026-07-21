@@ -8,8 +8,10 @@ import { MENUS, INGREDIENTS, BRANCHES, UPGRADES, ACHIEVEMENTS, EVENTS, FUSION_RE
 import { activeEvent } from '../core/effects.js';
 import { getEl } from '../core/dom.js';
 import { toast, spawnFE, renderUpgrades, renderIngredients, updateEarnPreview, updateUI } from '../ui/render.js';
-import { showCooking, showPlateReady, resetPlate, spawnSteam } from '../ui/kitchen-scene.js';
-import { sfxError, sfxCook, sfxCoin, sfxServe, sfxLevelUp, sfxAngry, sfxStreak } from './audio.js';
+import {
+  showCooking, showPlateReady, resetPlate, spawnSteam, updateKitchenTheme, cameraPunchPerfect,
+} from '../ui/kitchen-scene.js';
+import { sfxError, sfxCook, sfxCoin, sfxServe, sfxLevelUp, sfxAngry, sfxStreak, sfxPerfect, syncBgmToGame } from './audio.js';
 import { checkStoryTriggers } from './story.js';
 import { tickStaffMood } from './staff.js';
 import { cancelEventCountdown } from './events.js';
@@ -18,8 +20,7 @@ import { goTab } from './nav.js';
 import { checkFeatureUnlocks } from './unlocks.js';
 import { dailySpecialMult, isDailySpecial } from './daily.js';
 import { applyPrestigeShop, renderPrestigeShop } from './prestige-shop.js';
-import { updateKitchenTheme } from '../ui/kitchen-scene.js';
-import { sfxPerfect, syncBgmToGame } from './audio.js';
+import { addBattlePassXp, bpXpForServe, renderBattlePass } from './battlepass.js';
 
 let cookInt        = null;
 let nextCustomerId = 0;
@@ -29,8 +30,10 @@ let cookQuality    = 'good'; // 'perfect' | 'good'
 let cookMenuRef    = null; // menu object for current cook
 
 // Perfect-hit window: tap cook button again while progress is in this range
-const PERFECT_MIN = 0.78;
-const PERFECT_MAX = 0.92;
+function perfectWindow() {
+  const pad = G.perfectPad || 0;
+  return { min: Math.max(0.62, 0.78 - pad), max: Math.min(0.98, 0.92 + pad) };
+}
 
 export function allocCustomerId() { return nextCustomerId++; }
 
@@ -443,7 +446,7 @@ export function cook() {
       cookProgress   = p;
       const secsLeft = ((dur - (now - start)) / 1000);
       arc.style.strokeDashoffset = 157 * (1 - p);
-      const inZone = !autoMode && p >= PERFECT_MIN && p <= PERFECT_MAX;
+      const inZone = !autoMode && (() => { const w=perfectWindow(); return p >= w.min && p <= w.max; })();
       txt.innerText = inZone ? '✨' : (~~(p * 100) + '%');
       if (secEl) secEl.innerText = secsLeft > 0 ? secsLeft.toFixed(1) + 's' : '';
       if (!autoMode) setCookBtnPerfect(inZone);
@@ -466,12 +469,13 @@ export function cook() {
 function tryPerfectHit() {
   if (!G.cooking) return;
   if (G.autoChef) return; // auto path never perfect
-  if (cookProgress < PERFECT_MIN) {
+  const win = perfectWindow();
+  if (cookProgress < win.min) {
     toast('เร็วไป! รอวงเขียว');
     sfxError();
     return;
   }
-  if (cookProgress > PERFECT_MAX) {
+  if (cookProgress > win.max) {
     toast('ช้าไป!');
     sfxError();
     return;
@@ -495,6 +499,7 @@ export function doneCook(m) {
   if (cookQuality === 'perfect') {
     toast('✨ PERFECT! +35% รายได้');
     spawnFE('✨ PERFECT');
+    try { cameraPunchPerfect(); } catch (_) {}
     sfxPerfect();
   }
   if (G.autoServe || G.autoChef) setTimeout(serve, 650);
@@ -562,6 +567,10 @@ export function serve() {
 
   trackQuestProgress('serve');
   import('./coach.js').then(m => m.coachOnFirstServe()).catch(() => {});
+  try {
+    addBattlePassXp(bpXpForServe(quality));
+    renderBattlePass();
+  } catch (_) {}
   trackQuestProgress('earn', earn);
   if (isDailySpecial(menuId)) trackQuestProgress('special');
   tickStaffMood();
@@ -634,17 +643,61 @@ export function trackQuestProgress(type, val = 1) {
 // ── Upgrades ──────────────────────────────────────────────────────────────────
 export function buyUpgrade(id) {
   const u  = UPGRADES.find(x => x.id === id);
+  if (!u) return;
+  if (G.up[id] == null) G.up[id] = 0;
   const lv = G.up[id];
   if (lv >= u.max) return;
+  if (u.require) {
+    const need = G.up[u.require.id] || 0;
+    if (need < (u.require.min || 1)) {
+      sfxError();
+      toast(`🔒 ต้อง ${u.require.id} Lv.${u.require.min} ก่อน`);
+      return;
+    }
+  }
   const cost = BAL.upgradeCost(u.base, lv);
   if (G.money < cost) { sfxError(); toast('✕ เงินไม่พอ!'); return; }
   G.money -= Math.round(cost);
   G.up[id]++;
-  u.fx(G);
+  // re-apply all fx cleanly after level change
+  G.speedMult = 1; G.autoServe = false; G.qSize = 1; G.patMult = 1; G.storageMult = 1;
+  G.autoChef = false; G.goldenBonus = 1; G.xpMult = 1; G.idleMult = 1;
+  G.perfectPad = 0; G.branchIdleBonus = 0;
+  UPGRADES.forEach(up => up.fx(G));
   sfxCoin();
   trackQuestProgress('upgrade');
   toast('✅ ' + u.name + '!');
   updateUI();
+  renderUpgrades();
+  save();
+}
+
+/** Respec all upgrades — refund 40%, costs 15% of total spent */
+export function respecUpgrades() {
+  let spent = 0;
+  UPGRADES.forEach(u => {
+    const lv = G.up[u.id] || 0;
+    for (let i = 0; i < lv; i++) spent += BAL.upgradeCost(u.base, i);
+  });
+  if (spent <= 0) { toast('ยังไม่มีอัปเกรด'); return; }
+  const fee = Math.round(spent * 0.15);
+  const refund = Math.round(spent * 0.40);
+  if (G.money < fee) { toast('ต้องการ ' + fee.toLocaleString() + '฿ เป็นค่า respec'); return; }
+  G.money -= fee;
+  G.money += refund;
+  UPGRADES.forEach(u => { G.up[u.id] = 0; });
+  G.speedMult = 1; G.autoServe = false; G.qSize = 1; G.patMult = 1; G.storageMult = 1;
+  G.autoChef = false; G.goldenBonus = 1; G.xpMult = 1; G.idleMult = 1;
+  G.perfectPad = 0; G.branchIdleBonus = 0;
+  UPGRADES.forEach(u => u.fx(G));
+  toast(`🔄 Respec! คืน ${refund.toLocaleString()}฿ (ค่าธรรมเนียม ${fee.toLocaleString()}฿)`);
+  updateUI();
+  renderUpgrades();
+  save();
+}
+
+export function setUpgTreeFilter(tree) {
+  G.upgTreeFilter = tree || 'all';
   renderUpgrades();
   save();
 }
@@ -865,6 +918,7 @@ export function doPrestige() {
     storyData:           G.storyData,
     storyFlags:          G.storyFlags || {},
     coachSeen:            G.coachSeen || {},
+    battlePass:           G.battlePass || { season:'', xp:0, claimed:{}, lastDay:'' },
     rivalWeekly:         G.rivalWeekly || { weekKey:'', playerEarn:0, rivalTarget:0, claimed:false },
     playerName:          G.playerName,
     mgHighScores:        G.mgHighScores,
