@@ -38,6 +38,8 @@ export function defaultState() {
       {id:'beach',owned:false},{id:'airport',owned:false},{id:'tokyo',owned:false},
     ],
     activeBranch: 'main',
+    // branchId → hired staff id (manager for idle bonus)
+    branchManagers: {},
     activeEvent: null, eventTimeLeft: 0,
     prestigeLevel: 0, prestigeIncomeMult: 1, prestigeSpeedBonus: 0,
     prestigeStars: 0,
@@ -184,7 +186,15 @@ function _applyBranchIdleEarnings(elapsed) {
   G.branches.forEach(b => {
     if (!b.owned || b.id === G.activeBranch) return;
     const bd = BRANCHES.find(x => x.id === b.id);
-    if (bd) G.money += Math.round(bd.idleRate * (elapsed / 60) * idleM);
+    if (!bd) return;
+    let m = idleM;
+    const mid = G.branchManagers && G.branchManagers[b.id];
+    if (mid && G.staff && G.staff[mid]?.hired) {
+      const lv = G.staff[mid].level || 1;
+      const mood = (G.staff[mid].mood ?? 100) / 100;
+      m *= 1.2 + lv * 0.08 * (0.5 + 0.5 * mood);
+    }
+    G.money += Math.round(bd.idleRate * (elapsed / 60) * m);
   });
 }
 

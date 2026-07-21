@@ -10,6 +10,11 @@ import { applyPrestigeShop } from './systems/prestige-shop.js';
 import { buyPrestigeItem } from './systems/prestige-shop.js';
 import { connectNet } from './systems/net.js';
 import {
+  initSpectate, openSpectateModal, closeSpectateModal, hostFromModal, joinFromModal,
+  leaveSpectateRoom, sendReaction, sendSpectateChat,
+} from './systems/spectate.js';
+import { assignBranchManager } from './systems/game.js';
+import {
   cook, serve, buyIngredient, buyUpgrade, buyBranch, switchBranch,
   showPrestModal, closePrest, doPrestige, closeAch, spawnQueue,
 } from './systems/game.js';
@@ -69,7 +74,7 @@ refreshUnlockUI();
 markExistingUnlocksSeen();
 ensureDailySpecial();
 updateEventForecastUI();
-connectNet(); // online leaderboard (non-blocking)
+connectNet().then(() => initSpectate()); // online LB + spectate handlers
 
 // Unlock audio + BGM on first gesture (browser autoplay policy)
 const _kickAudio = () => {
@@ -93,7 +98,16 @@ setInterval(() => {
   G.branches.forEach(b => {
     if (b.owned && b.id !== G.activeBranch) {
       const bd = BRANCHES.find(x => x.id === b.id);
-      if (bd) G.money += Math.round((bd.idleRate / 60) * idleM);
+      if (!bd) return;
+      let m = idleM;
+      // Manager assigned to this branch boosts idle
+      const mid = G.branchManagers && G.branchManagers[b.id];
+      if (mid && G.staff && G.staff[mid]?.hired) {
+        const lv = G.staff[mid].level || 1;
+        const mood = (G.staff[mid].mood ?? 100) / 100;
+        m *= 1.2 + lv * 0.08 * (0.5 + 0.5 * mood);
+      }
+      G.money += Math.round((bd.idleRate / 60) * m);
     }
   });
   updateUI();
@@ -126,12 +140,12 @@ setInterval(() => syncBgmToGame(G), 4000);
 // grep in sync; a name missing here throws ReferenceError only when a player
 // clicks that exact button, not at load time.
 Object.assign(window, {
-  bnavDrawer, bnavGo, buyBranch, buyDeco, buyIngredient, buyPrestigeItem, buyUpgrade, claimQuest,
+  assignBranchManager, bnavDrawer, bnavGo, buyBranch, buyDeco, buyIngredient, buyPrestigeItem, buyUpgrade, claimQuest,
   challengeVip, clearFusionSlot, closeAch, closeConfirm, closeDrawer, closeEvent, closeIdle,
-  closePause, closePrest, closeSettings, closeVip, confirmOk, cook, ctxMgSkip, ctxMgTap, doFusion,
-  doPrestige, drawerGo, fireStaff, goTab, hireStaff, levelUpStaff, openPause,
-  openStoryPing, pauseNewGame, pauseSettings, pauseToTitle, pickFusionIng,
-  restStaff, rhTap, savePlayerName, selMenu, selectMG, serve, showPrestModal,
+  closePause, closePrest, closeSettings, closeSpectateModal, closeVip, confirmOk, cook, ctxMgSkip, ctxMgTap, doFusion,
+  doPrestige, drawerGo, fireStaff, goTab, hireStaff, hostFromModal, joinFromModal, leaveSpectateRoom, levelUpStaff, openPause,
+  openSpectateModal, openStoryPing, pauseNewGame, pauseSettings, pauseToTitle, pickFusionIng,
+  restStaff, rhTap, savePlayerName, selMenu, selectMG, sendReaction, sendSpectateChat, serve, showPrestModal,
   startMemory, startSlice, storyChoose, storyTapOutside, submitScore,
   switchBranch, titleContinue, titleDeleteSave, titleNewGame, titleSettings,
   toggleSetting, unlockSkill,

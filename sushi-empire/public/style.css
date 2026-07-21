@@ -226,6 +226,48 @@ nav{ display:none; } /* hide old nav — keep for goTab compat */
 .ctx-bar{position:absolute;top:4px;bottom:4px;width:10px;margin-left:-5px;border-radius:6px;
   background:var(--goldg);box-shadow:0 0 10px rgba(232,196,106,.5);left:10%;transition:none}
 
+/* Three.js kitchen layer */
+.kitchen3d{position:absolute;left:50%;top:36px;transform:translateX(-50%);
+  width:min(220px,55%);height:110px;z-index:2;pointer-events:none;opacity:0;
+  transition:opacity .4s ease}
+.kitchen3d.on{opacity:1}
+.kitchen3d canvas{width:100%!important;height:100%!important}
+
+/* Branch manager */
+.br-mgr{margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.06)}
+.br-mgr-lbl{font-size:10px;color:var(--muted);font-weight:700;display:block;margin-bottom:4px}
+.br-mgr-sel{width:100%;padding:7px 8px;border-radius:10px;border:1px solid var(--rim);
+  background:rgba(0,0,0,.3);color:var(--text);font-family:inherit;font-size:12px}
+.br-mgr-hint{font-size:9px;color:var(--teal);margin-top:4px}
+.br-mgr-empty{font-size:11px;color:var(--muted)}
+
+/* Spectate */
+.spectate-hud{position:fixed;top:8px;left:50%;transform:translateX(-50%);z-index:500;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;
+  max-width:96%;padding:8px 12px;border-radius:14px;
+  background:rgba(10,10,20,.92);border:1px solid rgba(232,196,106,.3);
+  font-size:12px;font-weight:700;box-shadow:0 8px 28px rgba(0,0,0,.45)}
+.sp-btn{border:none;border-radius:8px;padding:5px 9px;font-size:11px;font-weight:800;
+  font-family:inherit;cursor:pointer;background:rgba(255,255,255,.1);color:var(--text)}
+#spectateOverlay{position:fixed;inset:0;z-index:480;background:rgba(6,6,14,.92);
+  display:flex;align-items:center;justify-content:center;padding:16px}
+.sp-panel-wrap{width:100%;max-width:400px;position:relative}
+.sp-big{font-family:'Shippori Mincho',serif;font-size:22px;font-weight:700;text-align:center;margin-bottom:12px}
+.sp-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.sp-stats div{background:var(--glass);border:1px solid var(--rim);border-radius:12px;padding:10px}
+.sp-stats span{display:block;font-size:10px;color:var(--muted)}
+.sp-stats b{font-size:15px}
+.sp-state{text-align:center;color:var(--gold);font-weight:800;margin-bottom:10px}
+.sp-chat{height:100px;overflow:auto;background:rgba(0,0,0,.35);border-radius:10px;padding:8px;
+  font-size:12px;margin-bottom:8px;border:1px solid var(--rim)}
+.sp-chat-row{display:flex;gap:6px}
+.sp-chat-row input{flex:1;padding:8px;border-radius:10px;border:1px solid var(--rim);
+  background:rgba(0,0,0,.3);color:var(--text);font-family:inherit}
+.sp-reactions{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.sp-float{position:absolute;bottom:20%;left:50%;transform:translateX(-50%);
+  font-size:18px;font-weight:900;animation:spFloat 1.6s ease-out forwards}
+@keyframes spFloat{0%{opacity:1;transform:translateX(-50%) translateY(0)}100%{opacity:0;transform:translateX(-50%) translateY(-80px)}}
+
 /* Prestige shop */
 .ps-head{display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:13px;margin-bottom:4px}
 .ps-stars{color:var(--gold);font-size:14px}

@@ -4,7 +4,7 @@
 // *reads* the active event's declarative data via core/effects.js, it never
 // hardcodes an event id.
 import { G, save, BAL, defaultState, resetForPrestige } from '../core/state.js';
-import { MENUS, INGREDIENTS, BRANCHES, UPGRADES, ACHIEVEMENTS, EVENTS, FUSION_RECIPES } from '../data.js';
+import { MENUS, INGREDIENTS, BRANCHES, UPGRADES, ACHIEVEMENTS, EVENTS, FUSION_RECIPES, STAFF_DATA } from '../data.js';
 import { activeEvent } from '../core/effects.js';
 import { getEl } from '../core/dom.js';
 import { toast, spawnFE, renderUpgrades, renderIngredients, updateEarnPreview, updateUI } from '../ui/render.js';
@@ -747,9 +747,67 @@ export function renderBr() {
           ? `<button class="brbtn cur">● สาขาปัจจุบัน</button>`
           : `<button class="brbtn sw" onclick="switchBranch('${bd.id}')">📍 สลักมาที่นี่</button>`
         : `<button class="brbtn buy" onclick="buyBranch('${bd.id}')">เปิดสาขา → ${bd.cost.toLocaleString()}฿</button>`}
-      ${own && !cur ? `<div class="bridle">💰 Auto-income ${bd.idleRate}฿/นาที</div>` : ''}
+      ${own && !cur ? `<div class="bridle">💰 Auto-income ${bd.idleRate}฿/นาที${mgrLabel(bd.id)}</div>` : ''}
+      ${own ? managerSelectHtml(bd.id) : ''}
     </div>`;
   }).join('');
+}
+
+function mgrLabel(branchId) {
+  if (!G.branchManagers) return '';
+  const sid = G.branchManagers[branchId];
+  if (!sid || !G.staff?.[sid]?.hired) return '';
+  const s = STAFF_DATA.find(x => x.id === sid);
+  return s ? ` · 👔 ${s.name}` : '';
+}
+
+function managerSelectHtml(branchId) {
+  if (!G.branchManagers) G.branchManagers = {};
+  const hired = STAFF_DATA.filter(s => G.staff?.[s.id]?.hired);
+  if (!hired.length) {
+    return `<div class="br-mgr"><span class="br-mgr-lbl">👔 ผู้จัดการ</span><span class="br-mgr-empty">จ้างพนักงานก่อน</span></div>`;
+  }
+  const cur = G.branchManagers[branchId] || '';
+  // Staff already assigned elsewhere
+  const used = new Set(Object.entries(G.branchManagers)
+    .filter(([bid, sid]) => bid !== branchId && sid)
+    .map(([, sid]) => sid));
+  const opts = hired.map(s => {
+    const busy = used.has(s.id) ? ' (สาขาอื่น)' : '';
+    const dis = used.has(s.id) ? 'disabled' : '';
+    return `<option value="${s.id}" ${cur === s.id ? 'selected' : ''} ${dis}>${s.emoji} ${s.name}${busy}</option>`;
+  }).join('');
+  return `<div class="br-mgr">
+    <label class="br-mgr-lbl">👔 ผู้จัดการสาขา</label>
+    <select class="br-mgr-sel" onchange="assignBranchManager('${branchId}', this.value)">
+      <option value="">— ไม่มี —</option>
+      ${opts}
+    </select>
+    <div class="br-mgr-hint">idle +20% ขึ้นไปตาม Lv/Mood</div>
+  </div>`;
+}
+
+export function assignBranchManager(branchId, staffId) {
+  if (!G.branchManagers) G.branchManagers = {};
+  // Clear this staff from other branches
+  if (staffId) {
+    Object.keys(G.branchManagers).forEach(bid => {
+      if (G.branchManagers[bid] === staffId) delete G.branchManagers[bid];
+    });
+    if (!G.staff?.[staffId]?.hired) {
+      toast('✕ พนักงานคนนี้ยังไม่ถูกจ้าง');
+      return;
+    }
+    G.branchManagers[branchId] = staffId;
+    const s = STAFF_DATA.find(x => x.id === staffId);
+    toast(`👔 ${s?.name || staffId} ดูแลสาขานี้`);
+  } else {
+    delete G.branchManagers[branchId];
+    toast('ถอดผู้จัดการแล้ว');
+  }
+  renderBr();
+  updateUI();
+  save();
 }
 
 // ── Prestige ──────────────────────────────────────────────────────────────────
@@ -788,6 +846,7 @@ export function doPrestige() {
     mgHighScores:        G.mgHighScores,
     fusion:              G.fusion,
     deco:                G.deco,
+    branchManagers:      G.branchManagers || {},
   };
 
   resetForPrestige(keep);

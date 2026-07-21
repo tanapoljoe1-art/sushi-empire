@@ -41,12 +41,43 @@
     <button class="ts-btn purple" onclick="titleSettings()">
       <span class="ts-btn-ico">⚙️</span><span class="ts-btn-txt">ตั้งค่า</span><span class="ts-btn-arr">›</span>
     </button>
+    <button class="ts-btn secondary" onclick="openSpectateModal()">
+      <span class="ts-btn-ico">📡</span><span class="ts-btn-txt">ชมสด / เปิดห้อง</span><span class="ts-btn-arr">›</span>
+    </button>
     <button class="ts-btn danger" id="btnDeleteSave" style="display:none" onclick="titleDeleteSave()">
       <span class="ts-btn-ico">🗑️</span><span class="ts-btn-txt">ลบเซฟ</span><span class="ts-btn-arr">›</span>
     </button>
   </div>
-  <div class="ts-ver">v5.0 · Sushi Empire © 2025</div>
+  <div class="ts-ver">v5.1 · Sushi Empire © 2025</div>
 </div>
+
+<!-- Spectate modal -->
+<div class="mbg" id="spectateModal">
+  <div class="mbox" style="max-width:340px">
+    <div class="micon">📡</div>
+    <div class="mtitle">ชมสด / เปิดห้อง</div>
+    <div class="msub">เพื่อนดูร้านคุณได้แบบ realtime · แชทและเชียร์ได้</div>
+    <div style="text-align:left;margin:12px 0 8px">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px">ชื่อโฮสต์</div>
+      <input id="hostRoomName" maxlength="12" placeholder="ชื่อเชฟ" style="width:100%;padding:8px 10px;border-radius:10px;border:1px solid var(--rim);background:rgba(0,0,0,.25);color:var(--text);font-family:inherit;margin-bottom:10px">
+      <button class="mbtn" onclick="hostFromModal()" style="margin-bottom:14px">📡 เปิดห้องโฮสต์</button>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px">รหัสห้อง (ผู้ชม)</div>
+      <input id="joinRoomCode" maxlength="6" placeholder="เช่น AB12C" style="width:100%;padding:8px 10px;border-radius:10px;border:1px solid var(--rim);background:rgba(0,0,0,.25);color:var(--text);font-family:inherit;margin-bottom:6px;text-transform:uppercase;letter-spacing:.12em">
+      <input id="viewerName" maxlength="12" placeholder="ชื่อผู้ชม" style="width:100%;padding:8px 10px;border-radius:10px;border:1px solid var(--rim);background:rgba(0,0,0,.25);color:var(--text);font-family:inherit;margin-bottom:10px">
+      <button class="mbtn" onclick="joinFromModal()" style="background:linear-gradient(135deg,#4a9eff,#7c5cff);margin-bottom:8px">👁 เข้าชม</button>
+    </div>
+    <button class="mbtn" onclick="closeSpectateModal()" style="background:rgba(255,255,255,.08);color:var(--text)">ปิด</button>
+  </div>
+</div>
+
+<!-- Spectator full overlay -->
+<div id="spectateOverlay" style="display:none">
+  <div class="sp-panel-wrap">
+    <div id="spectatePanel"></div>
+    <div id="spectateReactions" class="sp-reactions"></div>
+  </div>
+</div>
+<div id="spectateHud" class="spectate-hud" style="display:none"></div>
 
 <!-- ══════════ PAUSE MENU ══════════ -->
 <div id="pauseMenu">
@@ -62,6 +93,7 @@
     <div class="pm-btns">
       <button class="pm-btn resume"  onclick="closePause()"><span>▶️</span> เล่นต่อ</button>
       <button class="pm-btn settings" onclick="pauseSettings()"><span>⚙️</span> ตั้งค่า</button>
+      <button class="pm-btn settings" onclick="closePause();openSpectateModal()"><span>📡</span> ชมสด / เปิดห้อง</button>
       <button class="pm-btn title"   onclick="pauseToTitle()"><span>🏠</span> กลับหน้าหลัก</button>
       <button class="pm-btn newgame" onclick="pauseNewGame()"><span>🔄</span> เริ่มเกมใหม่</button>
     </div>
@@ -251,6 +283,7 @@
   <div id="dailySpecialBanner" class="daily-special-banner" style="display:none"></div>
   <div class="resto" id="restoCard">
     <div class="resto-bg"></div>
+    <div id="kitchen3d" class="kitchen3d" aria-hidden="true"></div>
     <div class="steam" id="steamEl"></div>
     <div class="rlbl">สาขา: <span id="branchName">หลัก</span> &nbsp;·&nbsp; Lv.<span id="lvlDisplay">1</span></div>
     <div class="scene">

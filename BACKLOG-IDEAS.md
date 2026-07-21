@@ -83,21 +83,25 @@
 - [x] Socket.IO leaderboard (ออนไลน์ + fallback เครื่อง)  
 - [x] Kitchen 2D theme ตามสาขา + mood staff  
 
+## รอบ 5 — Three.js / Manager / Spectate
+- [x] Three.js kitchen layer (lazy load, keep 2D API)  
+- [x] Manager assign ต่อสาขา (idle boost)  
+- [x] Spectate host/join + chat/reactions  
+
 ### ยังค้าง (infra + ต่อ)
 - [ ] Live click-through มือถือเต็ม  
 - [ ] **Render auto-deploy** — Connect ใหม่  
 - [ ] **Post-mortem** webhook  
-- [ ] Three.js kitchen, spectate room, manager assign, …  
+- [ ] Polish 3D kitchen, daily seed LB, battle pass, …  
 
 ---
 
 # 🔜 คิวถัดไป (แนะนำทำตามลำดับ)
 
 1. Live click-through มือถือ + desktop  
-2. Three.js kitchen scene (`kitchen-scene.js`)  
-3. Spectate / room multiplayer  
-4. Manager assign ต่อสาขา  
-5. …ตาม Roadmap 30 วัน + BACKLOG
+2. Polish Three.js (texture/เมนูจริง)  
+3. Daily seed leaderboard  
+4. …ตาม Roadmap 30 วัน + BACKLOG
 
 ---
 
@@ -222,7 +226,7 @@
 |--------|--------|------------|
 | สาขา = mult + idle ตัวเลข | ที่มีอยู่ | ตื้น |
 | Per-branch specialization | ✅ พื้นฐาน | spec บน BRANCHES — weights + seafood/premium/patience/rating |
-| Manager assign ต่อสาขา | 📋 | |
+| Manager assign ต่อสาขา | ✅ | select บนการ์ดสาขา · idle +20%+ |
 | Crisis ต่อสาขา (สลับไปแก้ 30วิ) | 📋 | |
 | Map UI โลก/เมือง | 📋 | แทน list การ์ดอย่างเดียว |
 | Empire prestige ทางเลือก | 📋 | เงื่อนไขจำนวนสาขา |
@@ -299,7 +303,7 @@
 | API แยก 4 ฟังก์ชัน (swap point) | ✅ โครงเดิม | showCooking / showPlateReady / resetPlate / spawnSteam |
 | เฟส A: 2D sprites + ฉากตามสาขา | ✅ พื้นฐาน | gradient + chef emoji ต่อสาขา |
 | เฟส A: ควัน/แสงตามเมนู | 📋 | |
-| เฟส B: Three.js ใน kitchen-scene เท่านั้น | 📋 | **ไม่แตะ HUD 2D**; คง signature เดิม |
+| เฟส B: Three.js ใน kitchen-scene เท่านั้น | ✅ พื้นฐาน | lazy import three · เคาน์เตอร์/เชฟ/จาน/ไอน้ำ |
 | เฟส C: camera punch / slow-mo perfect | 🧊 | streak 10+, perfect serve |
 | Deco/mood สะท้อนในฉาก | 📋 | |
 
@@ -349,7 +353,7 @@
 |--------|--------|------------|
 | Socket.IO ห้อง + spectate + chat บน server | ที่มีบน server | |
 | Client ยังไม่ connect socket | ✅ LB | net.js + submitScoreOnline |
-| **A. Spectate-first** | 📋 แนะนำก่อน | Host เปิดห้อง → เพื่อนดู + เชียร์ emoji |
+| **A. Spectate-first** | ✅ | host/join · snapshot · chat · reaction |
 | **B. Async daily leaderboard** | ✅ พื้นฐาน | submitScore ผ่าน socket (ยังไม่ daily seed) |
 | **C. Coop light** | 🧊 | ส่ง buff/วัตถุดิบวันละครั้ง |
 | PvP realtime เต็ม | 🚫 | ต้นทุนสูงเกิน idle |
@@ -400,10 +404,10 @@
 | 4 | Progressive unlock | ✅ |
 | 5 | Branch มีกฎต่างกัน | ✅ พื้นฐาน |
 | 6 | Prestige shop | ✅ |
-| 7 | Kitchen visual 2D→3D | 2D✅ / 3D📋 |
+| 7 | Kitchen visual 2D→3D | ✅ พื้นฐานทั้งคู่ |
 | 8 | BGM + SFX ชุดจริง | ✅ พื้นฐาน |
 | 9 | Contextual minigame | ✅ |
-| 10 | Socket LB / spectate จริง | LB✅ / spectate📋 |
+| 10 | Socket LB / spectate จริง | ✅ ทั้งคู่พื้นฐาน |
 
 ---
 
