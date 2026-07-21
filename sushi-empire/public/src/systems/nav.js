@@ -153,18 +153,26 @@ export function initTitleScreen() {
   document.querySelectorAll('.ts-btn').forEach((b, i) => {
     b.style.animation = `fadeUp .6s cubic-bezier(.34,1.56,.64,1) ${.6 + i * .1}s both`;
   });
-  const hasSave = !!localStorage.getItem('SE5');
+  const hasSave = !!localStorage.getItem(SAVE_KEY);
+  let prestLv = 0;
   if (hasSave) {
     try {
-      const sv = JSON.parse(localStorage.getItem('SE5'));
+      const sv = JSON.parse(localStorage.getItem(SAVE_KEY));
+      prestLv = sv.prestigeLevel || 0;
       getEl('tsSavePreview').style.display = 'block';
       getEl('tsSaveName').innerText = `Lv.${sv.level || 1} · ${(sv.money || 0).toLocaleString()}฿`;
-      getEl('tsSaveSub').innerText  = `เสิร์ฟ ${sv.served || 0} ครั้ง · Prestige ${sv.prestigeLevel || 0}`;
+      const staffN = Object.values(sv.staff || {}).filter(s => s && s.hired).length;
+      getEl('tsSaveSub').innerText  =
+        `เสิร์ฟ ${sv.served || 0} · Prestige ${prestLv}` + (staffN ? ` · ทีม ${staffN}` : '');
       getEl('btnContinue').style.display  = 'flex';
       getEl('btnNewGame').className       = 'ts-btn secondary';
       getEl('btnDeleteSave').style.display = 'flex';
+      // badge on preview
+      const ico = getEl('tsSavePreview')?.querySelector('.ts-save-ico');
+      if (ico && prestLv > 0) ico.innerText = prestLv >= 5 ? '🏯' : prestLv >= 2 ? '🥇' : '✨';
     } catch (e) {}
   }
+  import('./prestige-skin.js').then(m => m.applyPrestigeSkin(prestLv || G.prestigeLevel || 0)).catch(() => {});
 }
 
 export function titleContinue() { hideTitle(); }

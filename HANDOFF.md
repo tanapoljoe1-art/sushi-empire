@@ -16,14 +16,14 @@ Sushi Empire = idle/incremental ทำซูชิในเบราว์เซ
 
 ## State
 
-- **HEAD:** รอบ 12 (ดู git log)
-- **Done รอบ 12:** Event log · Host festival · Premium BP · saveVersion 6
+- **HEAD:** รอบ 13 (ดู git log)
+- **Done รอบ 13:** Soft-keep staff on prestige · Title prestige skins
 - **Open infra:** Render **Connect** still manual (`POSTMORTEM-RENDER-AUTODEPLOY.md`)
 
 ## Next step (แนะนำ)
 1. Render Connect มือ + verify push→deploy
-2. Soft keep staff on prestige
-3. Title prestige skin
+2. Hidden achievements
+3. Telemetry / polish
 4. Live smoke หลัง deploy
 
 ## Then (เทคนิคเดิม ยังใช้ได้)

@@ -990,7 +990,20 @@ export function doPrestige() {
   const starsGain = 1 + Math.floor(G.prestigeLevel / 2);
   G.prestigeStars = (G.prestigeStars || 0) + starsGain;
 
-  // Save persistent values (fusion recipes + deco collection persist — staff/upgrades reset)
+  // Soft-keep staff: still hired, levels reset to 1, skills kept, mood restored
+  const softStaff = {};
+  Object.entries(G.staff || {}).forEach(([id, info]) => {
+    if (!info?.hired) return;
+    softStaff[id] = {
+      hired: true,
+      level: 1,
+      mood: 100,
+      skills: Array.isArray(info.skills) ? [...info.skills] : [],
+      softKept: true,
+    };
+  });
+
+  // Save persistent values (fusion/deco/staff soft-keep; upgrades hard-reset)
   const keep = {
     prestigeLevel:       G.prestigeLevel,
     prestigeIncomeMult:  G.prestigeIncomeMult,
@@ -1005,18 +1018,23 @@ export function doPrestige() {
     storyData:           G.storyData,
     storyFlags:          G.storyFlags || {},
     coachSeen:            G.coachSeen || {},
-    battlePass:           G.battlePass || { season:'', xp:0, claimed:{}, lastDay:'' },
+    battlePass:           G.battlePass || { season:'', xp:0, claimed:{}, premiumClaimed:{}, premium:false, lastDay:'' },
     rivalWeekly:         G.rivalWeekly || { weekKey:'', playerEarn:0, rivalTarget:0, claimed:false },
+    eventLog:            Array.isArray(G.eventLog) ? G.eventLog.slice(0, 10) : [],
     playerName:          G.playerName,
     mgHighScores:        G.mgHighScores,
     fusion:              G.fusion,
     deco:                G.deco,
-    branchManagers:      G.branchManagers || {},
+    // managers cleared — re-assign after prestige (staff levels reset)
+    branchManagers:      {},
+    staff:               softStaff,
   };
 
   resetForPrestige(keep);
   applyPrestigeShop();
   G.money = 100 + keep.prestigeLevel * 500 + (G.shopStartBonus || 0);
+  const keptCount = Object.keys(softStaff).length;
+
   // Re-register discovered fusion menus into MENUS after reset
   (G.fusion && G.fusion.discovered || []).forEach(id => {
     if (!MENUS.find(m => m.id === id)) {
@@ -1039,16 +1057,24 @@ export function doPrestige() {
   angerTimers = {};
   cancelEventCountdown();
 
-  toast(`✨ Prestige! ได้ ${starsGain}★ · โบนัสถาวร!`);
-  checkAch();
-  spawnQueue();
-  spawnSteam();
-  updateKitchenTheme(G);
-  updateUI();
-  renderUpgrades();
-  renderIngredients();
-  save();
-  goTab('main');
+  // Re-apply soft-kept staff (async import avoids circular dep with staff.js)
+  const finishPrestige = () => {
+    toast(`✨ Prestige! ได้ ${starsGain}★ · โบนัสถาวร!`);
+    if (keptCount) toast(`👥 ทีม ${keptCount} คนอยู่ต่อ (Lv รีเซ็ต · สกิลเก็บไว้)`);
+    checkAch();
+    spawnQueue();
+    spawnSteam();
+    updateKitchenTheme(G);
+    updateUI();
+    renderUpgrades();
+    renderIngredients();
+    import('./prestige-skin.js').then(m => m.applyPrestigeSkin(G.prestigeLevel || 0)).catch(() => {});
+    save();
+    goTab('main');
+  };
+  import('./staff.js')
+    .then(m => { m.applyAllStaffBonuses(); finishPrestige(); })
+    .catch(() => finishPrestige());
 }
 
 export function renderPrest() {

@@ -287,9 +287,9 @@
 |--------|--------|------------|
 | Keep fusion + deco | ✅ | |
 | Prestige shop / skill tree | ✅ | prestige-shop.js · ★ ต่อ prestige |
-| Soft keep staff unlock (level รีเซ็ต) | 📋 | |
+| Soft keep staff unlock (level รีเซ็ต) | ✅ | |
 | Prestige challenges | 📋 | Lv20 โดยไม่ใช้ autoChef |
-| NG+ skin / kitchen theme | 📋 | ตาม prestige level |
+| NG+ skin / kitchen theme | ✅ บางส่วน | ตาม prestige level |
 | ETA “อีกกี่เสิร์ฟถึง prestige คุ้ม” | 📋 | |
 | ใช้ `PRESTIGE_BONUSES` ใน data จริง | 📋 | ตอนนี้ hardcode ใน doPrestige |
 
@@ -379,7 +379,7 @@
 | Coach marks ครั้งแรกต่อระบบ | ✅ | |
 | ลดแท็บล่าง / รวม meta ใต้ “อาณาจักร” | 📋 | |
 | Accessibility: ปุ่มใหญ่, reduce motion | ✅ | bigTap + reduce-motion class + OS prefers |
-| Title screen โชว์ ach / prestige skin | 📋 | |
+| Title screen โชว์ ach / prestige skin | ✅ prestige skin | |
 
 ---
 

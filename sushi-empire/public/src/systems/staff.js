@@ -192,7 +192,7 @@ export function renderStaff() {
       <div class="staff-top">
         <div class="staff-avatar">${s.emoji}<div class="staff-mood">${hired ? moodEmoji : ''}</div></div>
         <div class="staff-meta">
-          <div class="staff-name" style="color:${rarityColor}">${s.name}</div>
+          <div class="staff-name" style="color:${rarityColor}">${s.name}${info && info.softKept ? ' <span style="font-size:10px;color:var(--teal)">🔄 prestige</span>' : ''}</div>
           <div class="staff-role">${s.role} <span style="font-size:9px;color:${rarityColor}">[${s.rarity}]</span></div>
           ${hired ? `<div class="staff-lv-badge ${maxed?'maxed':''}">Lv.${lv} ${maxed?'✨MAX':''}</div>` : ''}
           ${hiredChems.length ? `<div style="font-size:10px;color:var(--purple);margin-top:3px">✨ ${hiredChems[0].name}</div>` : ''}

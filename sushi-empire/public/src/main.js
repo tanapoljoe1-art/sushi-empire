@@ -33,6 +33,7 @@ import {
   debugSpawnSpy, debugSpawnCriticCust, debugBpXp, debugMaxUpgrades, debugResetDay,
 } from './systems/debug.js';
 import { applyA11yClasses } from './systems/audio.js';
+import { applyPrestigeSkin } from './systems/prestige-skin.js';
 import { ctxMgTap, ctxMgSkip } from './systems/context-mg.js';
 import { applyAllStaffBonuses, renderStaff, hireStaff, levelUpStaff, restStaff, fireStaff, unlockSkill } from './systems/staff.js';
 import { applyDecoBonus, buyDeco, unequipSlot } from './systems/decoration.js';
@@ -96,6 +97,7 @@ renderFestivalBtn();
 ensureBattlePass();
 renderBattlePass();
 applyA11yClasses();
+applyPrestigeSkin(G.prestigeLevel || 0);
 initDebug();
 updateEventForecastUI();
 connectNet().then(() => initSpectate()); // online LB + spectate handlers
@@ -167,7 +169,7 @@ setInterval(() => syncBgmToGame(G), 4000);
 // grep in sync; a name missing here throws ReferenceError only when a player
 // clicks that exact button, not at load time.
 Object.assign(window, {
-  assignBranchManager, bnavDrawer, bnavGo, buyBranch, buyDeco, buyIngredient, buyPrestigeItem, buyUpgrade, buyPremiumPass, claimAllBattlePass, claimBattlePassTier, claimPremiumTier, claimQuest,
+  applyPrestigeSkin, assignBranchManager, bnavDrawer, bnavGo, buyBranch, buyDeco, buyIngredient, buyPrestigeItem, buyUpgrade, buyPremiumPass, claimAllBattlePass, claimBattlePassTier, claimPremiumTier, claimQuest,
   challengeVip, claimRivalReward, clearFusionSlot, closeAch, closeConfirm, closeDrawer, chooseEventOption, closeEvent, closeIdle,
   closePause, closePrest, closeSettings, closeSpectateModal, closeVip, confirmOk, cook, ctxMgSkip, ctxMgTap, doFusion,
   doPrestige, drawerGo, fireStaff, goTab, hireStaff, hostFestival, hostFromModal, joinFromModal, leaveSpectateRoom, levelUpStaff, openPause,

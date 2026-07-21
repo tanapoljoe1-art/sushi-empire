@@ -913,6 +913,16 @@ html.big-tap .ing-chip,html.big-tap .uc,html.big-tap .mi{min-height:48px}
 
 #titleScreen{position:fixed;inset:0;z-index:999;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;padding:20px;}
 #titleScreen.out{animation:tsOut .65s cubic-bezier(.7,0,.3,1) forwards;pointer-events:none;}
+/* Prestige title skins */
+#titleScreen.skin-bronze{background:radial-gradient(ellipse at 50% 20%,rgba(180,120,60,.25),transparent 50%),var(--ink)}
+#titleScreen.skin-silver{background:radial-gradient(ellipse at 50% 20%,rgba(180,200,220,.22),transparent 50%),#0a0c12}
+#titleScreen.skin-gold{background:radial-gradient(ellipse at 50% 15%,rgba(232,196,106,.28),transparent 55%),#120e08}
+#titleScreen.skin-gold .ts-title{filter:drop-shadow(0 0 32px rgba(232,196,106,.45))}
+#titleScreen.skin-jade{background:radial-gradient(ellipse at 40% 10%,rgba(52,211,153,.2),transparent 45%),radial-gradient(ellipse at 70% 80%,rgba(232,196,106,.12),transparent 40%),#0a1210}
+#titleScreen.skin-void{background:radial-gradient(ellipse at 50% 30%,rgba(99,102,241,.25),transparent 50%),radial-gradient(ellipse at 20% 80%,rgba(167,139,250,.15),transparent 40%),#06060f}
+#titleScreen.skin-void .ts-title{background:linear-gradient(135deg,#c4b5fd,#818cf8,#e8c46a);-webkit-background-clip:text;background-clip:text}
+.shell.skin-gold header,.shell.skin-jade header,.shell.skin-void header{border-bottom:1px solid rgba(232,196,106,.12)}
+.shell.skin-void{--rim:rgba(167,139,250,.18)}
 @keyframes tsOut{0%{opacity:1;transform:scale(1);}100%{opacity:0;transform:scale(1.08);pointer-events:none;}}
 .ts-particle{position:absolute;pointer-events:none;font-size:var(--fs,24px);animation:tsPart var(--d,6s) ease-in-out var(--dl,0s) infinite;}
 @keyframes tsPart{0%{opacity:0;transform:translateY(0) rotate(0) scale(.5);}15%{opacity:.8;}80%{opacity:.4;}100%{opacity:0;transform:translateY(-105vh) rotate(720deg) scale(1.3);}}
