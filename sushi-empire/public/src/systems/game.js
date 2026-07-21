@@ -22,6 +22,8 @@ import { dailySpecialMult, isDailySpecial } from './daily.js';
 import { applyPrestigeShop, renderPrestigeShop } from './prestige-shop.js';
 import { addBattlePassXp, bpXpForServe, renderBattlePass } from './battlepass.js';
 import { seasonMenuMult, seasonIngMult } from './season.js';
+import { prestigeIncomeMultAt } from '../core/formulas.js';
+export { prestigeIncomeMultAt } from '../core/formulas.js';
 
 let cookInt        = null;
 let nextCustomerId = 0;
@@ -1202,13 +1204,6 @@ export function renderPrest() {
         </div>
       </div>`;
   renderPrestigeShop();
-}
-
-function prestigeIncomeMultAt(level) {
-  let mult = 1;
-  const p = Math.max(0, level || 0);
-  for (let i = 1; i <= p; i++) mult += i <= 5 ? 0.10 : i <= 10 ? 0.06 : 0.03;
-  return Math.min(2.6, mult);
 }
 
 /** Recompute prestige mult from level (for old saves / display). */

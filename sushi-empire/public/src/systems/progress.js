@@ -3,6 +3,7 @@ import { G, save, dayKeyUTC } from '../core/state.js';
 import { DAILY_POOL, WEEKLY_POOL, ACHIEVEMENTS, INGREDIENTS } from '../data.js';
 import { getEl, escapeHtml } from '../core/dom.js';
 import { toast, updateUI } from '../ui/render.js';
+import { calcScoreClient } from '../core/formulas.js';
 
 export function initQuests() {
   if (!G.quests || typeof G.quests !== 'object') {
@@ -232,14 +233,14 @@ export function setLbMode(mode) {
   renderLB();
 }
 
-/** Shared with server.js — keep formulas identical. */
+/** Shared with server.js via core/formulas.js — keep formulas identical. */
 export function calcScore(g = G) {
-  const served = Number(g.served) || 0;
-  const level = Number(g.level) || 1;
-  const prestige = Number(g.prestigeLevel) || 0;
-  const money = Number(g.money) || 0;
-  return served * 10 + level * 50 + prestige * 500
-    + (money > 0 ? Math.floor(Math.log10(money) * 20) : 0);
+  return calcScoreClient({
+    served: g.served,
+    level: g.level,
+    prestige: g.prestigeLevel,
+    money: g.money,
+  });
 }
 
 function lbStorageKey(mode = lbMode) {

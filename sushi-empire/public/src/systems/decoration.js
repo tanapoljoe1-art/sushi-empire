@@ -1,5 +1,5 @@
 // ── Decorations system (multi-slot + set bonuses) ─────────────────────────────
-import { G, save, DECO_SLOTS, BAL } from '../core/state.js';
+import { G, save, DECO_SLOTS, BAL, ensureDecoSlots, defaultDecoSlots } from '../core/state.js';
 import { DECO_DATA, DECO_SLOT_LABEL, DECO_SETS } from '../data.js';
 import { getEl } from '../core/dom.js';
 import { toast, updateUI } from '../ui/render.js';
@@ -7,12 +7,9 @@ import { updateKitchenTheme } from '../ui/kitchen-scene.js';
 
 function ensureDeco() {
   if (!G.deco || typeof G.deco !== 'object') {
-    G.deco = { owned: [], equipped: null, slots: { wall:null, counter:null, light:null, floor:null } };
+    G.deco = { owned: [], equipped: null, slots: defaultDecoSlots() };
   }
-  if (!G.deco.slots) G.deco.slots = { wall:null, counter:null, light:null, floor:null };
-  DECO_SLOTS.forEach(s => {
-    if (!(s in G.deco.slots)) G.deco.slots[s] = null;
-  });
+  ensureDecoSlots(G.deco);
   if (!Array.isArray(G.deco.owned)) G.deco.owned = [];
 }
 

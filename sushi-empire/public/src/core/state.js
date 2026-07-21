@@ -168,6 +168,28 @@ export const SAVE_VERSION = 6;
 export const SAVE_KEY = 'SE5';
 export const DECO_SLOTS = ['wall', 'counter', 'light', 'floor'];
 
+/** Fresh multi-slot deco map (wall/counter/light/floor). */
+export function defaultDecoSlots() {
+  return { wall: null, counter: null, light: null, floor: null };
+}
+
+/**
+ * Ensure `deco.slots` is a plain object with every DECO_SLOTS key.
+ * Guards against corrupted/tampered saves where slots is a truthy non-object
+ * (e.g. a string) which would throw on `s in deco.slots`.
+ * Mutates and returns `deco`.
+ */
+export function ensureDecoSlots(deco) {
+  if (!deco || typeof deco !== 'object') return deco;
+  if (!deco.slots || typeof deco.slots !== 'object') {
+    deco.slots = defaultDecoSlots();
+  }
+  DECO_SLOTS.forEach(s => {
+    if (!(s in deco.slots)) deco.slots[s] = null;
+  });
+  return deco;
+}
+
 // Reassigning the exported `G` binding (as opposed to mutating its fields) can
 // only happen inside this module — an importer holds a live *view* of G, not a
 // settable reference. doPrestige() needs a full replace-with-kept-fields reset,
@@ -203,13 +225,10 @@ function migrateSave(data) {
     if (!data.rivalWeekly || typeof data.rivalWeekly !== 'object') {
       data.rivalWeekly = { weekKey: '', playerEarn: 0, rivalTarget: 0, claimed: false };
     }
-    if (!data.deco || typeof data.deco !== 'object') data.deco = { owned:[], equipped:null, slots:{} };
-    if (!data.deco.slots || typeof data.deco.slots !== 'object') {
-      data.deco.slots = { wall:null, counter:null, light:null, floor:null };
+    if (!data.deco || typeof data.deco !== 'object') {
+      data.deco = { owned: [], equipped: null, slots: defaultDecoSlots() };
     }
-    DECO_SLOTS.forEach(s => {
-      if (!(s in data.deco.slots)) data.deco.slots[s] = null;
-    });
+    ensureDecoSlots(data.deco);
     // Migrate single equipped → slot (default counter)
     if (data.deco.equipped && !Object.values(data.deco.slots).some(Boolean)) {
       data.deco.slots.counter = data.deco.equipped;
@@ -255,9 +274,10 @@ function normalizeLoadedState(parsed) {
   G.saveVersion = SAVE_VERSION;
 
   // Guard nested objects that might be missing in old saves
-  if (!G.deco || typeof G.deco !== 'object') G.deco = { owned:[], equipped:null, slots:{ wall:null, counter:null, light:null, floor:null } };
-  if (!G.deco.slots) G.deco.slots = { wall:null, counter:null, light:null, floor:null };
-  DECO_SLOTS.forEach(s => { if (!(s in G.deco.slots)) G.deco.slots[s] = null; });
+  if (!G.deco || typeof G.deco !== 'object') {
+    G.deco = { owned: [], equipped: null, slots: defaultDecoSlots() };
+  }
+  ensureDecoSlots(G.deco);
   if (!G.storyFlags) G.storyFlags = {};
   if (!G.rivalWeekly) G.rivalWeekly = { weekKey:'', playerEarn:0, rivalTarget:0, claimed:false };
   if (!G.fishMarket) G.fishMarket = { dayKey:'', prices:{}, spoilTick:0 };

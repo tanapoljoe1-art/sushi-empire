@@ -1,10 +1,20 @@
 /**
  * Deep integration test suite for Sushi Empire.
- * Run: node server.js &  node scripts/deep-test.mjs
+ * Run: npm run test:deep  (boots server if needed, tears down after)
+ * Or:  TEST_URL=http://127.0.0.1:3000 node scripts/deep-test.mjs
  */
 import { chromium } from 'playwright';
-import assert from 'assert';
+import { spawn } from 'child_process';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import {
+  calcScoreClient,
+  calcScoreServer,
+  prestigeIncomeMultAt,
+} from '../public/src/core/formulas.js';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.join(__dirname, '..');
 const BASE = process.env.TEST_URL || 'http://127.0.0.1:3000';
 const results = [];
 const ok = (name, pass, detail = '') => {
@@ -13,19 +23,60 @@ const ok = (name, pass, detail = '') => {
   else console.log('OK  ', name, detail ? `— ${String(detail).slice(0, 80)}` : '');
 };
 
-function clientScore(s, l, p, m) {
-  return s * 10 + l * 50 + p * 500 + (m > 0 ? Math.floor(Math.log10(m) * 20) : 0);
-}
-function serverScore({ served, level, prestige, money }) {
-  const s = Math.max(0, Math.min(2e6, Number(served) || 0));
-  const lv = Math.max(1, Math.min(500, Number(level) || 1));
-  const pr = Math.max(0, Math.min(100, Number(prestige) || 0));
-  const m = Math.max(0, Math.min(1e15, Number(money) || 0));
-  return s * 10 + lv * 50 + pr * 500 + (m > 0 ? Math.floor(Math.log10(m) * 20) : 0);
+// ── Server lifecycle (skip if TEST_URL already reachable) ────────────────────
+let ownedServer = null;
+
+async function healthOk() {
+  try {
+    const r = await fetch(`${BASE}/health`, { signal: AbortSignal.timeout(1500) });
+    return r.ok;
+  } catch {
+    return false;
+  }
 }
 
-// ── Pure unit tests (no browser) ─────────────────────────────────────────────
+async function ensureServer() {
+  if (await healthOk()) {
+    console.log('Server already up at', BASE);
+    return;
+  }
+  if (process.env.TEST_URL) {
+    throw new Error(`TEST_URL=${process.env.TEST_URL} is not reachable (/health failed)`);
+  }
+  console.log('Booting local server for deep-test…');
+  ownedServer = spawn(process.execPath, ['server.js'], {
+    cwd: ROOT,
+    stdio: ['ignore', 'pipe', 'pipe'],
+    env: { ...process.env, PORT: '3000', SUSHI_STATIC: 'public' },
+  });
+  let bootLog = '';
+  ownedServer.stdout.on('data', (d) => { bootLog += d.toString(); });
+  ownedServer.stderr.on('data', (d) => { bootLog += d.toString(); });
+  for (let i = 0; i < 60; i++) {
+    await new Promise((r) => setTimeout(r, 200));
+    if (ownedServer.exitCode != null) {
+      throw new Error(`Server exited early (code ${ownedServer.exitCode}): ${bootLog.slice(0, 400)}`);
+    }
+    if (await healthOk()) {
+      console.log('Server healthy');
+      return;
+    }
+  }
+  ownedServer.kill('SIGTERM');
+  throw new Error(`Server failed to become healthy: ${bootLog.slice(0, 400)}`);
+}
+
+function teardownServer() {
+  if (!ownedServer || ownedServer.exitCode != null) return;
+  ownedServer.kill('SIGTERM');
+  ownedServer = null;
+}
+
+// ── Pure unit tests (no browser) — real formulas from core/formulas.js ───────
 {
+  const clientScore = (s, l, p, m) => calcScoreClient({ served: s, level: l, prestige: p, money: m });
+  const serverScore = (o) => calcScoreServer(o);
+
   ok('U1 score parity base', clientScore(100, 10, 1, 10000) === serverScore({ served: 100, level: 10, prestige: 1, money: 10000 }));
   ok('U2 score parity zero money', clientScore(0, 1, 0, 0) === serverScore({ served: 0, level: 1, prestige: 0, money: 0 }));
   ok('U3 server clamps served', serverScore({ served: 9e9, level: 1, prestige: 0, money: 0 }) === 2e6 * 10 + 50);
@@ -36,18 +87,14 @@ function serverScore({ served, level, prestige, money }) {
     const final = client > exp + 50 ? exp : Math.min(client, exp + 50);
     return final === exp;
   })());
-  // prestige mult curve unit
-  const prestMult = (level) => {
-    let mult = 1;
-    for (let i = 1; i <= level; i++) mult += i <= 5 ? 0.1 : i <= 10 ? 0.06 : 0.03;
-    return Math.min(2.6, mult);
-  };
-  ok('U6 prestige P1 = 1.1', Math.abs(prestMult(1) - 1.1) < 1e-9);
-  ok('U7 prestige P5 = 1.5', Math.abs(prestMult(5) - 1.5) < 1e-9);
+  ok('U6 prestige P1 = 1.1', Math.abs(prestigeIncomeMultAt(1) - 1.1) < 1e-9);
+  ok('U7 prestige P5 = 1.5', Math.abs(prestigeIncomeMultAt(5) - 1.5) < 1e-9);
   // P20 = 1 + 0.5 + 0.3 + 0.3 = 2.1 (hits hard cap 2.6 only much later)
-  ok('U8 prestige P20 = 2.1', Math.abs(prestMult(20) - 2.1) < 1e-9, prestMult(20));
-  ok('U8b prestige high capped 2.6', prestMult(50) === 2.6, prestMult(50));
+  ok('U8 prestige P20 = 2.1', Math.abs(prestigeIncomeMultAt(20) - 2.1) < 1e-9, prestigeIncomeMultAt(20));
+  ok('U8b prestige high capped 2.6', prestigeIncomeMultAt(50) === 2.6, prestigeIncomeMultAt(50));
 }
+
+await ensureServer();
 
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
@@ -152,7 +199,16 @@ try {
   // ── A. Boot ──────────────────────────────────────────────────────────────
   await page.goto(BASE, { waitUntil: 'networkidle', timeout: 30000 });
   await ready();
-  ok('A1 boot exports', true);
+  const bootExports = await page.evaluate(() => ({
+    goTab: typeof window.goTab === 'function',
+    cook: typeof window.cook === 'function',
+    initTitleScreen: typeof window.initTitleScreen === 'function',
+  }));
+  ok(
+    'A1 boot exports',
+    bootExports.goTab && bootExports.cook && bootExports.initTitleScreen,
+    JSON.stringify(bootExports),
+  );
   ok('A2 version 1.6.x', /v1\.6/.test(await page.locator('.ts-ver').innerText()));
 
   if (await page.locator('#btnNewGame').isVisible()) await page.locator('#btnNewGame').click();
@@ -166,9 +222,10 @@ try {
   });
   await page.waitForTimeout(100);
   ok('B1 cook visible', await page.locator('#cookBtn').isVisible());
+  const servedBefore = await page.evaluate(() => Number(JSON.parse(localStorage.getItem('SE5') || '{}').served) || 0);
   await page.locator('#cookBtn').click();
   await page.waitForTimeout(3000);
-  const served = await page.evaluate(() => {
+  const servePath = await page.evaluate(() => {
     const btn = document.getElementById('serveBtn');
     if (btn?.classList.contains('vis')) {
       btn.click();
@@ -176,8 +233,13 @@ try {
     }
     return 'auto-or-done';
   });
-  ok('B2 cook/serve path', true, served);
-  await page.waitForTimeout(200);
+  await page.waitForTimeout(250);
+  const servedAfter = await page.evaluate(() => Number(JSON.parse(localStorage.getItem('SE5') || '{}').served) || 0);
+  ok(
+    'B2 cook/serve path',
+    servedAfter > servedBefore,
+    `${servePath} served ${servedBefore}->${servedAfter}`,
+  );
   const moneyAfter = await page.evaluate(() => JSON.parse(localStorage.getItem('SE5') || '{}').money);
   ok('B3 save has money', Number(moneyAfter) > 0, moneyAfter);
 
@@ -334,15 +396,21 @@ try {
   await page.waitForTimeout(600);
   const toast = await page.locator('#toast').innerText();
   ok('I2 fail clue toast', /💡|ใกล้|ใบ้|สูตร/.test(toast), toast.slice(0, 90));
-  await page.evaluate(() => window.debugGiveMoney?.(0)); // force save if any
   // rice: spent 1 for fail (amt=1), refund 0 → -1
   // gold: spent 1, refund 0 → -1
   // partial refund is amt-1 so 0 refund when amt=1
   const riceAfter = await page.evaluate(() => {
-    // live may not flushed; re-read after interaction via seed path
-    return true;
+    // force flush via save if exposed; else read live G or localStorage
+    if (typeof window.save === 'function') window.save();
+    const live = window.G?.ing?.rice;
+    if (Number.isFinite(live)) return live;
+    return JSON.parse(localStorage.getItem('SE5') || '{}').ing?.rice;
   });
-  ok('I3 fusion fail non-crash', riceAfter);
+  ok(
+    'I3 fusion fail non-crash',
+    Number.isFinite(riceAfter) && riceAfter < riceBefore,
+    `rice ${riceBefore}->${riceAfter}`,
+  );
 
   // successful fusion if possible - salmon+nori
   await seed({
@@ -357,13 +425,17 @@ try {
     window.doFusion();
   });
   await page.waitForTimeout(800);
-  g = await page.evaluate(() => JSON.parse(localStorage.getItem('SE5')));
-  // discovery may toast; check discovered
+  g = await page.evaluate(() => {
+    if (typeof window.save === 'function') window.save();
+    return JSON.parse(localStorage.getItem('SE5'));
+  });
   const disc = g.fusion?.discovered || [];
-  ok('I4 successful fusion discovers', disc.includes('salmon_nori') || disc.length >= 0, disc.join(','));
-  // if recipe matched should be in list
-  if (disc.includes('salmon_nori')) ok('I4b salmon_nori found', true);
-  else ok('I4b fusion attempt ok', true, 'may need exact combo order');
+  ok('I4 successful fusion discovers', disc.includes('salmon_nori'), disc.join(',') || '(empty)');
+  ok(
+    'I4b salmon_nori found',
+    disc.includes('salmon_nori') && !errs.some((e) => /fusion|doFusion|TypeError/i.test(e)),
+    disc.join(','),
+  );
 
   // ── J. Menu roles + earn preview ─────────────────────────────────────────
   await seed({ level: 12 });
@@ -430,13 +502,16 @@ try {
   ok('N1 lb submit no crash', !errs.some((e) => /submitScore|leaderboard/i.test(e)));
 
   // ── O. AFK idle load order (caps before idle) ────────────────────────────
-  // Max upgrades, lastSave 2 min ago, autoChef on
+  // Max upgrades + intentionally uncapped derived fields; lastSave 2 min ago
   await page.evaluate(() => {
     const g = JSON.parse(localStorage.getItem('SE5') || '{}');
     g.up = {
       kitchen: 5, waiter: 1, marketing: 3, patience: 3, storage: 3, autoChef: 1,
       golden: 3, mastery: 1, franchise: 1, express: 2, taste: 2, outpost: 3,
     };
+    // Poison derived fields — load() must recompute + soft-cap before idle math
+    g.qSize = 99;
+    g.speedMult = 50;
     g.autoChef = true;
     g.lastSave = Date.now() - 120000;
     g.money = 1000;
@@ -445,11 +520,15 @@ try {
   });
   await page.reload({ waitUntil: 'networkidle' });
   await ready();
-  // idle modal may show
+  // Flush in-memory post-load G (caps applied in load()) out to localStorage
+  await page.evaluate(() => window.debugGiveMoney?.(0));
   const idleVis = await page.evaluate(() => document.getElementById('idleModal')?.classList.contains('vis'));
   g = await page.evaluate(() => JSON.parse(localStorage.getItem('SE5')));
-  // After load caps applied - if user closed idle, money may have increased
-  ok('O1 idle path no crash', true, `idleModal=${idleVis}`);
+  ok(
+    'O1 idle path caps before idle',
+    (g.qSize || 1) <= 6 && (g.speedMult || 1) <= 3.05,
+    `idleModal=${idleVis} qSize=${g.qSize} speedMult=${g.speedMult}`,
+  );
   ok('O2 post-load qSize capped', (g.qSize || 1) <= 6, g.qSize);
 
   // ── P. Export/import structure ───────────────────────────────────────────
@@ -497,7 +576,8 @@ try {
   ok('SUITE exception', false, e.message);
   console.error(e);
 } finally {
-  await browser.close();
+  await browser.close().catch(() => {});
+  teardownServer();
 }
 
 const failed = results.filter((r) => !r.pass);

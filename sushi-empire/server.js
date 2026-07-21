@@ -3,6 +3,7 @@ const http       = require('http');
 const { Server } = require('socket.io');
 const path       = require('path');
 const fs         = require('fs');
+const { pathToFileURL } = require('url');
 
 const app    = express();
 const server = http.createServer(app);
@@ -12,10 +13,19 @@ const io     = new Server(server, {
 
 const PORT = process.env.PORT || 3000;
 
+// Pure formulas live in public ESM; load once before accept connections.
+// Bound at call time so socket handlers can close over this let.
+let calcScoreServer = () => {
+  throw new Error('calcScoreServer not loaded yet');
+};
+
 // ── เสิร์ฟไฟล์เกม: dist/ ถ้ามีการ build ด้วย Vite, ไม่งั้น fallback ไป public/
 // โดยตรง (native ES modules ทำงานได้โดยไม่ต้อง build เลย) พร้อมแก้ MIME type ──
+// SUSHI_STATIC=public forces public/ (used by deep-test against live source).
 const distDir = path.join(__dirname, 'dist');
-const staticDir = fs.existsSync(distDir) ? distDir : path.join(__dirname, 'public');
+const staticDir = process.env.SUSHI_STATIC === 'public'
+  ? path.join(__dirname, 'public')
+  : (fs.existsSync(distDir) ? distDir : path.join(__dirname, 'public'));
 app.use(express.static(staticDir, {
   setHeaders: (res, filePath) => {
     if (filePath.endsWith('.js'))  res.setHeader('Content-Type', 'application/javascript');
@@ -44,15 +54,6 @@ function ensureDailyBoard() {
 
 function sanitizeName(name, fallback) {
   return String(name ?? '').trim().slice(0, 20) || fallback;
-}
-
-/** Must match client `calcScore()` in progress.js */
-function calcScoreServer({ served, level, prestige, money }) {
-  const s = Math.max(0, Math.min(2_000_000, Number(served) || 0));
-  const lv = Math.max(1, Math.min(500, Number(level) || 1));
-  const p = Math.max(0, Math.min(100, Number(prestige) || 0));
-  const m = Math.max(0, Math.min(1e15, Number(money) || 0));
-  return s * 10 + lv * 50 + p * 500 + (m > 0 ? Math.floor(Math.log10(m) * 20) : 0);
 }
 
 function clampStatEntry(raw) {
@@ -240,4 +241,12 @@ app.get('/health', (_, res) => {
   });
 });
 
-server.listen(PORT, () => console.log(`Sushi Empire server :${PORT}`));
+(async () => {
+  const formulasUrl = pathToFileURL(path.join(__dirname, 'public/src/core/formulas.js')).href;
+  const formulas = await import(formulasUrl);
+  calcScoreServer = formulas.calcScoreServer;
+  server.listen(PORT, () => console.log(`Sushi Empire server :${PORT}`));
+})().catch((err) => {
+  console.error('Failed to boot server (formulas load):', err);
+  process.exit(1);
+});
