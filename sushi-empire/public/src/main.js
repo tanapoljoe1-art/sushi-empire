@@ -19,14 +19,14 @@ import {
   cook, serve, buyIngredient, buyUpgrade, respecUpgrades, setUpgTreeFilter, buyBranch, switchBranch,
   showPrestModal, closePrest, doPrestige, closeAch, spawnQueue,
 } from './systems/game.js';
-import { closeEvent, closeVip, challengeVip, tickEventScheduler, updateEventForecastUI, chooseEventOption } from './systems/events.js';
+import { closeEvent, closeVip, challengeVip, tickEventScheduler, updateEventForecastUI, chooseEventOption, hostFestival, renderEventLog, renderFestivalBtn } from './systems/events.js';
 import { refreshUnlockUI, markExistingUnlocksSeen } from './systems/unlocks.js';
 import { ensureDailySpecial } from './systems/daily.js';
 import { ensureRivalWeekly, renderRivalBanner, claimRivalReward } from './systems/rival.js';
 import { ensureFishMarket, renderMarketBanner, tickSpoil } from './systems/market.js';
 import { renderSeasonBanner } from './systems/season.js';
 import { runCoachSequence, dismissCoachTip } from './systems/coach.js';
-import { ensureBattlePass, renderBattlePass, claimBattlePassTier, claimAllBattlePass } from './systems/battlepass.js';
+import { ensureBattlePass, renderBattlePass, claimBattlePassTier, claimAllBattlePass, buyPremiumPass, claimPremiumTier } from './systems/battlepass.js';
 import {
   initDebug, openDebugPanel, closeDebugPanel, toggleDebugEnabled, debugCloseAndDisable,
   debugGiveMoney, debugAddLevel, debugSetLevel, debugFillIng, debugSkipTime, debugForceEvent,
@@ -91,6 +91,8 @@ renderRivalBanner();
 ensureFishMarket();
 renderMarketBanner();
 renderSeasonBanner();
+renderEventLog();
+renderFestivalBtn();
 ensureBattlePass();
 renderBattlePass();
 applyA11yClasses();
@@ -165,10 +167,10 @@ setInterval(() => syncBgmToGame(G), 4000);
 // grep in sync; a name missing here throws ReferenceError only when a player
 // clicks that exact button, not at load time.
 Object.assign(window, {
-  assignBranchManager, bnavDrawer, bnavGo, buyBranch, buyDeco, buyIngredient, buyPrestigeItem, buyUpgrade, claimAllBattlePass, claimBattlePassTier, claimQuest,
+  assignBranchManager, bnavDrawer, bnavGo, buyBranch, buyDeco, buyIngredient, buyPrestigeItem, buyUpgrade, buyPremiumPass, claimAllBattlePass, claimBattlePassTier, claimPremiumTier, claimQuest,
   challengeVip, claimRivalReward, clearFusionSlot, closeAch, closeConfirm, closeDrawer, chooseEventOption, closeEvent, closeIdle,
   closePause, closePrest, closeSettings, closeSpectateModal, closeVip, confirmOk, cook, ctxMgSkip, ctxMgTap, doFusion,
-  doPrestige, drawerGo, fireStaff, goTab, hireStaff, hostFromModal, joinFromModal, leaveSpectateRoom, levelUpStaff, openPause,
+  doPrestige, drawerGo, fireStaff, goTab, hireStaff, hostFestival, hostFromModal, joinFromModal, leaveSpectateRoom, levelUpStaff, openPause,
   openSpectateModal, openStoryPing, pauseNewGame, pauseSettings, pauseToTitle, pickFusionIng,
   respecUpgrades, restStaff, rhTap, setUpgTreeFilter, savePlayerName, selMenu, selectMG, sendReaction, sendSpectateChat, serve, setLbMode, showPrestModal,
   startMemory, startSlice, storyChoose, storyTapOutside, submitScore,

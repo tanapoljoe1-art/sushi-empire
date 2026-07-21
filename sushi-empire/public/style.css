@@ -1006,3 +1006,28 @@ html.big-tap .ing-chip,html.big-tap .uc,html.big-tap .mi{min-height:48px}
 .story-choice.primary{background:linear-gradient(135deg,rgba(232,196,106,.15),rgba(200,150,42,.1));border-color:rgba(232,196,106,.35);color:rgba(232,196,106,.95);}
 #storyText .cursor{display:inline-block;width:2px;height:14px;background:rgba(232,196,106,.7);margin-left:2px;vertical-align:middle;animation:cursor .6s ease-in-out infinite;}
 
+
+
+/* Festival + event log + premium BP */
+.fest-row{display:flex;align-items:center;gap:10px;margin:0 0 10px}
+.fest-btn{flex:1;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,159,67,.4);
+  background:linear-gradient(135deg,rgba(255,159,67,.2),rgba(232,196,106,.1));
+  color:var(--text);font-weight:900;font-size:13px;font-family:'Noto Sans Thai',sans-serif;cursor:pointer}
+.fest-btn:disabled{opacity:.5;cursor:not-allowed}
+.fest-sub{font-size:10px;color:var(--muted);max-width:40%}
+.elog-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.elog-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;
+  background:var(--glass);border:1px solid var(--rim)}
+.elog-ico{font-size:18px}
+.elog-inf{flex:1;min-width:0}
+.elog-n{font-size:12px;font-weight:800}
+.elog-note{font-size:10px;color:var(--muted)}
+.elog-t{font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums}
+.elog-empty{text-align:center;color:var(--muted);padding:16px;font-size:12px}
+.bp-prem-buy{width:100%;padding:9px;margin-bottom:8px;border:none;border-radius:10px;
+  background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#fff;font-weight:900;font-size:12px;
+  font-family:'Noto Sans Thai',sans-serif;cursor:pointer}
+.bp-prem-on{display:block;text-align:center;font-size:11px;font-weight:800;color:#c4b5fd;margin-bottom:8px}
+.bp-btns{display:flex;gap:4px;align-items:center}
+.bp-claim.prem{background:linear-gradient(135deg,#a78bfa,#7c3aed);color:#fff}
+.bp-tag.prem-lock{color:#a78bfa;opacity:.7}

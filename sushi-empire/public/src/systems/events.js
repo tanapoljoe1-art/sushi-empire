@@ -30,6 +30,90 @@ const GLOBAL_GAP_MS = 28000; // minimum quiet time between events
 function ensureEventState() {
   if (!G.eventCooldowns || typeof G.eventCooldowns !== 'object') G.eventCooldowns = {};
   if (!G.nextEventAt) G.nextEventAt = Date.now() + 18000 + Math.random() * 12000;
+  if (!Array.isArray(G.eventLog)) G.eventLog = [];
+  if (G.festivalCdUntil == null) G.festivalCdUntil = 0;
+}
+
+export function pushEventLog(entry) {
+  ensureEventState();
+  const row = {
+    ts: Date.now(),
+    id: entry.id || '',
+    name: entry.name || entry.id || 'event',
+    icon: entry.icon || '⚡',
+    note: entry.note || '',
+  };
+  G.eventLog.unshift(row);
+  G.eventLog = G.eventLog.slice(0, 10);
+  try { renderEventLog(); } catch (_) {}
+}
+
+export function renderEventLog() {
+  ensureEventState();
+  const host = getEl('eventLogList');
+  if (!host) return;
+  if (!G.eventLog.length) {
+    host.innerHTML = '<div class="elog-empty">ยังไม่มีประวัติอีเวนต์</div>';
+    return;
+  }
+  host.innerHTML = G.eventLog.map(r => {
+    const t = new Date(r.ts);
+    const hh = String(t.getHours()).padStart(2,'0');
+    const mm = String(t.getMinutes()).padStart(2,'0');
+    return `<div class="elog-row">
+      <span class="elog-ico">${r.icon}</span>
+      <div class="elog-inf">
+        <div class="elog-n">${r.name}</div>
+        <div class="elog-note">${r.note || r.id}</div>
+      </div>
+      <span class="elog-t">${hh}:${mm}</span>
+    </div>`;
+  }).join('');
+}
+
+/** Player pays to host a food festival (festival event). */
+export function hostFestival() {
+  ensureEventState();
+  if (G.activeEvent) { toast('มีอีเวนต์อยู่แล้ว'); return; }
+  if (document.querySelector('.mbg.vis')) { toast('ปิดหน้าต่างก่อน'); return; }
+  const now = Date.now();
+  if (now < (G.festivalCdUntil || 0)) {
+    const s = Math.ceil((G.festivalCdUntil - now) / 1000);
+    toast(`เทศกาลคูลดาวน์อีก ${s}s`);
+    return;
+  }
+  const cost = Math.round(400 + (G.level || 1) * 60);
+  if (G.money < cost) { toast(`ต้องการ ${cost.toLocaleString()}฿`); return; }
+  const fest = EVENTS.find(e => e.id === 'festival');
+  if (!fest) { toast('ไม่พบ festival'); return; }
+  G.money -= cost;
+  G.festivalCdUntil = now + 180000; // 3 min
+  pushEventLog({ id: 'festival', name: fest.name, icon: fest.icon, note: `จัดเอง (−${cost}฿)` });
+  fireEvent(fest);
+  toast(`🎊 จัดเทศกาล! (−${cost.toLocaleString()}฿)`);
+  updateUI();
+  save();
+  renderFestivalBtn();
+}
+
+export function renderFestivalBtn() {
+  const btn = getEl('festivalBtn');
+  const sub = getEl('festivalBtnSub');
+  if (!btn) return;
+  ensureEventState();
+  const cost = Math.round(400 + (G.level || 1) * 60);
+  const now = Date.now();
+  const cd = Math.max(0, (G.festivalCdUntil || 0) - now);
+  if (cd > 0) {
+    btn.disabled = true;
+    const s = Math.ceil(cd / 1000);
+    btn.innerText = `🎊 เทศกาล (${s}s)`;
+    if (sub) sub.innerText = 'คูลดาวน์';
+  } else {
+    btn.disabled = !!G.activeEvent;
+    btn.innerText = `🎊 จัดเทศกาล · ${cost.toLocaleString()}฿`;
+    if (sub) sub.innerText = 'รายได้ x2 + คิว 90 วิ';
+  }
 }
 
 function eligibleEvents(now) {
@@ -56,6 +140,7 @@ function eligibleEvents(now) {
 /** Update forecast chip in header. */
 export function updateEventForecastUI() {
   ensureEventState();
+  try { renderFestivalBtn(); } catch (_) {}
   const chip = getEl('forecastChip');
   const txt  = getEl('forecastTxt');
   if (!chip || !txt) return;
@@ -123,6 +208,12 @@ export function tickEventScheduler() {
 
 function fireEvent(ev) {
   G.activeEvent = ev.id;
+  pushEventLog({
+    id: ev.id,
+    name: ev.name,
+    icon: ev.icon,
+    note: ev.negative ? 'วิกฤต' : (ev.badge || ''),
+  });
   if (ev.instant) {
     triggerVIP();
     // VIP is instant; schedule next after gap
@@ -198,6 +289,12 @@ export function chooseEventOption(idx) {
   }
   if (cost > 0) G.money -= cost;
   if (c.rating) G.rating = Math.min(100, G.rating + c.rating);
+  pushEventLog({
+    id: ev.id + ':' + c.id,
+    name: ev.name,
+    icon: ev.icon,
+    note: 'เลือก: ' + c.label,
+  });
 
   getEl('eventModal').classList.remove('vis');
   const box = getEl('evChoices');
@@ -334,6 +431,7 @@ export function endEvent() {
   toast('⏰ Event สิ้นสุดแล้ว!');
   checkAch();
   updateEventForecastUI();
+  try { renderFestivalBtn(); } catch (_) {}
   save();
 }
 

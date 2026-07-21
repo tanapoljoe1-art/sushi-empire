@@ -106,6 +106,29 @@ export const BATTLE_PASS = [
   { tier:30, xp:4300, reward:{ money:5000, rating:10 }, label:'จบซีซัน!' },
 ];
 
+/** Premium track rewards (claimed separately if battlePass.premium) */
+export const BATTLE_PASS_PREMIUM = [
+  { tier:1,  reward:{ money:150 }, label:'พรีเมียม 1' },
+  { tier:2,  reward:{ money:200 }, label:'พรีเมียม 2' },
+  { tier:3,  reward:{ ing:{ uni:1, egg:4 } }, label:'วัตถุดิบบน' },
+  { tier:5,  reward:{ money:500, rating:3 }, label:'บูสต์ 5' },
+  { tier:8,  reward:{ money:700 }, label:'ทุน 8' },
+  { tier:10, reward:{ money:1200, ing:{ gold:1 } }, label:'หลักสิบ★' },
+  { tier:12, reward:{ money:900 }, label:'พรีเมียม 12' },
+  { tier:15, reward:{ money:1800, rating:5 }, label:'ครึ่งทาง★' },
+  { tier:18, reward:{ ing:{ caviar:1, wagyu:1 } }, label:'ของหายาก' },
+  { tier:20, reward:{ money:2500 }, label:'หลัก 20★' },
+  { tier:22, reward:{ money:2000, rating:4 }, label:'พรีเมียม 22' },
+  { tier:25, reward:{ money:3500, ing:{ diamond:1 } }, label:'ขั้น 25★' },
+  { tier:28, reward:{ money:4000 }, label:'ใกล้จบ★' },
+  { tier:30, reward:{ money:8000, rating:12 }, label:'จบซีซัน★' },
+];
+
+/** Cost to unlock premium track for the season (scales lightly with level) */
+export function battlePassPremiumCost(level = 1) {
+  return Math.round(2500 + Math.max(0, level - 1) * 120);
+}
+
 export const ACHIEVEMENTS = [
   {id:'s1',   name:'มือใหม่',    desc:'เสิร์ฟครั้งแรก',      icon:'🍣',reward:50,   chk:g=>g.served>=1},
   {id:'s20',  name:'เชฟมือดี',    desc:'เสิร์ฟครบ 20 ครั้ง',  icon:'⭐',reward:150,  chk:g=>g.served>=20},

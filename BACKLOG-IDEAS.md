@@ -131,20 +131,25 @@
 - [x] Seasonality เบา (โบนัสเมนู + ราคา ing ตามฤดู)  
 - [x] Debug force crisis events  
 
+## รอบ 12 — Event log / Festival / Premium BP (2026-07-21)
+- [x] Event log 10 รายการ (แท็บ Quest)  
+- [x] Player-triggered festival (จ่ายเงิน · CD 3 นาที)  
+- [x] Premium battle pass track (ซื้อรายซีซัน + รางวัลคู่)  
+- [x] saveVersion → 6  
+
 ### ยังค้าง (infra + ต่อ)
 - [ ] **Render auto-deploy** — Connect มือ  
-- [ ] Battle pass premium  
-- [ ] Event log / player-triggered festival  
+- [ ] Soft keep staff on prestige  
+- [ ] Telemetry เบา  
 
 ---
 
 # 🔜 คิวถัดไป (แนะนำทำตามลำดับ)
 
 1. Render Connect มือ  
-2. Event log 10 รายการ  
-3. Player-triggered festival  
-4. Premium BP track  
-5. …ตาม Roadmap 30 วัน
+2. Soft keep staff unlock on prestige  
+3. Title screen prestige skin  
+4. …ตาม Roadmap 30 วัน
 
 ---
 
@@ -244,9 +249,9 @@
 | Declarative effects | ✅ (เดิม) | |
 | Forecast “อีก ~2 นาทีอาจ Rush” | ✅ | chip ⚡ + nextEventAt |
 | Cooldown ต่อชนิด + pity timer | ✅ | EVENT_COOLDOWN_MS + pity 90s |
-| Player-triggered event | 📋 | จ่ายเงินจัดเทศกาล |
+| Player-triggered event | ✅ | จ่ายเงินจัดเทศกาล |
 | Negative events + เลือกตอบ 3 ทาง | ✅ | ไฟดับ / สุขาภิบาล / คู่แข่งลดราคา |
-| Event log 10 รายการ | 📋 | รู้สึกมีโลก |
+| Event log 10 รายการ | ✅ | รู้สึกมีโลก |
 | Event chain / quest ผูก event | 📋 | |
 
 ---
@@ -297,7 +302,7 @@
 | Daily/Weekly pool | ที่มีอยู่ | |
 | รางวัลหลาก (ing, blueprint, staff XP, prestige dust) | ✅ บางส่วน | เงิน + ing + rating (ยังไม่มี dust/blueprint) |
 | Quest แนว skill | 📋 | Perfect 10 ครั้ง, VIP ถูกเมนู — มี daily special quest แล้ว |
-| Battle pass เบา 30 วัน | ✅ | free 30 tiers · season bucket |
+| Battle pass เบา 30 วัน | ✅ | free + premium track · season bucket |
 | `maxStreakToday` สำหรับ quest streak | 📋 | ตอนนี้ใช้ G.streak ปัจจุบัน คลุมเครือ |
 
 ---

@@ -40,6 +40,7 @@ export function goTab(t) {
   if (t === 'staff')  renderStaff();
   if (t === 'deco')   renderDeco();
   if (t === 'quest')  renderQuests();
+    import('./events.js').then(m => m.renderEventLog()).catch(() => {});
   if (t === 'lb')     renderLB();
   if (t === 'ach')    renderAch();
   if (t === 'br')     renderBr();

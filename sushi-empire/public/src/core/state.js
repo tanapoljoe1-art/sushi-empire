@@ -29,7 +29,7 @@ export const BAL = {
 
 export function defaultState() {
   return {
-    saveVersion: 5,
+    saveVersion: 6,
     money: 150, rating: 0, level: 1,
     menu: 'salmon', cooking: false, plateReady: false,
     streak: 0, served: 0, vipServed: 0, rushCleared: 0, mgWins: 0,
@@ -97,7 +97,9 @@ export function defaultState() {
     rivalWeekly: { weekKey:'', playerEarn:0, rivalTarget:0, claimed:false },
     fishMarket: { dayKey:'', prices:{}, spoilTick:0 },
     coachSeen: {},
-    battlePass: { season:'', xp:0, claimed:{}, lastDay:'' },
+    battlePass: { season:'', xp:0, claimed:{}, premiumClaimed:{}, premium:false, lastDay:'' },
+    eventLog: [],
+    festivalCdUntil: 0,
     upgTreeFilter: 'all',
     // Player
     playerName: '',
@@ -107,7 +109,7 @@ export function defaultState() {
 export let G = defaultState();
 
 /** Bump when save shape needs a migration. Written on every save. */
-export const SAVE_VERSION = 5;
+export const SAVE_VERSION = 6;
 export const SAVE_KEY = 'SE5';
 export const DECO_SLOTS = ['wall', 'counter', 'light', 'floor'];
 
@@ -174,6 +176,15 @@ function migrateSave(data) {
     ['express','taste','outpost'].forEach(k => { if (data.up[k] == null) data.up[k] = 0; });
     v = 5;
   }
+  if (v < 6) {
+    if (!Array.isArray(data.eventLog)) data.eventLog = [];
+    if (data.festivalCdUntil == null) data.festivalCdUntil = 0;
+    if (data.battlePass) {
+      if (!data.battlePass.premiumClaimed) data.battlePass.premiumClaimed = {};
+      if (data.battlePass.premium == null) data.battlePass.premium = false;
+    }
+    v = 6;
+  }
   data.saveVersion = SAVE_VERSION;
   return data;
 }
@@ -196,6 +207,8 @@ function normalizeLoadedState(parsed) {
   if (!G.rivalWeekly) G.rivalWeekly = { weekKey:'', playerEarn:0, rivalTarget:0, claimed:false };
   if (!G.fishMarket) G.fishMarket = { dayKey:'', prices:{}, spoilTick:0 };
   if (!G.coachSeen) G.coachSeen = {};
+  if (!Array.isArray(G.eventLog)) G.eventLog = [];
+  if (G.festivalCdUntil == null) G.festivalCdUntil = 0;
   if (!G.battlePass) G.battlePass = { season:'', xp:0, claimed:{}, lastDay:'' };
   if (!G.upgTreeFilter) G.upgTreeFilter = 'all';
   G.perfectPad = G.perfectPad || 0;
