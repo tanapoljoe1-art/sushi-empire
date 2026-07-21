@@ -77,22 +77,27 @@
 - [x] Quest รางวัล: เงิน + วัตถุดิบ + rating  
 - [x] Branch specialization พื้นฐาน (spec บน BRANCHES)  
 
+## รอบ 4 — Prestige shop / Audio / Net / Kitchen 2D
+- [x] Prestige shop (★ ซื้อโบนัสถาวร)  
+- [x] BGM เบา 3 โหมด + SFX ครัว / Perfect  
+- [x] Socket.IO leaderboard (ออนไลน์ + fallback เครื่อง)  
+- [x] Kitchen 2D theme ตามสาขา + mood staff  
+
 ### ยังค้าง (infra + ต่อ)
 - [ ] Live click-through มือถือเต็ม  
 - [ ] **Render auto-deploy** — Connect ใหม่  
 - [ ] **Post-mortem** webhook  
-- [ ] Prestige shop, kitchen 2D/3D, BGM, socket multiplayer, …  
+- [ ] Three.js kitchen, spectate room, manager assign, …  
 
 ---
 
 # 🔜 คิวถัดไป (แนะนำทำตามลำดับ)
 
 1. Live click-through มือถือ + desktop  
-2. Prestige shop  
-3. Kitchen 2D upgrade → Three.js  
-4. BGM / SFX ชุดจริง  
-5. Socket leaderboard / spectate  
-6. …ตาม Roadmap 30 วัน + BACKLOG 
+2. Three.js kitchen scene (`kitchen-scene.js`)  
+3. Spectate / room multiplayer  
+4. Manager assign ต่อสาขา  
+5. …ตาม Roadmap 30 วัน + BACKLOG
 
 ---
 
