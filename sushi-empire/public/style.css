@@ -201,16 +201,29 @@ nav{ display:none; } /* hide old nav — keep for goTab compat */
 .bntab.nav-locked{opacity:.4;}
 .bntab.nav-locked .bntab-ico{filter:grayscale(1);}
 
+/* Info carousel — swipeable strip holding Daily Special / Season / Market so
+   they take one compact row instead of stacking as 3 separate full-width banners. */
+.info-carousel{
+  display:flex;gap:8px;overflow-x:auto;scroll-snap-type:x mandatory;
+  margin:0 0 6px;padding-bottom:1px;-webkit-overflow-scrolling:touch;
+  scrollbar-width:none;align-items:stretch;}
+.info-carousel::-webkit-scrollbar{display:none;}
+.info-carousel > div{flex:0 0 88%;scroll-snap-align:start;min-width:0;}
+.info-dots{display:flex;justify-content:center;gap:5px;margin:0 0 10px;}
+.info-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.18);transition:background .2s,width .2s;}
+.info-dot.on{background:var(--gold);width:14px;border-radius:3px;}
+
 /* Daily special */
 .daily-special-banner{
-  display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:10px 12px;
+  display:flex;align-items:center;gap:10px;margin:0;padding:10px 12px;
   border-radius:14px;background:linear-gradient(135deg,rgba(232,196,106,.14),rgba(255,77,109,.08));
   border:1px solid rgba(232,196,106,.28);}
-.ds-ico{font-size:28px;line-height:1}
+.ds-ico{font-size:28px;line-height:1;flex-shrink:0}
+.ds-inf{min-width:0}
 .ds-lbl{font-size:10px;color:var(--gold);letter-spacing:.08em;font-weight:800}
-.ds-name{font-size:13px;font-weight:700;color:var(--text)}
+.ds-name{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ds-btn{margin-left:auto;padding:6px 12px;border:none;border-radius:10px;background:var(--goldg);
-  color:#1a0e00;font-weight:900;font-size:11px;font-family:inherit;cursor:pointer}
+  color:#1a0e00;font-weight:900;font-size:11px;font-family:inherit;cursor:pointer;flex-shrink:0}
 .mi.daily-sp{border-color:rgba(232,196,106,.55)!important;box-shadow:0 0 12px rgba(232,196,106,.15)}
 .mi-sp{position:absolute;top:4px;left:6px;font-size:11px}
 
@@ -566,12 +579,13 @@ nav{ display:none; } /* hide old nav — keep for goTab compat */
 .lb-mode.on{border-color:rgba(232,196,106,.45);background:rgba(232,196,106,.12);color:var(--gold);}
 
 /* Season */
-.season-banner{margin:0 0 8px;padding:8px 12px;border-radius:14px;border:1px solid rgba(244,114,182,.3);
+.season-banner{margin:0;padding:8px 12px;border-radius:14px;border:1px solid rgba(244,114,182,.3);
   background:linear-gradient(135deg,rgba(244,114,182,.1),rgba(251,191,36,.06));
   display:flex;align-items:center;gap:10px}
-.sz-ico{font-size:22px}
+.sz-ico{font-size:22px;flex-shrink:0}
+.sz-inf{min-width:0}
 .sz-lbl{font-size:10px;font-weight:800;color:#f9a8d4}
-.sz-line{font-size:11px;font-weight:700;margin-top:2px}
+.sz-line{font-size:11px;font-weight:700;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* Event choices */
 .ev-choices{display:flex;flex-direction:column;gap:8px;margin:10px 0 4px;width:100%}
@@ -674,7 +688,7 @@ html.big-tap .ing-chip,html.big-tap .uc,html.big-tap .mi{min-height:48px}
 .bp-tag{font-size:10px;color:var(--muted);font-weight:700}
 
 /* Fish market */
-.market-banner{margin:0 0 8px;padding:8px 12px;border-radius:14px;border:1px solid rgba(56,189,248,.3);
+.market-banner{margin:0;padding:8px 12px;border-radius:14px;border:1px solid rgba(56,189,248,.3);
   background:linear-gradient(135deg,rgba(56,189,248,.1),rgba(45,212,191,.06));
   display:flex;align-items:center;gap:10px}
 .mk-ico{font-size:22px}

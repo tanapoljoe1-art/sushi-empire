@@ -10,6 +10,24 @@ import { ensureFishMarket, marketTag, renderMarketBanner } from '../systems/mark
 import { renderSeasonBanner } from '../systems/season.js';
 import { updateKitchenTheme } from './kitchen-scene.js';
 
+/** Dot indicator for the Daily Special / Season / Market swipeable strip. */
+export function initInfoCarousel() {
+  const el = getEl('infoCarousel');
+  const dots = getEl('infoDots');
+  if (!el || !dots) return;
+  dots.innerHTML = Array.from(el.children, () => '<span class="info-dot"></span>').join('');
+  const dotEls = [...dots.children];
+  const update = () => {
+    const idx = Math.round(el.scrollLeft / Math.max(1, el.clientWidth));
+    dotEls.forEach((d, i) => d.classList.toggle('on', i === idx));
+  };
+  update();
+  el.addEventListener('scroll', () => {
+    clearTimeout(el._dotTimer);
+    el._dotTimer = setTimeout(update, 80);
+  }, { passive: true });
+}
+
 export function toast(msg) {
   const t = getEl('toast');
   t.innerText = msg;
