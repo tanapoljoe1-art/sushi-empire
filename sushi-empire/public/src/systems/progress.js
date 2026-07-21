@@ -307,14 +307,28 @@ export async function renderLB() {
 // ── Achievements ──────────────────────────────────────────────────────────────
 
 export function renderAch() {
+  const total = ACHIEVEMENTS.length;
+  const unlocked = ACHIEVEMENTS.filter(a => G.ach[a.id]).length;
+  const hiddenTotal = ACHIEVEMENTS.filter(a => a.hidden).length;
+  const hiddenDone = ACHIEVEMENTS.filter(a => a.hidden && G.ach[a.id]).length;
+  const head = getEl('achHead');
+  if (head) {
+    head.innerText = `ปลดแล้ว ${unlocked}/${total}`
+      + (hiddenTotal ? ` · ลับ ${hiddenDone}/${hiddenTotal}` : '');
+  }
   getEl('achList').innerHTML = ACHIEVEMENTS.map(a => {
-    const done = G.ach[a.id];
-    return `<div class="ac ${done ? 'done' : 'pend'}">
-      <div class="ac-ico">${a.icon}</div>
+    const done = !!G.ach[a.id];
+    const secret = !!a.hidden && !done;
+    const ico = secret ? '❓' : a.icon;
+    const name = secret ? '???' : a.name;
+    const desc = secret ? 'เงื่อนไขลับ — ค้นหาเอาเอง' : a.desc;
+    const cls = done ? 'done' : (secret ? 'secret pend' : 'pend');
+    return `<div class="ac ${cls}">
+      <div class="ac-ico">${ico}</div>
       <div class="ac-inf">
-        <div class="ac-n">${a.name}</div>
-        <div class="ac-d">${a.desc}</div>
-        ${done ? `<div class="ac-r">+${a.reward}฿ ✓</div>` : ''}
+        <div class="ac-n">${name}${a.hidden && done ? ' <span class="ac-secret-tag">ลับ</span>' : ''}</div>
+        <div class="ac-d">${desc}</div>
+        ${done ? `<div class="ac-r">+${a.reward}฿ ✓</div>` : (secret ? '<div class="ac-r">🔒 ลับ</div>' : '')}
       </div>
       <div class="ac-chk">${done ? '✅' : '🔒'}</div>
     </div>`;

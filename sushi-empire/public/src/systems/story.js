@@ -155,6 +155,9 @@ export function storyChoose(choiceIdx) {
     G.storyFlags = G.storyFlags || {};
     choice.flags.forEach(f => { G.storyFlags[f] = true; });
   }
+  if (choice.flag || (choice.flags && choice.flags.length)) {
+    try { import('./game.js').then(m => m.checkAch()).catch(() => {}); } catch (_) {}
+  }
 
   if (choice.close || choice.next === null) {
     closeStory();

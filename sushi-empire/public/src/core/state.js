@@ -33,6 +33,15 @@ export function defaultState() {
     money: 150, rating: 0, level: 1,
     menu: 'salmon', cooking: false, plateReady: false,
     streak: 0, served: 0, vipServed: 0, rushCleared: 0, mgWins: 0,
+    // Achievement counters (persist across prestige where listed in doPrestige keep)
+    perfectCount: 0,
+    orderMatchCount: 0,
+    orderMatchStreak: 0,
+    maxOrderMatchStreak: 0,
+    festivalHosted: 0,
+    rivalWins: 0,
+    secretServed: 0,
+    fusionServed: 0,
     queue: [],
     up: { kitchen:0, waiter:0, marketing:0, patience:0, storage:0, autoChef:0, golden:0, mastery:0, franchise:0, express:0, taste:0, outpost:0 },
     speedMult: 1, autoServe: false, qSize: 1, patMult: 1, storageMult: 1, autoChef: false,
@@ -227,6 +236,13 @@ function normalizeLoadedState(parsed) {
   if (!G.featureUnlockToast) G.featureUnlockToast = {};
   if (!G.staff || typeof G.staff !== 'object') G.staff = {};
   if (!G.ach || typeof G.ach !== 'object') G.ach = {};
+  // Hidden-achievement counters (old saves missing these)
+  for (const k of [
+    'perfectCount', 'orderMatchCount', 'orderMatchStreak', 'maxOrderMatchStreak',
+    'festivalHosted', 'rivalWins', 'secretServed', 'fusionServed',
+  ]) {
+    if (!Number.isFinite(G[k]) || G[k] < 0) G[k] = 0;
+  }
 
   // Merge any upgrade keys added after the save was created
   G.up = { ...defaultState().up, ...G.up };

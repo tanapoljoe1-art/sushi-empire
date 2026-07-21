@@ -9,11 +9,11 @@
 | `ROADMAP-30-DAYS.md` | จัดลำดับ 30 วัน / sprint |
 | `HANDOFF.md` | สถานะ repo, deploy, path, next step เทคนิค |
 
-**Repo path:** git root = `/private/tmp/sushi-empire-review/` · โค้ดเกม = `sushi-empire/`  
+**Repo path:** git root = `/Users/noblemonobluefin/projects/sushi-empire-review/` · โค้ดเกม = `sushi-empire/`  
 **อย่าใช้** `~/sushi-empire` (สำเนาเก่า)  
 **Remote:** `https://github.com/tanapoljoe1-art/sushi-empire` · branch `main`  
 **Live:** `https://sushi-empire.onrender.com`  
-**หมายเหตุ:** `/private/tmp` อาจถูกลบหลัง reboot — push เอกสารนี้ขึ้น GitHub ด้วย
+**หมายเหตุ:** อย่าเก็บ working copy ใต้ `/private/tmp` — หายหลัง reboot
 
 **ลำดับห้ามสลับ**
 1. อย่าเพิ่ม content กองใหญ่ ถ้ายังมี flag/bonus ตาย  
@@ -142,18 +142,31 @@
 - [x] Premium battle pass track (ซื้อรายซีซัน + รางวัลคู่)  
 - [x] saveVersion → 6  
 
+## รอบ 14 — Review Grok + banner + mobile overflow (2026-07-21)
+- [x] XSS escape (LB + spectate)  
+- [x] Server LB rate limit + name sanitize  
+- [x] Modal stacking critic/VIP  
+- [x] Event pacing 55s  
+- [x] Info carousel Daily/Season/Market  
+- [x] Mobile header flex wrap overflow  
+
+## รอบ 15 — Hidden achievements (2026-07-21)
+- [x] 14 secret achievements (`hidden:true`)  
+- [x] Counters: perfect / order match / festival / rival / secret menu / fusion serve  
+- [x] UI spoiler + unlock modal “🔒 ปลดล็อคลับ!”  
+- [x] version → 1.1.0  
+
 ### ยังค้าง (infra + ต่อ)
-- [ ] **Render auto-deploy** — Connect มือ  
-- [ ] Soft keep staff on prestige  
+- [ ] **Render auto-deploy** — Connect มือ / Manual deploy หลัง push  
 - [ ] Telemetry เบา  
 
 ---
 
 # 🔜 คิวถัดไป (แนะนำทำตามลำดับ)
 
-1. Render Connect มือ  
-2. Hidden achievements  
-3. Telemetry / polish  
+1. Manual deploy บน Render + live smoke  
+2. Telemetry / polish  
+3. Tiered / showcase achievements (optional)  
 4. Bug bash  
 
 
@@ -318,9 +331,9 @@
 | ไอเดีย | สถานะ | รายละเอียด |
 |--------|--------|------------|
 | Ach + queue modal | ที่มีอยู่ (แก้ bug แล้ว) | |
-| Hidden / secret ach | 📋 | |
+| Hidden / secret ach | ✅ | 14 รายการ · spoiler UI · counters persist prestige |
 | Tiered bronze/silver/gold | 📋 | |
-| Playstyle ach | 📋 | no-miss, fusion-only |
+| Playstyle ach | ✅ บางส่วน | order-match chain, fusion-only, perfect |
 | Showcase บน title screen | 📋 | |
 
 ---

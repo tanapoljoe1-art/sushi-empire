@@ -67,6 +67,7 @@ export function hireStaff(id) {
   G.staff[id] = { hired: true, level: 1, mood: 100, skills: [] };
   applyAllStaffBonuses();
   toast('✅ จ้าง ' + s.name + ' แล้ว!');
+  try { import('./game.js').then(m => m.checkAch()).catch(() => {}); } catch (_) {}
   updateUI(); renderStaff(); save();
 }
 

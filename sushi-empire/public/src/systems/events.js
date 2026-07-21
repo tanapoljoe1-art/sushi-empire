@@ -88,9 +88,11 @@ export function hostFestival() {
   if (!fest) { toast('ไม่พบ festival'); return; }
   G.money -= cost;
   G.festivalCdUntil = now + 180000; // 3 min
+  G.festivalHosted = (G.festivalHosted || 0) + 1;
   pushEventLog({ id: 'festival', name: fest.name, icon: fest.icon, note: `จัดเอง (−${cost}฿)` });
   fireEvent(fest);
   toast(`🎊 จัดเทศกาล! (−${cost.toLocaleString()}฿)`);
+  checkAch();
   updateUI();
   save();
   renderFestivalBtn();

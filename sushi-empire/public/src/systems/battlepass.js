@@ -104,6 +104,7 @@ export function buyPremiumPass() {
   if (G.money < cost) { toast(`ต้องการ ${cost.toLocaleString()}฿`); return; }
   G.money -= cost;
   G.battlePass.premium = true;
+  try { import('./game.js').then(m => m.checkAch()).catch(() => {}); } catch (_) {}
   toast(`⭐ ปลด Premium Pass! (−${cost.toLocaleString()}฿)`);
   updateUI();
   renderBattlePass();

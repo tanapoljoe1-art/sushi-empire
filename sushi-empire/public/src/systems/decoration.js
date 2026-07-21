@@ -87,6 +87,7 @@ export function equipDeco(id) {
     toast('✨ ใส่ ' + d.name + ' (' + (DECO_SLOT_LABEL[slot] || slot) + ')');
   }
   try { updateKitchenTheme(G); } catch (_) {}
+  try { import('./game.js').then(m => m.checkAch()).catch(() => {}); } catch (_) {}
   renderDeco();
   updateUI();
   save();

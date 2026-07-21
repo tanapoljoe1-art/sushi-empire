@@ -151,6 +151,23 @@ export const ACHIEVEMENTS = [
   {id:'fus1', name:'นักต้มตุ๋น',       desc:'ค้นพบ Fusion Recipe แรก',icon:'🧪',reward:300,  chk:g=>(g.fusion&&g.fusion.discovered&&g.fusion.discovered.length||0)>=1},
   {id:'fus5', name:'นักเคมีอาหาร',   desc:'ค้นพบ 5 เมนู Fusion',   icon:'🎮',reward:800,  chk:g=>(g.fusion&&g.fusion.discovered&&g.fusion.discovered.length||0)>=5},
   {id:'fusAll',name:'Master Alchemist',desc:'ค้นพบทุก Fusion เมนู', icon:'🌟',reward:3000, chk:g=>(g.fusion&&g.fusion.discovered&&g.fusion.discovered.length||0)>=FUSION_RECIPES.length},
+
+  // ── Hidden / secret (ไม่โชว์ชื่อ-เงื่อนไขจนกว่าจะปลด) ─────────────────────
+  // UI: renderAch แสดง ❓ / "???" จนกว่า G.ach[id]; modal ยังขึ้นชื่อจริงตอนปลด
+  {id:'h_perf1',  name:'มือทอง',         desc:'ทำ Perfect ครั้งแรก',              icon:'✨',reward:200,  hidden:true, chk:g=>(g.perfectCount||0)>=1},
+  {id:'h_perf25', name:'เซนแห่งมีด',     desc:'ทำ Perfect ครบ 25 ครั้ง',          icon:'🔪',reward:1200, hidden:true, chk:g=>(g.perfectCount||0)>=25},
+  {id:'h_match50',name:'อ่านใจลูกค้า',   desc:'เสิร์ฟตรงออเดอร์ 50 ครั้ง',        icon:'🎯',reward:800,  hidden:true, chk:g=>(g.orderMatchCount||0)>=50},
+  {id:'h_chain20',name:'ไม่พลาดแม้ครั้ง', desc:'เสิร์ฟตรงติดกัน 20 ครั้ง',         icon:'🔗',reward:1500, hidden:true, chk:g=>(g.maxOrderMatchStreak||0)>=20},
+  {id:'h_fest3',  name:'เจ้าภาพตัวยง',   desc:'จัดเทศกาลเอง 3 ครั้ง',             icon:'🎊',reward:900,  hidden:true, chk:g=>(g.festivalHosted||0)>=3},
+  {id:'h_staff6', name:'ทีมในฝัน',       desc:'จ้างพนักงานครบทุกตำแหน่ง',         icon:'👥',reward:2000, hidden:true, chk:g=>Object.values(g.staff||{}).filter(s=>s&&s.hired).length>=6},
+  {id:'h_deco4',  name:'ห้องครัวสมบูรณ์', desc:'ติดตั้ง deco ครบ 4 ช่อง',          icon:'🖼️',reward:1000, hidden:true, chk:g=>{const s=g.deco?.slots||{}; return ['wall','counter','light','floor'].every(k=>!!s[k]);}},
+  {id:'h_secret', name:'เมนูลับ',         desc:'เสิร์ฟ Omakase EX สำเร็จ',         icon:'🤫',reward:1500, hidden:true, chk:g=>(g.secretServed||0)>=1},
+  {id:'h_rival1', name:'เอาชนะ Tsunami', desc:'ชนะคู่แข่งรายสัปดาห์ครั้งแรก',     icon:'🏆',reward:1200, hidden:true, chk:g=>(g.rivalWins||0)>=1},
+  {id:'h_critic', name:'มิตรนักวิจารณ์', desc:'เลือกทางมิตรกับนักวิจารณ์',        icon:'📰',reward:800,  hidden:true, chk:g=>!!g.storyFlags?.criticFriend},
+  {id:'h_sk50',   name:'ไฟลุกไม่ดับ',    desc:'Streak ถึง 50',                    icon:'🔥',reward:2500, hidden:true, chk:g=>(g.streak||0)>=50},
+  {id:'h_bp_prem',name:'Pass ทอง',       desc:'ซื้อ Premium Battle Pass',          icon:'🎫',reward:500,  hidden:true, chk:g=>!!g.battlePass?.premium},
+  {id:'h_prest3', name:'อาณาจักรนิรันดร์',desc:'Prestige ครบ 3 รอบ',              icon:'♾️',reward:3000, hidden:true, chk:g=>(g.prestigeLevel||0)>=3},
+  {id:'h_fusOnly',name:'นักเล่นสูตร',    desc:'เสิร์ฟเมนู Fusion 15 ครั้ง',        icon:'🧪',reward:1000, hidden:true, chk:g=>(g.fusionServed||0)>=15},
 ];
 
 // spec = branch specialization (gameplay hooks in pickCustomerType / calcServeEarn / getPatience)

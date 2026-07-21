@@ -472,6 +472,10 @@ nav{ display:none; } /* hide old nav — keep for goTab compat */
 
 /* ACH */
 .alst{display:flex;flex-direction:column;gap:7px;}
+.ach-head{font-size:11px;color:var(--muted);padding:0 4px 8px;letter-spacing:.02em}
+.ac-secret-tag{font-size:9px;color:var(--purple);font-weight:700;margin-left:4px;vertical-align:middle}
+.ac.secret{opacity:.55;border-style:dashed}
+.ac.secret .ac-ico{filter:grayscale(.3)}
 .ac{background:var(--glass);border:1px solid var(--rim);border-radius:16px;padding:12px;
   display:flex;align-items:center;gap:11px;transition:border-color .3s,box-shadow .3s;}
 .ac.done{border-color:rgba(232,196,106,.3);box-shadow:0 0 14px rgba(232,196,106,.06);}

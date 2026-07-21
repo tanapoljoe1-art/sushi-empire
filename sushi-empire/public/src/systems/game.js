@@ -533,6 +533,7 @@ export function doneCook(m) {
   showPlateReady(m.emoji);
   sfxCoin();
   if (cookQuality === 'perfect') {
+    G.perfectCount = (G.perfectCount || 0) + 1;
     toast('✨ PERFECT! +35% รายได้');
     spawnFE('✨ PERFECT');
     try { cameraPunchPerfect(); } catch (_) {}
@@ -614,8 +615,16 @@ export function serve() {
   checkStreakMilestone(G.streak);
   if (isDailySpecial(menuId)) spawnFE('⭐ Special!');
 
-  if (orderMatch === true)  spawnFE('👍 สั่งตรง!');
+  if (orderMatch === true) {
+    spawnFE('👍 สั่งตรง!');
+    G.orderMatchCount = (G.orderMatchCount || 0) + 1;
+    G.orderMatchStreak = (G.orderMatchStreak || 0) + 1;
+    if (G.orderMatchStreak > (G.maxOrderMatchStreak || 0)) {
+      G.maxOrderMatchStreak = G.orderMatchStreak;
+    }
+  }
   if (orderMatch === false) {
+    G.orderMatchStreak = 0;
     spawnFE('😕 ผิดเมนู', true);
     toast('😕 ลูกค้าสั่งคนละเมนู — รายได้ลด');
     // Rival spy sabotage
@@ -627,6 +636,8 @@ export function serve() {
       spawnFE('🕵️ sabotage', true);
     }
   }
+  if (menuId === 'omakase_ex') G.secretServed = (G.secretServed || 0) + 1;
+  if (m?.isFusion) G.fusionServed = (G.fusionServed || 0) + 1;
   if (cust?.ctype === 'critic' && orderMatch === true) {
     toast('📰 นักวิจารณ์พอใจ!');
     G.rating = Math.min(100, G.rating + 2);
@@ -774,6 +785,8 @@ function showNextAch() {
   getEl('achMN').innerText = a.name;
   getEl('achMD').innerText = a.desc;
   getEl('achMA').innerText = '+' + a.reward + '฿';
+  const title = getEl('achModal')?.querySelector('.mtitle');
+  if (title) title.innerText = a.hidden ? '🔒 ปลดล็อคลับ!' : 'Achievement ปลดล็อค!';
   getEl('achModal').classList.add('vis');
 }
 
@@ -1015,6 +1028,15 @@ export function doPrestige() {
     mgWins:              G.mgWins,
     vipServed:           G.vipServed,
     rushCleared:         G.rushCleared,
+    // Hidden-ach counters survive prestige
+    perfectCount:        G.perfectCount || 0,
+    orderMatchCount:     G.orderMatchCount || 0,
+    orderMatchStreak:    0, // live streak resets; max keeps
+    maxOrderMatchStreak: G.maxOrderMatchStreak || 0,
+    festivalHosted:      G.festivalHosted || 0,
+    rivalWins:           G.rivalWins || 0,
+    secretServed:        G.secretServed || 0,
+    fusionServed:        G.fusionServed || 0,
     storyData:           G.storyData,
     storyFlags:          G.storyFlags || {},
     coachSeen:            G.coachSeen || {},

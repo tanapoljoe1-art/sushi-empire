@@ -56,6 +56,7 @@ export function claimRivalReward() {
   const reward = Math.round(800 + (G.level || 1) * 40 + (G.prestigeLevel || 0) * 200);
   G.money += reward;
   G.rating = Math.min(100, G.rating + 5);
+  G.rivalWins = (G.rivalWins || 0) + 1;
   if (G.storyFlags?.rivalPride) {
     G.money += Math.round(reward * 0.25);
     toast(`🏆 ชนะ Tsunami! +${reward}฿ (+25% เกียรติ)`);
@@ -63,6 +64,7 @@ export function claimRivalReward() {
     toast(`🏆 ชนะ Tsunami Sushi! +${reward}฿`);
   }
   spawnFE('🏆 +' + reward + '฿');
+  try { import('./game.js').then(m => m.checkAch()).catch(() => {}); } catch (_) {}
   updateUI();
   renderRivalBanner();
   save();
