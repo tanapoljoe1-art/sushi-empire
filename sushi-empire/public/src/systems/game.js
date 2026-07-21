@@ -84,14 +84,28 @@ export function getFusionMods(menuId) {
   const tags = r.tags || [];
   const has = (re) => tags.some(t => re.test(t));
   const all = has(/ทุก\s*bonus/i);
+  const S = BAL.sit || {};
+  const earnCap = S.fusionEarnCap ?? 1.20;
+  const rushCap = S.fusionRushCap ?? 1.25;
   return {
-    earn:       all || has(/Income/i) ? (all ? 1.3 : 1.15) : 1,
+    earn:       Math.min(earnCap, all || has(/Income/i) ? (all ? 1.20 : 1.12) : 1),
     ratingExtra: all || has(/Rating/i) ? (all ? 2 : 1) : 0,
-    streakMult: all || has(/Streak/i) ? (all ? 1.4 : 1.2) : 1,
-    rushMult:   all || has(/Rush/i)   ? (all ? 1.4 : 1.25) : 1,
-    idleMult:   all || has(/Idle/i)   ? 1.25 : 1,
+    streakMult: all || has(/Streak/i) ? (all ? 1.25 : 1.12) : 1,
+    rushMult:   Math.min(rushCap, all || has(/Rush/i) ? (all ? 1.25 : 1.15) : 1),
+    idleMult:   all || has(/Idle/i)   ? 1.18 : 1,
     vipHint:    has(/VIP/i),
   };
+}
+
+/** Menu build-identity role for UI chips. */
+export function menuRole(m) {
+  if (!m) return null;
+  if (m.isFusion) return { id: 'fusion', label: 'Fusion', emoji: '🧪' };
+  if (m.secret) return { id: 'secret', label: 'ลับ', emoji: '🤫' };
+  if (m.price >= 500 || m.unlockLv >= 18) return { id: 'premium', label: 'พรีเมียม', emoji: '💎' };
+  if (m.time <= 2500 && m.price <= 60) return { id: 'fast', label: 'เร็ว', emoji: '⚡' };
+  if (m.price >= 100 && m.price < 500) return { id: 'mid', label: 'บาลานซ์', emoji: '⚖️' };
+  return { id: 'starter', label: 'พื้นฐาน', emoji: '🍣' };
 }
 
 /**
@@ -116,6 +130,7 @@ export function calcServeEarn(menuId, opts = {}) {
   const ev = activeEvent(G, EVENTS);
   const fus = getFusionMods(menuId);
 
+  // Base stack (additive soft-capped systems already applied on G.*)
   let earn = Math.round(
     m.price * G.level * (br ? br.mult : 1) * G.prestigeIncomeMult
     * (1 + (G.staffIncomeBonus || 0)) * (1 + (G.decoIncomeBonus || 0))
@@ -126,46 +141,59 @@ export function calcServeEarn(menuId, opts = {}) {
     * (G.storyFlags?.rivalPride ? 1.03 : 1)
     * (G.storyFlags?.staffAffinity ? 1.02 : 1)
   );
-  if (G.staffOmakaseBonus && (m.id === 'omakase' || m.id === 'omakase_ex')) earn = Math.round(earn * 1.5);
-  if (G.staffPremiumBonus && isPremiumMenu(m)) earn = Math.round(earn * 1.3);
-  if (ev?.earnMult) earn = Math.round(earn * ev.earnMult);
+
+  // Situational multipliers — tracked as a product, then soft-capped
+  const S = BAL.sit || {};
+  let sit = 1;
+  const mul = (x) => { sit *= x; };
+
+  if (G.staffOmakaseBonus && (m.id === 'omakase' || m.id === 'omakase_ex')) mul(S.omakase ?? 1.35);
+  if (G.staffPremiumBonus && isPremiumMenu(m)) mul(S.premium ?? 1.22);
+
+  if (ev?.earnMult) mul(Math.min(S.eventEarnCap ?? 2.25, ev.earnMult));
   // Fusion Rush+ tag: stronger during rush-like events (earnMult ≥ 2)
-  if (fus.rushMult > 1 && ev?.earnMult >= 2) earn = Math.round(earn * fus.rushMult);
-  earn = Math.round(earn * fus.earn);
+  if (fus.rushMult > 1 && ev?.earnMult >= 2) mul(fus.rushMult);
+  if (fus.earn > 1) mul(fus.earn);
 
   // Branch specialization
-  if (spec?.earnMult) earn = Math.round(earn * spec.earnMult);
-  if (spec?.seafoodBonus && isSeafoodMenu(m)) earn = Math.round(earn * spec.seafoodBonus);
-  if (spec?.premiumBonus && isPremiumMenu(m)) earn = Math.round(earn * spec.premiumBonus);
+  if (spec?.earnMult && spec.earnMult !== 1) mul(spec.earnMult);
+  if (spec?.seafoodBonus && isSeafoodMenu(m)) mul(Math.min(1.18, spec.seafoodBonus));
+  if (spec?.premiumBonus && isPremiumMenu(m)) mul(Math.min(1.22, spec.premiumBonus));
 
   // Daily special
   const dsMult = dailySpecialMult(menuId);
-  if (dsMult > 1) earn = Math.round(earn * dsMult);
+  if (dsMult > 1) mul(Math.min(1.75, dsMult));
   const sMult = seasonMenuMult(menuId);
-  if (sMult > 1) earn = Math.round(earn * sMult);
+  if (sMult > 1) mul(Math.min(1.20, sMult));
 
   if (G.streak >= 5) {
-    const sm = (G.decoStreakMult || 1) * fus.streakMult;
-    earn = Math.round(earn * sm);
+    const sm = Math.min(1.45, (G.decoStreakMult || 1) * fus.streakMult);
+    mul(sm);
   }
-  if (G.staffViralBonus && G.streak >= 3) earn = Math.round(earn * 1.2);
+  if (G.staffViralBonus && G.streak >= 3) mul(S.viral ?? 1.15);
 
   // Order match / mismatch
-  if (opts.orderMatch === true)  earn = Math.round(earn * 1.25);
-  if (opts.orderMatch === false) earn = Math.round(earn * 0.65);
+  if (opts.orderMatch === true)  mul(S.orderMatch ?? 1.20);
+  if (opts.orderMatch === false) mul(S.orderMiss ?? 0.70);
 
   // Perfect cook
-  if (opts.quality === 'perfect') earn = Math.round(earn * 1.35);
+  if (opts.quality === 'perfect') mul(S.perfect ?? 1.30);
 
   // Customer type earn mult
   if (opts.custEarnMult && opts.custEarnMult !== 1) {
-    earn = Math.round(earn * opts.custEarnMult);
+    mul(Math.min(1.35, opts.custEarnMult));
   }
 
   // VIP in queue being served
   if (opts.isVipServe) {
-    earn = Math.round(earn * (G.staffVipBonus ? 2.0 : 1.5));
+    mul(G.staffVipBonus ? (S.vipStaff ?? 1.70) : (S.vip ?? 1.40));
   }
+
+  // Soft-cap product of all situational mults so rush+VIP+perfect+fusion can't explode
+  const sitCap = S.productCap ?? 3.5;
+  if (sit > sitCap) sit = sitCap;
+  if (sit < 0.4) sit = 0.4; // floor so miss+bad luck isn't total wipe
+  earn = Math.round(earn * sit);
 
   let ratingGain = ev?.ratingGainOverride ?? BAL.ratingGain(G.streak);
   if (G.staffExtraRating) ratingGain += 1;
@@ -838,6 +866,9 @@ export function checkStreakMilestone(streak) {
   if ([5, 10, 15, 20, 30, 50].includes(streak)) {
     sfxStreak();
     spawnFE('🔥 ' + streak + ' Streak!');
+    try {
+      import('../ui/render.js').then(m => m.haptic?.(streak >= 20 ? 28 : 14)).catch(() => {});
+    } catch (_) {}
   }
 }
 

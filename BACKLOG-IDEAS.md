@@ -185,6 +185,13 @@
 - [x] claim all ready quests · ready highlight  
 - [x] version → 1.5.0  
 
+## รอบ 20 — Situational mults + fusion cookbook + menu roles (2026-07-21)
+- [x] BAL.sit + product cap ×3.5  
+- [x] Failed fusion clue + partial refund  
+- [x] Cookbook progressive hints  
+- [x] Menu role chips  
+- [x] Streak haptic · version 1.6.0  
+
 ### ยังค้าง (infra + ต่อ)
 - [ ] **Render auto-deploy** — Connect มือ / Manual deploy หลัง push  
 
@@ -193,8 +200,8 @@
 # 🔜 คิวถัดไป (แนะนำทำตามลำดับ)
 
 1. Manual deploy บน Render + live smoke  
-2. Soft-cap situational mults ถ้ายังระเบิด  
-3. Content / UX เล็ก  
+2. Active skill / roster / content  
+3. Bug bash  
 
 
 ---
@@ -241,7 +248,7 @@
 | ไอเดีย | สถานะ | รายละเอียด |
 |--------|--------|------------|
 | Secret menu omakase_ex | ✅ | |
-| Menu roles (build identity) | 📋 | Fast cash / Premium / Rating farm / Event synergy |
+| Menu roles (build identity) | ✅ เบา | UI chips เร็ว/บาลานซ์/พรีเมียม/Fusion |
 | Daily Special ×1.5–2 | ✅ | x1.75 + banner + quest |
 | Ingredient scarcity tiers | 📋 | Common / Rare / Auction |
 | เปลี่ยน gold/diamond ให้อยู่ธีมซูชิ | 📋 | ทรัฟเฟิล, ไข่ปลาคุณภาพ, ยูซุ ฯลฯ |
@@ -256,7 +263,7 @@
 | Wire golden/mastery/franchise | ✅ | |
 | Upgrade tree 3 สาย | ✅ | Volume / Prestige Kitchen / Empire |
 | Milestone unlock จาก upgrade | ✅ บางส่วน | เช่น ครัว Lv3 เปิด fusion slot |
-| Soft cap / diminishing returns | 📋 | |
+| Soft cap / diminishing returns | ✅ | upgrades + staff/deco + prestige + situational product |
 
 ---
 
@@ -308,8 +315,8 @@
 |--------|--------|------------|
 | Wire tags → modifier | ✅ | |
 | Prestige เก็บ discovered | ✅ | |
-| Cookbook progression / hint ทยอย | 📋 | ไม่ spoiler ครบ |
-| Failed fusion เสียของน้อย + clue | 📋 | |
+| Cookbook progression / hint ทยอย | ✅ | fusionHints progressive |
+| Failed fusion เสียของน้อย + clue | ✅ | เสีย 1 + ใบ้ส่วนที่ขาด |
 | Fusion-only weekly event | 📋 | สัปดาห์เมนูลับ |
 
 ---
@@ -413,7 +420,7 @@
 | BGM 3 ชั้น idle / rush / night | ✅ | generative pad + pluck |
 | SFX ครัว (มีด, ข้าว, จาน, กระดิ่ง) | ✅ พื้นฐาน | cook/serve/perfect layered |
 | Ducking ตอน modal/story | 📋 | |
-| Haptic มือถือ (vibration) | 📋 | perfect / streak |
+| Haptic มือถือ (vibration) | ✅ เบา | perfect + streak milestone |
 
 ---
 

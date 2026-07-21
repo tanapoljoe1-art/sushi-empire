@@ -22,6 +22,7 @@ export function renderFusionLab() {
   renderFusionIngGrid();
   renderDiscoveredGrid();
   updateFusionPreview();
+  renderCookbookHints();
 }
 
 export function renderFusionSlots() {
@@ -116,6 +117,64 @@ export function findFusionMatch(ingKeys) {
   }) || null;
 }
 
+/** Progressive cookbook: leak a partial hint when fusion fails. */
+function fusionFailClue(filled) {
+  initFusion();
+  const known = new Set(G.fusion.discovered || []);
+  // Recipes that share at least one ingredient and aren't discovered yet
+  const candidates = FUSION_RECIPES.filter(r => {
+    if (known.has(r.id)) return false;
+    return r.combo.some(c => filled.includes(c));
+  });
+  if (!candidates.length) {
+    // any unknown recipe
+    const unknown = FUSION_RECIPES.filter(r => !known.has(r.id));
+    if (!unknown.length) return null;
+    const r = unknown[~~(Math.random() * unknown.length)];
+    return `💡 ใบ้: ยังมีสูตรที่ต้องใช้ ${INGREDIENTS[r.combo[0]]?.emoji || '?'} …`;
+  }
+  // Prefer closest size match
+  candidates.sort((a, b) => {
+    const oa = a.combo.filter(c => filled.includes(c)).length;
+    const ob = b.combo.filter(c => filled.includes(c)).length;
+    return ob - oa;
+  });
+  const r = candidates[0];
+  const overlap = r.combo.filter(c => filled.includes(c));
+  const missing = r.combo.filter(c => !filled.includes(c));
+  if (overlap.length && missing.length) {
+    const missEmoji = missing.map(id => INGREDIENTS[id]?.emoji || '?').join('');
+    return `💡 ใกล้แล้ว! ขาด ${missEmoji} (หรือเรียงส่วนผสมใหม่)`;
+  }
+  if (r.hint) return `💡 ใบ้: ${r.hint}`;
+  return `💡 ลองผสม ${INGREDIENTS[r.combo[0]]?.emoji || '?'} กับอย่างอื่น`;
+}
+
+/** Cookbook panel: show progressive hints for undiscovered recipes. */
+export function renderCookbookHints() {
+  initFusion();
+  const el = getEl('fusionHints');
+  if (!el) return;
+  const known = new Set(G.fusion.discovered || []);
+  const unknown = FUSION_RECIPES.filter(r => !known.has(r.id));
+  if (!unknown.length) {
+    el.innerHTML = `<div class="fh-done">📖 สมุดสูตรครบแล้ว — Master Alchemist!</div>`;
+    return;
+  }
+  // Reveal one more hint every 2 discoveries (min 1, max 5)
+  const slots = Math.min(5, Math.max(1, 1 + Math.floor((known.size || 0) / 2)));
+  const shown = unknown.slice(0, slots);
+  el.innerHTML = `<div class="fh-title">📖 ใบ้สูตร (${known.size}/${FUSION_RECIPES.length})</div>`
+    + shown.map(r => {
+      const first = INGREDIENTS[r.combo[0]]?.emoji || '?';
+      const n = r.combo.length;
+      return `<div class="fh-row"><span>${r.emoji || '❓'}</span> ${r.hint || `${first} + ?`} · ${n} อย่าง</div>`;
+    }).join('')
+    + (unknown.length > slots
+      ? `<div class="fh-more">…อีก ${unknown.length - slots} สูตร ปลดเมื่อค้นพบเพิ่ม</div>`
+      : '');
+}
+
 export function doFusion() {
   initFusion();
   const filled = fusionSlots.filter(Boolean);
@@ -160,7 +219,13 @@ export function doFusion() {
     cld.innerText = '💨';
     cld.classList.remove('bubble'); void cld.offsetWidth; cld.classList.add('bubble');
     setTimeout(() => { cld.innerText = '🫕'; }, 1000);
-    toast('🤔 ไม่มีสูตรสำหรับส่วนผสมนี้ ลองอีกแบบ!');
+    // Partial refund + progressive clue for undiscovered recipes
+    Object.entries(costMap).forEach(([id, amt]) => {
+      G.ing[id] = (G.ing[id] || 0) + Math.max(0, amt - 1); // keep 1 spent as fail cost
+    });
+    const clue = fusionFailClue(filled);
+    toast(clue || '🤔 ไม่มีสูตร — เสียวัตถุดิบ 1 ชิ้นต่อชนิด');
+    renderIngredients();
   }
 
   setTimeout(() => {

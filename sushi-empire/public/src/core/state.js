@@ -56,6 +56,21 @@ export const BAL = {
   maxStaffSpeed: 0.70,
   maxStaffPat: 0.90,
   maxDecoIncome: 0.50,   // +50% from décor (staff deco mult already clamps to 0.55)
+  // Situational multipliers (applied after base stack)
+  sit: {
+    omakase: 1.35,       // was 1.5
+    premium: 1.22,       // was 1.3
+    viral: 1.15,         // was 1.2
+    vip: 1.40,           // was 1.5
+    vipStaff: 1.70,      // was 2.0 with VIP skill
+    orderMatch: 1.20,    // was 1.25
+    orderMiss: 0.70,     // was 0.65 (slightly less punishing)
+    perfect: 1.30,       // was 1.35
+    eventEarnCap: 2.25,  // cap any single event earnMult
+    fusionRushCap: 1.25, // was up to 1.4
+    fusionEarnCap: 1.20, // was up to 1.3
+    productCap: 3.5,     // max product of all situational mults after base
+  },
 };
 
 export function defaultState() {

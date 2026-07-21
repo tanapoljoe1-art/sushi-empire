@@ -576,6 +576,13 @@ nav{ display:none; } /* hide old nav — keep for goTab compat */
 .quest-claim-all-wrap{margin:0 0 10px}
 .quest-claim-all{width:100%;padding:10px;border:none;border-radius:12px;background:linear-gradient(135deg,#c45c26,#e8a44a);color:#1a0e00;font-weight:900;font-size:12px;font-family:'Noto Sans Thai',sans-serif;cursor:pointer}
 .quest-claim-all:active{transform:scale(.98)}
+.mi-role{font-size:10px;margin-left:2px;opacity:.9}
+.mi-ing{line-height:1.3}
+.fusion-hints{background:var(--glass);border:1px dashed rgba(167,139,250,.35);border-radius:14px;padding:10px 12px;margin:8px 0 12px}
+.fh-title{font-size:11px;font-weight:800;color:var(--purple);margin-bottom:6px}
+.fh-row{font-size:11px;color:var(--muted);padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.fh-row:last-child{border-bottom:none}
+.fh-more,.fh-done{font-size:10px;color:var(--gold);margin-top:6px}
 .quest-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
 .quest-icon{font-size:24px;}
 .quest-info{flex:1;}

@@ -2,7 +2,7 @@
 import { G, save, BAL } from '../core/state.js';
 import { MENUS, INGREDIENTS, UPGRADES, BRANCHES, UPGRADE_TREES } from '../data.js';
 import { getEl } from '../core/dom.js';
-import { hasIngredients, ingredientCost, calcServeEarn, effectiveIng } from '../systems/game.js';
+import { hasIngredients, ingredientCost, calcServeEarn, effectiveIng, menuRole } from '../systems/game.js';
 import { updateNavDots } from '../systems/nav.js';
 import { refreshUnlockUI } from '../systems/unlocks.js';
 import { renderDailySpecialBanner, isDailySpecial, ensureDailySpecial } from '../systems/daily.js';
@@ -173,15 +173,19 @@ export function renderMenu() {
     const ingList = Object.entries(need).map(([k,v]) => `${INGREDIENTS[k]?.emoji || '?'}×${v}`).join(' ');
     const secretTag = m.secret ? ' <span style="font-size:9px;color:var(--gold)">SECRET</span>' : '';
     const special = !locked && isDailySpecial(m.id);
+    const role = !locked ? menuRole(m) : null;
+    const roleTag = role && role.id !== 'starter'
+      ? ` <span class="mi-role mi-role-${role.id}" title="${role.label}">${role.emoji}</span>`
+      : '';
     return `<div class="mi ${locked?'lck':''} ${sel?'sel':''} ${special?'daily-sp':''}" onclick="${locked ? '' : `selMenu('${m.id}')`}">
       ${sel ? '<div class="mi-sb">✓</div>' : ''}
       ${special ? '<div class="mi-sp">⭐</div>' : ''}
       <div class="mi-e">${m.emoji}</div>
-      <div class="mi-n">${m.name}${secretTag}${special ? ' ·SP' : ''}</div>
+      <div class="mi-n">${m.name}${secretTag}${roleTag}${special ? ' ·SP' : ''}</div>
       ${locked
         ? `<div class="mi-u">🔒 Lv.${m.unlockLv}</div>`
         : `<div class="mi-p">+${earn}฿</div>
-           <div class="mi-ing ${!hasIng && sel ? 'low' : ''}">${ingList}</div>`}
+           <div class="mi-ing ${!hasIng && sel ? 'low' : ''}">${ingList}${role ? ` · ${role.label}` : ''}</div>`}
     </div>`;
   }).join('');
 }

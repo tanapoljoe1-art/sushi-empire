@@ -1,34 +1,33 @@
-# Handoff — Sushi Empire (2026-07-21, รอบ 19)
+# Handoff — Sushi Empire (2026-07-21, รอบ 20)
 
 ## Paths
 - Working: `/Users/noblemonobluefin/projects/sushi-empire-review/` · `sushi-empire/`
 - GitHub: `tanapoljoe1-art/sushi-empire` · `main`
 - Live: `sushi-empire.onrender.com` · Root Directory = `sushi-empire`
-- อย่าใช้ `~/sushi-empire`
 
 ## State
-- **version:** `1.5.0`
-- **HEAD:** ดู `git log -1`
+- **version:** `1.6.0`
 
-### Done รอบ 19
-1. **Staff soft-caps** — income ≤+85%, speed ≤+70%, patience ≤+90% หลัง chemistry/skills
-2. **Deco soft-caps** — income ≤+50%, patience ≤+80%, rating ≤+40%
-3. **Prestige mult soft-curve** — +10%×5 แล้ว +6%/+3% cap ×2.6; speed bonus cap 45%; `recomputePrestigeMult()` ตอน load
-4. **Quest UX** — การ์ด `.ready` · ปุ่ม **รับทั้งหมดที่พร้อม** · claim กัน claim ก่อนครบเป้า
-5. Earn breakdown แสดง `≈` ใกล้ soft-cap · stats โชว์ทีม/ตกแต่ง %
+### Done รอบ 20
+1. **Situational mult soft-caps** (`BAL.sit`) — omakase/premium/viral/VIP/perfect/order/event + **product cap ×3.5**
+2. Fusion tag mults ลดลงเล็กน้อย (earn/rush/streak)
+3. **Failed fusion** — เสีย 1 ชิ้น/ชนิด + ใบ้ progressive; partial refund ส่วนที่เหลือ
+4. **Cookbook hints** `#fusionHints` — เปิดทีละช่องตามจำนวนที่ค้นพบ
+5. **Menu roles** UI (เร็ว / บาลานซ์ / พรีเมียม / Fusion / ลับ)
+6. Haptic ตอน streak milestone
 
 ### Smoke
-- full roster → staff income **85%** (cap)
-- claim-all quests: ready→0, no errors
-- vite build ผ่าน
+- Lv8 fusion: ใบ้ 0/13 · fail rice+gold → 💡 ใกล้แล้ว  
+- menu roles บน main  
+- build ผ่าน
 
 ### Open
-- Render auto-deploy ยังพัง → **Manual Deploy** หลัง push
+- Render **Manual Deploy** หลัง push (auto-deploy ยังพัง)
 
 ## Next
-1. Manual deploy + เช็ค v1.5.0
-2. Soft-cap situational mults (omakase/premium/event) ถ้ายังรู้สึกระเบิด
-3. UX เล็ก / content
+1. Deploy มือ + เช็ค v1.6.0  
+2. Active skill ปุ่ม / roster limit / content  
+3. Bug bash ต่อ  
 
 ## Dev
 ```bash
