@@ -14,6 +14,7 @@ let eventCountdown = null;
 
 export function triggerRandomEvent() {
   if (G.activeEvent) return;
+  if (document.querySelector('.mbg.vis')) return; // don't stack a popup over one already open
   // decoVipBonus (koi/fountain/crystal) biases toward VIP customers showing up
   const pool = G.decoVipBonus
     ? [...EVENTS, ...EVENTS.filter(e => e.id === 'vip'), ...EVENTS.filter(e => e.id === 'vip')]

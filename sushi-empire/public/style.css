@@ -120,6 +120,7 @@ nav{ display:none; } /* hide old nav — keep for goTab compat */
 /* adjust page bottom padding for new nav */
 .pg{display:none;flex:1;padding:12px 12px 90px;}
 .pg.on{display:block;}
+#pg-main{padding-bottom:152px;}
 
 
 /* RESTAURANT CARD */
@@ -269,7 +270,7 @@ nav{ display:none; } /* hide old nav — keep for goTab compat */
 .uc-lbl{font-size:10px;color:var(--muted);}
 
 /* COOK BTN */
-.cookwrap{position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+.cookwrap{position:fixed;bottom:62px;left:50%;transform:translateX(-50%);
   width:100%;max-width:480px;padding:10px 14px 22px;
   background:linear-gradient(0deg,var(--ink) 55%,transparent);z-index:40;}
 .cookbtn{width:100%;padding:16px;border:none;border-radius:18px;

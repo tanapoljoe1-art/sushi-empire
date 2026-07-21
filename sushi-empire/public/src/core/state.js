@@ -14,7 +14,7 @@ export function defaultState() {
     menu: 'salmon', cooking: false, plateReady: false,
     streak: 0, served: 0, vipServed: 0, rushCleared: 0, mgWins: 0,
     queue: [],
-    up: { kitchen:0, waiter:0, marketing:0, patience:0, storage:0, autoChef:0 },
+    up: { kitchen:0, waiter:0, marketing:0, patience:0, storage:0, autoChef:0, golden:0, mastery:0, franchise:0 },
     speedMult: 1, autoServe: false, qSize: 1, patMult: 1, storageMult: 1, autoChef: false,
     ing: { rice:10, salmon:5, tuna:3, shrimp:3, uni:2, nori:5 },
     lastSave: Date.now(),
@@ -92,6 +92,9 @@ export function load() {
     if (!G.quests) G.quests = defaultState().quests;
     if (!G.qDaily) G.qDaily = defaultState().qDaily;
     if (!G.qWeekly) G.qWeekly = defaultState().qWeekly;
+
+    // Merge any upgrade keys added after the save was created
+    G.up = { ...defaultState().up, ...G.up };
 
     // Merge any branches added after the save was created
     if (!Array.isArray(G.branches)) G.branches = [];

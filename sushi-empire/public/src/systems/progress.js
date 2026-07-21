@@ -197,7 +197,7 @@ export function renderAch() {
   getEl('achList').innerHTML = ACHIEVEMENTS.map(a => {
     const done = G.ach[a.id];
     return `<div class="ac ${done ? 'done' : 'pend'}">
-      <div class="ac-ico">${a.emoji}</div>
+      <div class="ac-ico">${a.icon}</div>
       <div class="ac-inf">
         <div class="ac-n">${a.name}</div>
         <div class="ac-d">${a.desc}</div>

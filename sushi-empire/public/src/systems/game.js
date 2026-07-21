@@ -313,22 +313,36 @@ export function buyUpgrade(id) {
 }
 
 // ── Achievements ──────────────────────────────────────────────────────────────
+let achQueue = [];
+
 export function checkAch() {
   ACHIEVEMENTS.forEach(a => {
     if (!G.ach[a.id] && a.chk(G)) {
       G.ach[a.id] = true;
       G.money += a.reward;
-      getEl('achMI').innerText = a.icon;
-      getEl('achMN').innerText = a.name;
-      getEl('achMD').innerText = a.desc;
-      getEl('achMA').innerText = '+' + a.reward + '฿';
-      getEl('achModal').classList.add('vis');
+      achQueue.push(a);
     }
   });
+  if (achQueue.length && !getEl('achModal').classList.contains('vis')) showNextAch();
+}
+
+function showNextAch() {
+  const a = achQueue[0];
+  if (!a) return;
+  getEl('achMI').innerText = a.icon;
+  getEl('achMN').innerText = a.name;
+  getEl('achMD').innerText = a.desc;
+  getEl('achMA').innerText = '+' + a.reward + '฿';
+  getEl('achModal').classList.add('vis');
 }
 
 export function closeAch() {
-  getEl('achModal').classList.remove('vis');
+  achQueue.shift();
+  if (achQueue.length) {
+    showNextAch();
+  } else {
+    getEl('achModal').classList.remove('vis');
+  }
   updateUI();
 }
 
