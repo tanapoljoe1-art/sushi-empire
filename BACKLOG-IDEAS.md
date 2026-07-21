@@ -165,18 +165,23 @@
 - [x] Home action strip · customer type tooltips  
 - [x] version → 1.2.0  
 
+## รอบ 17 — Stats / title→ach / soft-cap / prestige ETA (2026-07-21)
+- [x] Settings: สถิติการเล่น (player-facing telemetry)  
+- [x] Title ach chips → goTab('ach')  
+- [x] Soft-cap incomeLvMult + upgradeCost late · golden 28%  
+- [x] Prestige ETA (levels / rating / serves estimate)  
+- [x] version → 1.3.0  
+
 ### ยังค้าง (infra + ต่อ)
 - [ ] **Render auto-deploy** — Connect มือ / Manual deploy หลัง push  
-- [ ] Telemetry โชว์ใน settings สำหรับผู้เล่น (optional)  
 
 ---
 
 # 🔜 คิวถัดไป (แนะนำทำตามลำดับ)
 
 1. Manual deploy บน Render + live smoke  
-2. Balance / soft-cap mid-late (ถ้า grind หนัก)  
-3. Title showcase คลิกไปแท็บ ach  
-4. Bug bash ต่อเนื่อง  
+2. Soft-cap โหนด empire อื่นถ้ายังระเบิด  
+3. Bug bash / UX เล็ก  
 
 
 ---
@@ -195,7 +200,7 @@
 | ฿/min บน HUD | ✅ | chip 📈 |
 | Resource tension / spoil | ✅ | วัตถุดิบหมดอายุ หรือราคาตลาดขึ้นลง |
 | Daily fish market | ✅ | ราคา ing หมุนรายชั่วโมง/วัน |
-| Soft cap upgrades + diminishing | ✅ บางส่วน | BAL.upgradeCost โค้งนุ่ม + golden 35%/lv |
+| Soft cap upgrades + diminishing | ✅ | income flatten 30/50 · upgradeCost 5/7 · golden 28%/lv |
 | Upgrade trees 3 สาย | ✅ | Volume / Quality / Empire — respec แพง |
 | Debug panel (dev) | ✅ | ให้เงิน, skip time, force event |
 
@@ -318,7 +323,7 @@
 | Soft keep staff unlock (level รีเซ็ต) | ✅ | |
 | Prestige challenges | 📋 | Lv20 โดยไม่ใช้ autoChef |
 | NG+ skin / kitchen theme | ✅ บางส่วน | ตาม prestige level |
-| ETA “อีกกี่เสิร์ฟถึง prestige คุ้ม” | 📋 | |
+| ETA “อีกกี่เสิร์ฟถึง prestige คุ้ม” | ✅ คร่าว ๆ | แท็บ Prestige · rating + serves estimate |
 | ใช้ `PRESTIGE_BONUSES` ใน data จริง | 📋 | ตอนนี้ hardcode ใน doPrestige |
 
 ---
@@ -343,7 +348,7 @@
 | Hidden / secret ach | ✅ | 14 รายการ · spoiler UI · counters persist prestige |
 | Tiered bronze/silver/gold | ✅ | ตาม reward threshold |
 | Playstyle ach | ✅ บางส่วน | order-match chain, fusion-only, perfect |
-| Showcase บน title screen | ✅ | 4 ชิปชั้นสูงสุด |
+| Showcase บน title screen | ✅ | 4 ชิป · คลิกไปแท็บ ach |
 
 ---
 
@@ -440,7 +445,7 @@
 
 | ไอเดีย | สถานะ | รายละเอียด |
 |--------|--------|------------|
-| Telemetry เบา | ✅ local | SE5_tel · time-to-Lv5/15/P1 · debug panel |
+| Telemetry เบา | ✅ | SE5_tel · debug + Settings ผู้เล่น |
 | Economy spreadsheet ฿/s ต่อ stage | 📋 | |
 | Balance pass Lv.1–15 | ✅ | incomeLvMult + costs + miss loss |
 | Debug panel | ✅ | ดู Core Loop |

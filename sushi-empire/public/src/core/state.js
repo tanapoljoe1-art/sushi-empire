@@ -2,18 +2,32 @@
 import { UPGRADES, MENUS, BRANCHES } from '../data.js';
 import { updateUI } from '../ui/render.js';
 
-/** Economy curve tuned for Lv.1–15: generous early, soft after mid. */
+/**
+ * Economy curve: generous early → soft mid → hard soft-cap late.
+ * Income mult grows with level but flattens hard after 30/50 so prestige
+ * stays the real late-game lever (not infinite level grind).
+ */
 export const BAL = {
-  // Stronger early so first kitchen/waiter feel reachable; softens after 15
   incomeLvMult: (lv) => {
-    if (lv <= 10) return 1 + (lv - 1) * 0.10;
-    if (lv <= 15) return 1 + 9 * 0.10 + (lv - 10) * 0.07;
-    return 1 + 9 * 0.10 + 5 * 0.07 + (lv - 15) * 0.05;
+    const L = Math.max(1, lv || 1);
+    // Lv1–10: +10%/lv → 1.90 at 10
+    if (L <= 10) return 1 + (L - 1) * 0.10;
+    // Lv11–15: +7%/lv → ~2.25 at 15
+    if (L <= 15) return 1 + 9 * 0.10 + (L - 10) * 0.07;
+    // Lv16–30: +4%/lv → ~2.85 at 30
+    if (L <= 30) return 1 + 9 * 0.10 + 5 * 0.07 + (L - 15) * 0.04;
+    // Lv31–50: +1.5%/lv → ~3.15 at 50
+    if (L <= 50) return 1 + 9 * 0.10 + 5 * 0.07 + 15 * 0.04 + (L - 30) * 0.015;
+    // 50+: tiny drip (+0.3%/lv) capped at ~3.6
+    return Math.min(3.6, 1 + 9 * 0.10 + 5 * 0.07 + 15 * 0.04 + 20 * 0.015 + (L - 50) * 0.003);
   },
-  // Upgrade costs: gentler early growth, steeper late (was flat 1.8^n)
+  // Upgrade costs: soft early, steeper mid, hard after level 5 of a node
   upgradeCost: (base, lvl) => {
     if (lvl <= 0) return Math.round(base);
-    const growth = lvl < 3 ? 1.55 : lvl < 5 ? 1.72 : 1.88;
+    let growth = 1.55;
+    if (lvl >= 3) growth = 1.72;
+    if (lvl >= 5) growth = 1.95;
+    if (lvl >= 7) growth = 2.15; // soft-cap deep stacks
     return Math.round(base * Math.pow(growth, lvl));
   },
   ratingGain: (streak) => streak >= 15 ? 4 : streak >= 10 ? 3 : streak >= 5 ? 2 : 1,
@@ -24,6 +38,13 @@ export const BAL = {
     if (g.storyFlags?.rivalHate) loss -= 1;
     if (g.staffCriticProof) loss = Math.min(-1, Math.ceil(loss / 2));
     return Math.min(-1, loss);
+  },
+  /** Rough rating points still needed to hit target level (for ETA UI). */
+  ratingToLevel: (fromLv, toLv) => {
+    const a = Math.max(1, fromLv || 1);
+    const b = Math.max(a, toLv || a);
+    // Each level-up after full bar (100 rating) — approximate remaining in current bar
+    return Math.max(0, (b - a) * 100);
   },
 };
 

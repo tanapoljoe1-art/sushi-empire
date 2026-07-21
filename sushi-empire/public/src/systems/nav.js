@@ -197,9 +197,27 @@ function renderTitleAchShowcase(sv) {
     }
     el.style.display = 'flex';
     el.innerHTML = list.map(a =>
-      `<div class="ts-ach-chip" title="${a.name}"><span>${a.icon}</span><span class="ts-ach-name">${a.name}</span></div>`
+      `<button type="button" class="ts-ach-chip" title="${a.name} — เปิดรายการความสำเร็จ" onclick="openAchFromTitle()">`
+      + `<span>${a.icon}</span><span class="ts-ach-name">${a.name}</span></button>`
     ).join('');
   }).catch(() => { el.style.display = 'none'; });
+}
+
+/** Title → hide splash → achievements tab (continue existing save). */
+export function openAchFromTitle() {
+  const hasSave = !!localStorage.getItem(SAVE_KEY);
+  if (!hasSave) {
+    toast('เริ่มเกมก่อน แล้วค่อยเปิดความสำเร็จ');
+    return;
+  }
+  hideTitle();
+  // Wait for title fade so tab chrome is visible
+  setTimeout(() => {
+    try { goTab('ach'); } catch (_) {}
+    // highlight progress nav
+    document.querySelectorAll('.bntab').forEach(b => b.classList.remove('on'));
+    getEl('bnt-prog')?.classList.add('on');
+  }, 380);
 }
 
 export function titleContinue() { hideTitle(); }
@@ -297,8 +315,31 @@ export function openSettings()  {
   const hint = getEl('importSaveHint');
   if (hint) hint.innerText = '';
   syncSettingToggles();
+  renderPlayStats();
 }
 export function closeSettings() { getEl('settingsModal').classList.remove('vis'); }
+
+/** Player-facing play stats (from local telemetry + live save). */
+export function renderPlayStats() {
+  const el = getEl('playStatsLine');
+  if (!el) return;
+  const achN = Object.keys(G.ach || {}).length;
+  const base = [
+    `ร้าน Lv.${G.level} · Prestige ${G.prestigeLevel || 0} · เสิร์ฟ ${G.served || 0}`,
+    `Perfect ${G.perfectCount || 0} · สั่งตรง ${G.orderMatchCount || 0} · 🏆 ${achN}`,
+    `เงิน ${Number(G.money || 0).toLocaleString()}฿ · Streak สูงสุด match ${G.maxOrderMatchStreak || 0}`,
+  ];
+  import('./telemetry.js').then(m => {
+    const s = m.getTelemetrySummary();
+    el.innerText = [
+      ...base,
+      `เซสชันนี้ ~${s.sessionMin} นาที · เสิร์ฟ ${s.sessionServes} · Perfect ${s.sessionPerfects}`,
+      `เล่นรวม ~${s.totalPlayMin} นาที · →Lv5 ${s.timeToLv5} · →Lv15 ${s.timeToLv15} · →P1 ${s.timeToP1}`,
+    ].join('\n');
+  }).catch(() => {
+    el.innerText = base.join('\n');
+  });
+}
 
 // ── Save export / import (settings modal) ─────────────────────────────────────
 export function exportSaveFile() {

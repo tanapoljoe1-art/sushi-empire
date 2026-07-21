@@ -1139,7 +1139,8 @@ export function renderPrest() {
     `<div class="pb">รายได้ +${nextLv * 10}%</div>
      <div class="pb">ความเร็ว +${nextLv * 5}%</div>
      <div class="pb">เริ่ม ${(100 + nextLv * 500 + (G.shopStartBonus || 0)).toLocaleString()}฿</div>
-     <div class="pb">+${starGainNext}★ ร้านค้า</div>`;
+     <div class="pb">+${starGainNext}★ ร้านค้า</div>`
+    + prestigeEtaHtml();
   getEl('prestBtnWrap').innerHTML =
     `<button class="mbtn purple" onclick="showPrestModal()" ${G.level < 20 ? 'style="opacity:.5"' : ''}>
        ✨ Prestige Lv.${nextLv}${G.level < 20 ? ' (ต้องการ Lv.20)' : ''}
@@ -1162,4 +1163,19 @@ export function renderPrest() {
         </div>
       </div>`;
   renderPrestigeShop();
+}
+
+/** ETA helper: rating left + rough serves until prestige (Lv.20). */
+function prestigeEtaHtml() {
+  if (G.level >= 20) {
+    return `<div class="prest-eta">✅ ถึง Lv.20 แล้ว — Prestige ได้ทันที (ทีม soft-keep · เก็บ deco/fusion)</div>`;
+  }
+  const levelsLeft = 20 - G.level;
+  const ratingLeft = Math.max(0, 100 - (G.rating || 0)) + Math.max(0, levelsLeft - 1) * 100;
+  // ~2–3 rating per serve mid-game; use 2.5 as conservative average
+  const avgRatingPerServe = Math.max(1.5, 1.5 + Math.min(2, (G.streak || 0) / 10) + (G.xpMult || 1) - 1);
+  const servesEst = Math.ceil(ratingLeft / avgRatingPerServe);
+  return `<div class="prest-eta">⏱ ถึง Prestige ~อีก <b>${levelsLeft}</b> เลเวล`
+    + ` · rating เหลือประมาณ <b>${ratingLeft}</b>`
+    + ` · ราว <b>${servesEst}</b> เสิร์ฟ (คร่าว ๆ)</div>`;
 }

@@ -978,9 +978,13 @@ html.big-tap .ing-chip,html.big-tap .uc,html.big-tap .mi{min-height:48px}
 .ts-save-name{font-size:13px;font-weight:700;color:var(--gold);}
 .ts-save-sub{font-size:11px;color:var(--muted);margin-top:2px;}
 .ts-ach-showcase{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:320px;margin:0 0 12px;position:relative;z-index:2}
-.ts-ach-chip{display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(232,196,106,.22);font-size:10px;color:var(--muted);max-width:140px}
+.ts-ach-chip{display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(232,196,106,.22);font-size:10px;color:var(--muted);max-width:140px;cursor:pointer;font:inherit;font-family:inherit;transition:border-color .15s,background .15s}
+.ts-ach-chip:hover,.ts-ach-chip:focus-visible{border-color:rgba(232,196,106,.55);background:rgba(232,196,106,.1);outline:none}
 .ts-ach-chip span:first-child{font-size:13px}
 .ts-ach-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;color:rgba(255,255,255,.75)}
+.play-stats{background:rgba(0,0,0,.22);border:1px solid var(--rim);border-radius:12px;padding:10px 12px;margin-bottom:4px;text-align:left}
+.play-stats-line{font-size:11px;color:var(--muted);line-height:1.55;white-space:pre-line}
+.prest-eta{font-size:11px;color:var(--muted);margin:8px 0 0;padding:8px 10px;border-radius:10px;background:rgba(0,0,0,.18);border:1px dashed rgba(232,196,106,.22);line-height:1.45}
 .ts-ver{font-size:10px;color:rgba(255,255,255,.18);letter-spacing:.1em;margin-top:18px;z-index:2;animation:fadeUp .6s ease 1.2s both;}
 /* PAUSE MENU */
 #pauseMenu{position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);display:none;align-items:center;justify-content:center;}

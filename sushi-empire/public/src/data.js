@@ -56,7 +56,8 @@ export const UPGRADES = [
    }},
   // ── Quality ──
   {id:'patience', name:'บริการที่ยอดเยี่ยม',emoji:'😊',tree:'quality', desc:'ลูกค้ารออดทนขึ้น',max:3,base:350,  fx:g=>{g.patMult=1+g.up.patience*.5;}},
-  {id:'golden',   name:'ครัวทองคำ',    emoji:'🏆',tree:'quality', desc:'รายได้ +35% ถาวร / เลเวล',max:3,base:4500, fx:g=>{g.goldenBonus=1+g.up.golden*.35;}},
+  // Soft-cap: was +35%/lv (up to +105%); now +28%/lv so stack feels strong but not broken mid-late
+  {id:'golden',   name:'ครัวทองคำ',    emoji:'🏆',tree:'quality', desc:'รายได้ +28% ถาวร / เลเวล',max:3,base:4500, fx:g=>{g.goldenBonus=1+g.up.golden*.28;}},
   {id:'mastery',  name:'ปรมาจารย์ซูชิ', emoji:'🎓',tree:'quality', desc:'Rating ต่อเสิร์ฟ x2',max:1,base:7500,
    require:{id:'patience',min:1}, fx:g=>{g.xpMult=g.up.mastery>=1?2:1;}},
   {id:'taste',    name:'ฝีมือชิม',      emoji:'👅',tree:'quality', desc:'โซน Perfect กว้างขึ้น', max:2,base:3200,

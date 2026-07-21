@@ -1,52 +1,47 @@
-# Handoff — Sushi Empire game (2026-07-21, รอบ 16 — polish / telemetry / LB trust)
+# Handoff — Sushi Empire (2026-07-21, รอบ 17)
 
-## เอกสารแผน / ไอเดีย
-
-| ไฟล์ | ใช้ทำอะไร |
-|------|-----------|
-| **`BACKLOG-IDEAS.md`** | ไอเดีย + สถานะ source of truth |
-| **`ROADMAP-30-DAYS.md`** | sprint 30 วัน |
-| **`HANDOFF.md`** (ไฟล์นี้) | path, deploy, next step |
-
-> Working copy ถาวร: `/Users/noblemonobluefin/projects/sushi-empire-review/`  
-> อย่าใช้ `~/sushi-empire` · อย่าเก็บใต้ `/private/tmp`
+## Paths
+- **Working copy:** `/Users/noblemonobluefin/projects/sushi-empire-review/`
+- โค้ดเกม: `sushi-empire/` · อย่าใช้ `~/sushi-empire`
+- GitHub: `tanapoljoe1-art/sushi-empire` · `main`
+- Live: `https://sushi-empire.onrender.com` · Root Directory = `sushi-empire`
 
 ## State
+- **version:** `1.3.0`
+- **HEAD:** ดู `git log -1` หลัง push
 
-- **version:** `1.2.0`
-- **HEAD:** ดู `git log -1` หลัง push รอบนี้
-- **Done รอบ 16:**
-  1. **Telemetry เบา (local only)** — `systems/telemetry.js` · key `SE5_tel` · serve/perfect/miss/level/prestige/event · time-to-Lv5/15/P1 · แสดงใน debug panel
-  2. **Toast polish** — dedupe 1.2s + queue สูงสุด 2 ข้อความ (ลด spam)
-  3. **Haptic** เบาตอน Perfect (`navigator.vibrate`)
-  4. **Title showcase** — โชว์ถึง 4 achievements ชั้นสูงสุดบน title + จำนวน 🏆 ใน save preview
-  5. **Ach tiers** — Bronze / Silver / Gold ตาม `reward` (≥600 silver, ≥2000 gold)
-  6. **Quest ใหม่** — daily Perfect 5, max streak 10; weekly Perfect 25 · track `perfects` / `maxStreakToday` / `perfectsWeek`
-  7. **Server LB score trust** — คำนวณคะแนนฝั่ง server จาก `served/level/prestige/money` (สูตรเดียวกับ client) · clamp stats · ถ้า client ยัดคะแนนเกิน expected+50 จะถูกตัดลง
-  8. **Home action strip** — ห่อ rival + festival ใน `#homeActionStrip`
-  9. **Customer type tooltips** บนคิว (ภาษาไทย)
-- **Done รอบ 15:** Hidden achievements 14 + counters
-- **Done รอบ 14:** XSS, event pacing, carousel, mobile header wrap
-- **Open infra:** Render auto-deploy ยังพัง → **Manual Deploy** ทุกครั้งหลัง push
+### Done รอบ 17
+1. **Settings → สถิติการเล่น** (telemetry + live save) ใน `#playStatsBox`
+2. **Title ach chips คลิกได้** → `openAchFromTitle()` ปิด title แล้ว `goTab('ach')`
+3. **Soft-cap economy mid-late**
+   - `BAL.incomeLvMult` แบนหลัง Lv30/50 (cap ~3.6)
+   - `BAL.upgradeCost` แพงขึ้นหลัง stack 5/7
+   - ครัวทองคำ golden +28%/lv (เดิม +35%)
+4. **Prestige ETA** บนแท็บ Prestige (rating เหลือ + ประมาณเสิร์ฟถึง Lv.20)
+5. Docs / version title `v1.3.0`
 
-## Next step
-1. Manual deploy บน Render + live smoke จริง
-2. (optional) Telemetry dashboard ใน settings สำหรับผู้เล่น (ไม่ใช่แค่ debug)
-3. Showcase บน title คลิกไปแท็บ ach
-4. Soft-cap economy / balance pass mid-late
-5. อย่าเดา earn-ceiling เพิ่มนอกสูตร `calcScore` ที่ sync แล้ว
+### รอบก่อน (ย่อ)
+- 15: Hidden ach 14 · 16: telemetry, toast queue, LB server score, tiers, showcase
 
-## Key facts
-- GitHub: `https://github.com/tanapoljoe1-art/sushi-empire` · `main`
-- Live: `https://sushi-empire.onrender.com` · Root Directory = `sushi-empire`
-- Local: `cd sushi-empire && node server.js` → :3000
-- Save: `SE5` · Telemetry: `SE5_tel` · Debug: `SE5_debug`
-- `calcScore` client (`progress.js`) ต้อง match `calcScoreServer` (`server.js`)
-- F1 = +100k ตั้งใจเก็บ
+### Open infra
+- Render **auto-deploy ยังพัง** → หลัง push ต้อง **Manual Deploy → Deploy latest commit**
 
-## Smoke รอบนี้ (Playwright 360/390)
-- ach list 35 · secret 14 · tiers 35
-- header overflow false @360px
-- homeActionStrip + festivalBtn present
-- pageerror ว่าง
+## Next
+1. Manual deploy + live smoke
+2. Settings ลิงก์ “เปิดความสำเร็จ” / reset telemetry
+3. Soft-cap เพิ่มบน franchise/outpost ถ้ายังระเบิด
+4. Connect GitHub บน Render ใหม่ (อย่า toggle Auto-Deploy)
+
+## Smoke รอบ 17
 - vite build ผ่าน
+- play stats ใน settings แสดง Lv/serve/session
+- title chips 4 → คลิกแล้ว `pg-ach` on · 35 cards
+- prestige ETA ที่ Lv16: “อีก 4 เลเวล · ~240 เสิร์ฟ”
+- pageerror ว่าง
+
+## Dev
+```bash
+cd /Users/noblemonobluefin/projects/sushi-empire-review/sushi-empire
+node server.js   # :3000
+npx vite build
+```

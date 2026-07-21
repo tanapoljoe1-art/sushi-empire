@@ -45,10 +45,11 @@ import { selectMG, rhTap, startSlice, startMemory } from './systems/minigames.js
 import { closeIdle } from './core/state.js';
 import {
   goTab, bnavGo, bnavDrawer, drawerGo, closeDrawer,
-  titleContinue, titleNewGame, titleDeleteSave, titleSettings, initTitleScreen,
+  titleContinue, titleNewGame, titleDeleteSave, titleSettings, initTitleScreen, openAchFromTitle,
   openPause, closePause, pauseSettings, pauseToTitle, pauseNewGame,
   closeConfirm, confirmOk, closeSettings, toggleSetting,
   exportSaveFile, exportSaveCopy, importSaveFromText, importSaveFromFile,
+  renderPlayStats,
 } from './systems/nav.js';
 
 // ── Background canvas ─────────────────────────────────────────────────────────
@@ -179,7 +180,7 @@ Object.assign(window, {
   openSpectateModal, openStoryPing, pauseNewGame, pauseSettings, pauseToTitle, pickFusionIng,
   respecUpgrades, restStaff, rhTap, setUpgTreeFilter, savePlayerName, selMenu, selectMG, sendReaction, sendSpectateChat, serve, setLbMode, showPrestModal,
   startMemory, startSlice, storyChoose, storyTapOutside, submitScore,
-  switchBranch, titleContinue, titleDeleteSave, titleNewGame, titleSettings,
+  switchBranch, titleContinue, titleDeleteSave, titleNewGame, titleSettings, openAchFromTitle,
   toggleSetting, unequipSlot, unlockSkill, dismissCoachTip,
   exportSaveFile, exportSaveCopy, importSaveFromText, importSaveFromFile,
   toggleDebugEnabled, openDebugPanel, closeDebugPanel, debugCloseAndDisable,
