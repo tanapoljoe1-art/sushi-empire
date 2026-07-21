@@ -1,10 +1,10 @@
 // ── Core UI rendering ─────────────────────────────────────────────────────────
 import { G, save, BAL } from '../core/state.js';
-import { MENUS, INGREDIENTS, UPGRADES, BRANCHES, EVENTS } from '../data.js';
-import { activeEvent } from '../core/effects.js';
+import { MENUS, INGREDIENTS, UPGRADES, BRANCHES } from '../data.js';
 import { getEl } from '../core/dom.js';
-import { hasIngredients, ingredientCost } from '../systems/game.js';
+import { hasIngredients, ingredientCost, calcServeEarn, effectiveIng } from '../systems/game.js';
 import { updateNavDots } from '../systems/nav.js';
+import { refreshUnlockUI } from '../systems/unlocks.js';
 
 export function toast(msg) {
   const t = getEl('toast');
@@ -42,24 +42,69 @@ export function updateUI() {
 
   const br = BRANCHES.find(b => b.id === G.activeBranch);
   getEl('branchName').innerText = br ? br.name : 'หลัก';
-  getEl('rhRwd').innerText = 'รางวัล: +' + (200 + G.level * 25) + '฿';
+  const rh = getEl('rhRwd');
+  if (rh) rh.innerText = 'รางวัล: +' + (200 + G.level * 25) + '฿';
 
+  updateBpmHud();
   renderMenu();
   updateNavDots();
+  refreshUnlockUI();
+}
+
+/** Estimated ฿/min: branch idle + theoretical cook rate on current menu. */
+export function calcBahtPerMin() {
+  let idlePerMin = 0;
+  let idleM = (G.idleMult || 1) * (G.goldenBonus || 1);
+  if (G.decoIdleBonus) idleM *= 2;
+  (G.branches || []).forEach(b => {
+    if (b.owned && b.id !== G.activeBranch) {
+      const bd = BRANCHES.find(x => x.id === b.id);
+      if (bd) idlePerMin += bd.idleRate * idleM;
+    }
+  });
+
+  const m = MENUS.find(x => x.id === G.menu);
+  if (!m) return Math.round(idlePerMin);
+
+  const front = (G.queue || []).find(c => c.state !== 'gone');
+  const orderMatch = front?.wantedMenuId ? front.wantedMenuId === G.menu : null;
+  const { earn } = calcServeEarn(G.menu, {
+    orderMatch,
+    isVipServe: front?.state === 'vip',
+    custEarnMult: front?.earnMult || 1,
+  });
+  const spd = (G.speedMult || 1) + (G.prestigeSpeedBonus || 0) + (G.staffSpeedBonus || 0);
+  const cookSec = (m.time / 1000) / Math.max(0.1, spd);
+  const serveGap = (G.autoServe || G.autoChef) ? 0.7 : 1.4;
+  const cycleSec = cookSec + serveGap;
+  const activePerMin = cycleSec > 0 ? (earn / cycleSec) * 60 : 0;
+  // If not auto, assume player is active ~70% of the time for estimate
+  const activeFactor = G.autoChef ? 1 : 0.7;
+  return Math.round(idlePerMin + activePerMin * activeFactor);
+}
+
+export function updateBpmHud() {
+  const el = getEl('bpmTxt');
+  if (!el) return;
+  const bpm = calcBahtPerMin();
+  el.innerText = bpm >= 1000 ? (bpm / 1000).toFixed(1) + 'k' : String(bpm);
 }
 
 export function renderMenu() {
-  const br = BRANCHES.find(b => b.id === G.activeBranch);
   getEl('menuGrid').innerHTML = MENUS.map(m => {
+    // Secret menus (Omakase EX) only show when skill unlocked
+    if (m.secret && !G.staffSecretMenu) return '';
     const locked  = m.unlockLv > G.level;
     const sel     = m.id === G.menu;
-    const earn    = Math.round(m.price * G.level * (br ? br.mult : 1) * G.prestigeIncomeMult);
+    const { earn } = calcServeEarn(m.id, {});
     const hasIng  = hasIngredients(m.id);
-    const ingList = Object.entries(m.ing).map(([k,v]) => `${INGREDIENTS[k].emoji}×${v}`).join(' ');
+    const need    = effectiveIng(m.id);
+    const ingList = Object.entries(need).map(([k,v]) => `${INGREDIENTS[k]?.emoji || '?'}×${v}`).join(' ');
+    const secretTag = m.secret ? ' <span style="font-size:9px;color:var(--gold)">SECRET</span>' : '';
     return `<div class="mi ${locked?'lck':''} ${sel?'sel':''}" onclick="${locked ? '' : `selMenu('${m.id}')`}">
       ${sel ? '<div class="mi-sb">✓</div>' : ''}
       <div class="mi-e">${m.emoji}</div>
-      <div class="mi-n">${m.name}</div>
+      <div class="mi-n">${m.name}${secretTag}</div>
       ${locked
         ? `<div class="mi-u">🔒 Lv.${m.unlockLv}</div>`
         : `<div class="mi-p">+${earn}฿</div>
@@ -108,7 +153,7 @@ export function renderUpgrades() {
 
 export function renderIngredients() {
   const m       = MENUS.find(x => x.id === G.menu);
-  const needed  = m ? m.ing : {};
+  const needed  = m ? effectiveIng(m.id) : {};
   getEl('ingRow').innerHTML = Object.entries(INGREDIENTS).map(([id, ing]) => {
     const have   = G.ing[id] || 0;
     const need   = needed[id] || 0;
@@ -124,18 +169,34 @@ export function renderIngredients() {
 
 export function updateEarnPreview() {
   const el = getEl('earnPreview');
+  const bd = getEl('earnBreakdown');
   if (!el) return;
   const m  = MENUS.find(x => x.id === G.menu);
-  if (!m) { el.innerText = ''; return; }
-  const br = BRANCHES.find(b => b.id === G.activeBranch);
-  const ev = activeEvent(G, EVENTS);
-  let earn = Math.round(
-    m.price * G.level * (br ? br.mult : 1) * G.prestigeIncomeMult
-    * (1 + (G.staffIncomeBonus || 0)) * (1 + (G.decoIncomeBonus || 0))
-    * BAL.incomeLvMult(G.level)
-  );
-  if (G.staffOmakaseBonus && m.id === 'omakase') earn = Math.round(earn * 1.5);
-  if (ev?.earnMult) earn = Math.round(earn * ev.earnMult);
+  if (!m) { el.innerText = ''; if (bd) bd.innerText = ''; return; }
+  const front = (G.queue || []).find(c => c.state !== 'gone');
+  const orderMatch = front?.wantedMenuId ? front.wantedMenuId === G.menu : null;
+  const { earn } = calcServeEarn(G.menu, {
+    orderMatch,
+    isVipServe: front?.state === 'vip',
+    custEarnMult: front?.earnMult || 1,
+  });
   const streakTag = G.streak >= 5 ? ' 🔥' : '';
-  el.innerText = `+${earn.toLocaleString()}฿${streakTag}`;
+  const orderTag  = orderMatch === true ? ' ✓' : orderMatch === false ? ' ✗' : '';
+  const goldTag   = (G.goldenBonus || 1) > 1 ? ' 🏆' : '';
+  el.innerText = `+${earn.toLocaleString()}฿${streakTag}${orderTag}${goldTag}`;
+
+  if (bd) {
+    const parts = [];
+    parts.push(`ฐาน ${m.price}`);
+    parts.push(`×Lv${G.level}`);
+    if ((G.goldenBonus || 1) > 1) parts.push(`🏆x${(G.goldenBonus || 1).toFixed(1)}`);
+    if ((G.staffIncomeBonus || 0) > 0) parts.push(`ทีม+${Math.round(G.staffIncomeBonus * 100)}%`);
+    if ((G.decoIncomeBonus || 0) > 0) parts.push(`ตกแต่ง+${Math.round(G.decoIncomeBonus * 100)}%`);
+    if (orderMatch === true) parts.push('ออเดอร์✓');
+    if (orderMatch === false) parts.push('ออเดอร์✗');
+    if (front?.ctype && front.ctype !== 'regular') parts.push(front.typeBadge || front.ctype);
+    if (G.streak >= 5) parts.push(`streak${G.streak}`);
+    bd.innerText = parts.join(' · ');
+  }
+  updateBpmHud();
 }

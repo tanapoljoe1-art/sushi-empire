@@ -143,7 +143,7 @@ export function doFusion() {
         filled.forEach(k => fusionIng[k] = (fusionIng[k] || 0) + 1);
         MENUS.push({ id:match.id, name:match.name, emoji:match.emoji,
                      price:match.price, time:match.time, unlockLv:1,
-                     ing:fusionIng, isFusion:true });
+                     ing:fusionIng, isFusion:true, tags:match.tags || [] });
       }
       setTimeout(() => showFusionDiscovery(match), 400);
       checkAch();

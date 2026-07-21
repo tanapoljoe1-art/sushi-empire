@@ -153,6 +153,11 @@ export function renderStaff() {
   if (G.staffStreakGuard)     bonuses.push('🛡️ Streak Guard');
   if (G.staffOmakaseBonus)   bonuses.push('🍮 Omakase Bonus');
   if (G.staffExtraRating)    bonuses.push('⭐ +1 Rating/เสิร์ฟ');
+  if (G.staffRiceDiscount)   bonuses.push('🍚 ข้าวลด 1/จาน');
+  if (G.staffSpeedBurst)     bonuses.push('⚡ Speed Burst ทุก 5 เสิร์ฟ');
+  if (G.staffPremiumBonus)   bonuses.push('🌟 Premium +30%');
+  if (G.staffVipBonus)       bonuses.push('👑 VIP +50%');
+  if (G.staffSecretMenu)     bonuses.push('✨ Secret Menu');
 
   const hiredCnt = Object.values(G.staff || {}).filter(i => i.hired).length;
   getEl('staffBonusSummary').innerHTML = bonuses.length

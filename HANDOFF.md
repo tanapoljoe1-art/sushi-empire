@@ -1,28 +1,46 @@
-# Handoff — Sushi Empire game: post-refactor bug fixes + open deploy issue (2026-07-21)
+# Handoff — Sushi Empire game (2026-07-21)
+
+## เอกสารแผน / ไอเดีย (อ่านก่อนทำงานต่อ)
+
+| ไฟล์ | ใช้ทำอะไร |
+|------|-----------|
+| **`BACKLOG-IDEAS.md`** | **ไอเดียทั้งหมด + สถานะ ✅/🔜/📋 — source of truth ว่างานอะไรค้าง** |
+| **`ROADMAP-30-DAYS.md`** | จัด sprint 30 วัน |
+| **`HANDOFF.md`** (ไฟล์นี้) | path, deploy, ข้อเท็จจริงเทคนิค |
+
+> โฟลเดอร์นี้อยู่ใต้ `/private/tmp` — อาจหายหลัง reboot  
+> **ควร commit + push** `BACKLOG-IDEAS.md` และ `ROADMAP-30-DAYS.md` ขึ้น GitHub
 
 ## Goal
-Sushi Empire is a browser-based incremental/idle game ("ทำซูชิ!" — cook sushi to earn money, buy upgrades, unlock achievements). The codebase was recently refactored from a flat script layout into ES modules + Vite, then live-tested and bug-fixed. The remaining open item is confirming a Render auto-deploy fix actually works, plus the game has a planned future upgrade (2D→3D kitchen scene) that hasn't been started.
+Sushi Empire = idle/incremental ทำซูชิในเบราว์เซอร์ เป้าหมายระยะยาว: อาณาจักรที่มี decision + fantasy ครัว (2D UI ถาวร, kitchen อาจเป็น 3D) + social เบา
 
 ## State
 
-- **Done:**
-  - ES-module + Vite architecture refactor — live and verified working on the deployed site.
-  - 5 real gameplay bugs found via a live browser click-through and fixed, committed as `2275860` ("Fix upgrade-state gap, cook button hidden behind bottom nav, achievement icon/queue bugs"), pushed to `main`, and manually deployed on Render. Confirmed live via `curl` (saw `type="module"` script tag and the corrected CSS `bottom:62px` in the served HTML).
-  - Prior to the refactor, two earlier PRs were merged: PR #1 (fixed a messy bot-generated PR's cook-animation-cancel bug and a load-time crash on emperor/zenith dishes), and a second PR (wired up a previously-unused random-event system + implemented 3 events and 2 decorations that had UI copy but no effect).
+- **Done (ก่อนหน้า):**
+  - ES-module + Vite; 5 gameplay bugs ใน `2275860`; event system + decorations ถูก wire บางส่วน
+  - Auto-deploy test push `d2f8197` (package 1.0.1) — **auto-deploy ยังไม่ยิง** (last-modified ค้างที่ deploy มือ)
 
-- **In progress:**
-  - Render auto-deploy webhook reliability. After the GitHub repo was deleted and recreated from scratch (see Dead ends), pushing new commits stopped triggering Render's auto-deploy — every deploy since has required manually clicking "Manual Deploy" → "Deploy latest commit" in the Render dashboard. A fix was attempted (toggle Auto-Deploy off then back to "On Commit" in the service's Settings → Deploy tab, to force Render to re-subscribe to the GitHub webhook) but **this has not been tested against a real push yet** — no commit has been pushed since the toggle was flipped. "Finished" here means: push a small commit, watch the Render dashboard's Events/Deploys tab, and see a deploy fire automatically without a manual click.
+- **Done (working tree รอบไอเดีย — ตรวจ `git status` ว่า commit แล้วหรือยัง):**
+  - P0 Honesty: golden/xp/idle/decoIdle + staff skills หลัก + fusion tags + prestige keep fusion/deco
+  - Order Engine + Perfect Cook window
+  - เอกสาร backlog + roadmap 30 วัน
 
-- **Not started:**
-  - Converting the chef/plate/steam kitchen scene from 2D DOM/CSS to a 3D Three.js scene. The codebase was deliberately prepared for this (see Key decisions & facts) but no 3D work has begun.
+- **In progress / open infra:**
+  - Render auto-deploy หลัง repo recreate → ใช้ปุ่ม **Connect** (อย่า toggle Auto-Deploy ซ้ำ)
+  - Commit/push งาน gameplay + เอกสาร backlog
 
-## Next step
-Push a trivial, safe commit (e.g. a comment or a `package.json` patch-version bump) to `main` in `/private/tmp/sushi-empire-review/sushi-empire/`, then open the Render dashboard for the `sushi-empire` service and check whether a deploy starts automatically (Events/Deploys tab) without clicking "Manual Deploy". If it doesn't fire within a couple minutes of the push, use the service's **"Connect"** button to reconnect the GitHub integration from scratch, rather than re-toggling Auto-Deploy again (that was already tried once).
+- **Not started (ดูรายการเต็มใน BACKLOG-IDEAS.md):**
+  - Progressive unlock, customer types, branch specialization, prestige shop, 3D kitchen, BGM, socket multiplayer จริง, ฯลฯ
 
-## Then
-1. Once auto-deploy is confirmed working (or fixed via reconnect), no further action needed on that front — just note it's resolved.
-2. When ready to start the 3D kitchen scene: read `public/src/ui/kitchen-scene.js` first — it's a 4-function interface (init/render/update/teardown-style) that isolates all chef/plate/steam DOM manipulation from the rest of the UI. Swap its internals for a Three.js WebGL scene while keeping its exported function signatures the same, so the rest of `ui/render.js` and the HTML/CSS panels (which stay 2D permanently) don't need to change.
-3. Before making further gameplay changes, do a live browser click-through first (not just unit/smoke tests) — this is how all 5 recent bugs were actually found; static verification (Vite build, greps, jsdom smoke tests) missed all of them because they were DOM/CSS/z-index/timing issues that only show up interactively.
+## Next step (แนะนำ)
+1. อ่าน `BACKLOG-IDEAS.md` ส่วน **🔜 คิวถัดไป**
+2. Commit งาน P0/Order/Perfect + เอกสาร แล้ว push (และ/หรือ reconnect Render)
+3. Live click-through → progressive unlock แท็บ / HUD ฿/min ตาม roadmap
+
+## Then (เทคนิคเดิม ยังใช้ได้)
+1. Auto-deploy: Connect GitHub ใหม่บน Render ถ้ายังพัง
+2. 3D kitchen: แตะแค่ `public/src/ui/kitchen-scene.js` คง signature เดิม
+3. ก่อน ship ทุกครั้ง: live browser click-through
 
 ## Suggested skills
 - debug-mantra — if any new bug reports come in, use this before touching code: reproduce it live, trace the actual fail path, don't guess.

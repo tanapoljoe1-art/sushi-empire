@@ -209,6 +209,8 @@
   <div class="logo">🍣 <span>SUSHI EMPIRE<span class="logo-sub">すし帝国</span></span></div>
   <div class="hstats">
     <div class="chip gold">💴 <span class="cv" id="money">100</span></div>
+    <div class="chip teal" id="bpmChip" title="รายได้โดยประมาณต่อนาที">📈 <span class="cv" id="bpmTxt">0</span><span class="chip-unit">/น</span></div>
+    <div class="chip amber" id="forecastChip" title="พยากรณ์อีเวนต์" style="display:none">⚡ <span class="cv" id="forecastTxt">—</span></div>
     <div class="chip green">⭐ <span class="cv" id="rating">0</span>%</div>
     <div class="chip purple">✨ <span class="cv" id="prestige">0</span></div>
     <div class="menu-btn" onclick="openPause()">☰</div>
@@ -261,6 +263,8 @@
               <stop offset="0%" stop-color="#c8962a"/><stop offset="100%" stop-color="#f0d080"/>
             </linearGradient></defs>
             <circle class="rbg"  cx="29" cy="29" r="25"/>
+            <!-- Perfect zone arc (~78–92% of ring) -->
+            <circle class="rzone" id="ringZone" cx="29" cy="29" r="25"/>
             <circle class="rarc" id="ringArc" cx="29" cy="29" r="25"/>
           </svg>
           <div class="rtxt" id="ringTxt">0%</div>
@@ -270,6 +274,7 @@
       <div class="platecol">
         <div class="platewrap" id="plateWrap"><span id="plateEmoji">🍽️</span></div>
         <div id="earnPreview" style="font-size:11px;color:rgba(232,196,106,.7);text-align:center;min-height:16px;margin-top:3px;font-weight:700;"></div>
+        <div id="earnBreakdown" style="font-size:9px;color:rgba(255,255,255,.35);text-align:center;min-height:12px;margin-top:1px;line-height:1.3;"></div>
         <button class="servebtn" id="serveBtn" onclick="serve()">เสิร์ฟ ✨</button>
       </div>
     </div>

@@ -10,7 +10,8 @@ import {
   cook, serve, buyIngredient, buyUpgrade, buyBranch, switchBranch,
   showPrestModal, closePrest, doPrestige, closeAch, spawnQueue,
 } from './systems/game.js';
-import { closeEvent, closeVip, triggerRandomEvent } from './systems/events.js';
+import { closeEvent, closeVip, tickEventScheduler, updateEventForecastUI } from './systems/events.js';
+import { refreshUnlockUI, markExistingUnlocksSeen } from './systems/unlocks.js';
 import { applyAllStaffBonuses, renderStaff, hireStaff, levelUpStaff, restStaff, fireStaff, unlockSkill } from './systems/staff.js';
 import { applyDecoBonus, buyDeco } from './systems/decoration.js';
 import { initQuests, claimQuest, submitScore, savePlayerName } from './systems/progress.js';
@@ -40,7 +41,7 @@ load();
       const fusionIng = {};
       r.combo.forEach(k => fusionIng[k] = (fusionIng[k] || 0) + 1);
       MENUS.push({ id:r.id, name:r.name, emoji:r.emoji, price:r.price,
-                   time:r.time, unlockLv:1, ing:fusionIng, isFusion:true });
+                   time:r.time, unlockLv:1, ing:fusionIng, isFusion:true, tags:r.tags || [] });
     }
   }
 });
@@ -57,6 +58,9 @@ updateUI();
 renderUpgrades();
 renderIngredients();
 updateEarnPreview();
+refreshUnlockUI();
+markExistingUnlocksSeen();
+updateEventForecastUI();
 
 // ── Periodic intervals ────────────────────────────────────────────────────────
 
@@ -65,10 +69,12 @@ setInterval(() => { if (settings.autosave) save(); }, 10000);
 
 // Passive income from owned branches (not active) — runs every 1 s
 setInterval(() => {
+  let idleM = (G.idleMult || 1) * (G.goldenBonus || 1);
+  if (G.decoIdleBonus) idleM *= 2;
   G.branches.forEach(b => {
     if (b.owned && b.id !== G.activeBranch) {
       const bd = BRANCHES.find(x => x.id === b.id);
-      if (bd) G.money += Math.round(bd.idleRate / 60);
+      if (bd) G.money += Math.round((bd.idleRate / 60) * idleM);
     }
   });
   updateUI();
@@ -88,11 +94,8 @@ setInterval(() => {
 // Story trigger check every 20 s
 setInterval(checkStoryTriggers, 20000);
 
-// Random event scheduler — periodic chance to trigger Rush Hour/VIP/Critic/Storm/etc.
-setInterval(() => {
-  if (G.activeEvent) return;
-  if (Math.random() < 0.2) triggerRandomEvent();
-}, 15000);
+// Event scheduler + forecast UI (cooldown / marketing chance / pity)
+setInterval(tickEventScheduler, 1000);
 
 // ── window-attach: index.html and template-string HTML use onclick="fn(...)"
 // attributes, which only resolve against `window`. This is the definitive set —

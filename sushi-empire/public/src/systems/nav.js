@@ -19,8 +19,12 @@ import { renderBr, renderPrest, spawnQueue } from './game.js';
 import { renderFusionLab, initFusion } from './fusion.js';
 import { updateMGHighScores } from './minigames.js';
 import { initStory } from './story.js';
+import { requireFeature, isGroupUnlocked, refreshUnlockUI, FEATURE_UNLOCKS } from './unlocks.js';
 
 export function goTab(t) {
+  // Progressive unlock gate (main is always open)
+  if (t !== 'main' && FEATURE_UNLOCKS[t] && !requireFeature(t)) return;
+
   document.querySelectorAll('.pg').forEach(p => p.classList.remove('on'));
   const pg = getEl('pg-' + t);
   if (pg) pg.classList.add('on');
@@ -85,9 +89,16 @@ export function bnavGo(tab) {
 }
 
 export function bnavDrawer(group) {
+  if (group !== 'main' && !isGroupUnlocked(group)) {
+    const first = Object.entries(FEATURE_UNLOCKS).find(([, u]) => u.group === group);
+    const lv = first ? first[1].level : '?';
+    toast(`🔒 กลุ่มนี้ปลดที่ Lv.${lv}+`);
+    return;
+  }
   if (activeDrawer === group) { closeDrawer(); return; }
   closeDrawer();
   activeDrawer = group;
+  refreshUnlockUI();
   getEl('drawer-' + group)?.classList.add('vis');
   getEl('drawerBg')?.classList.add('vis');
   document.querySelectorAll('.bntab').forEach(b => b.classList.remove('on'));
@@ -95,6 +106,7 @@ export function bnavDrawer(group) {
 }
 
 export function drawerGo(tab, group) {
+  if (FEATURE_UNLOCKS[tab] && !requireFeature(tab)) return;
   closeDrawer();
   goTab(tab);
   document.querySelectorAll('.ditem').forEach(d => d.classList.remove('active-sub'));

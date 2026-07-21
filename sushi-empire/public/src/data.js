@@ -8,6 +8,8 @@ export const MENUS = [
   {id:'dragon', name:'ดราก้อนโรล',emoji:'🏯',price:100, time:4500,unlockLv:5, ing:{rice:2,tuna:1,shrimp:1}},
   {id:'uni',    name:'อูนิ',      emoji:'🦐',price:160, time:6000,unlockLv:8, ing:{rice:1,uni:1,nori:1}},
   {id:'omakase',name:'เอมาคาเสะ', emoji:'🍮',price:350, time:9000,unlockLv:12,ing:{salmon:2,tuna:2,uni:1,nori:2}},
+  // Secret menu — only visible when staff skill staffSecretMenu is owned
+  {id:'omakase_ex',name:'เอมาคาเสะ EX',emoji:'✨',price:550,time:8500,unlockLv:12,ing:{salmon:2,tuna:2,uni:2,nori:2},secret:true},
   // NEW: Premium Menu Items
   {id:'toro',   name:'โอโทโร่',   emoji:'💎',price:480, time:10000,unlockLv:15,ing:{rice:1,tuna:2,gold:1}},
   {id:'caviar', name:'คาเวียร์',  emoji:'🖤',price:520, time:11000,unlockLv:18,ing:{rice:1,uni:1,caviar:1,nori:1}},
@@ -40,9 +42,9 @@ export const UPGRADES = [
   {id:'storage',  name:'คลังวัตถุดิบ', emoji:'📦',desc:'ปริมาณวัตถุดิบเพิ่ม x1.5',max:3,base:350, fx:g=>{g.storageMult=1+g.up.storage*.5;}},
   {id:'autoChef', name:'เชฟ AI',       emoji:'🤖',desc:'ทำอาหารอัตโนมัติ',max:1,base:1500, fx:g=>{g.autoChef=g.up.autoChef>=1;}},
   // NEW: Advanced Upgrades
-  {id:'golden',   name:'ครัวทองคำ',    emoji:'🏆',desc:'รายได้ +50% ถาวร',max:3,base:5000, fx:g=>{g.goldenBonus=1+g.up.golden*.5;}},
-  {id:'mastery',  name:'ปรมาจารย์ซูชิ', emoji:'🎓',desc:'XP gain +100%',max:1,base:8000, fx:g=>{g.xpMult=2;}},
-  {id:'franchise',name:'แฟรนไชส์',     emoji:'🌐',desc:'Idle income x2',max:1,base:12000,fx:g=>{g.idleMult=2;}},
+  {id:'golden',   name:'ครัวทองคำ',    emoji:'🏆',desc:'รายได้ +50% ถาวร / เลเวล',max:3,base:5000, fx:g=>{g.goldenBonus=1+g.up.golden*.5;}},
+  {id:'mastery',  name:'ปรมาจารย์ซูชิ', emoji:'🎓',desc:'Rating ต่อเสิร์ฟ x2',max:1,base:8000, fx:g=>{g.xpMult=g.up.mastery>=1?2:1;}},
+  {id:'franchise',name:'แฟรนไชส์',     emoji:'🌐',desc:'Idle income x2',max:1,base:12000,fx:g=>{g.idleMult=g.up.franchise>=1?2:1;}},
 ];
 
 export const ACHIEVEMENTS = [

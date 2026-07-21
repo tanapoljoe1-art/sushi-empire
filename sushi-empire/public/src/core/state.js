@@ -16,6 +16,16 @@ export function defaultState() {
     queue: [],
     up: { kitchen:0, waiter:0, marketing:0, patience:0, storage:0, autoChef:0, golden:0, mastery:0, franchise:0 },
     speedMult: 1, autoServe: false, qSize: 1, patMult: 1, storageMult: 1, autoChef: false,
+    goldenBonus: 1, xpMult: 1, idleMult: 1,
+    speedBurstCooks: 0, // remaining cooks at 2× speed (from staffSpeedBurst)
+    // Events scheduler
+    eventCooldowns: {}, // { eventId: timestamp when available again }
+    nextEventAt: 0,     // timestamp of next event attempt
+    // Feature unlock toasts already shown
+    featureUnlockToast: {},
+    // Temporary boosts (influencer etc.)
+    tempQSizeBonus: 0,
+    tempQSizeUntil: 0,
     ing: { rice:10, salmon:5, tuna:3, shrimp:3, uni:2, nori:5 },
     lastSave: Date.now(),
     ach: {},
@@ -118,6 +128,12 @@ export function load() {
   }
 }
 
+function _idleIncomeMult() {
+  let mult = (G.idleMult || 1) * (G.goldenBonus || 1);
+  if (G.decoIdleBonus) mult *= 2;
+  return mult;
+}
+
 function _applyIdleEarnings(elapsed) {
   const m  = MENUS.find(x => x.id === G.menu);
   if (!m) return;
@@ -126,21 +142,29 @@ function _applyIdleEarnings(elapsed) {
   const cycles = Math.floor(elapsed / (m.time / 1000 / spd));
   if (cycles <= 0) return;
 
-  // How many cycles can we actually afford?
-  const maxCycles = Math.min(cycles,
-    ...Object.keys(m.ing).map(k => Math.floor((G.ing[k] || 0) / m.ing[k]))
-  );
+  // Effective ingredient cost (Rice Master skill)
+  const need = { ...m.ing };
+  if (G.staffRiceDiscount && need.rice) need.rice = Math.max(0, need.rice - 1);
+
+  const keys = Object.keys(need).filter(k => need[k] > 0);
+  const maxCycles = keys.length
+    ? Math.min(cycles, ...keys.map(k => Math.floor((G.ing[k] || 0) / need[k])))
+    : cycles;
   if (maxCycles <= 0) return;
 
-  const earn = Math.round(
+  let earn = Math.round(
     maxCycles * m.price * G.level * (br ? br.mult : 1)
     * G.prestigeIncomeMult
     * (1 + (G.staffIncomeBonus || 0))
     * (1 + (G.decoIncomeBonus  || 0))
     * BAL.incomeLvMult(G.level)
+    * _idleIncomeMult()
   );
+  // Fusion Idle+ tag
+  if (m.isFusion && (m.tags || []).some(t => /Idle/i.test(t))) earn = Math.round(earn * 1.25);
+
   G.money += earn;
-  Object.keys(m.ing).forEach(k => G.ing[k] = Math.max(0, (G.ing[k] || 0) - m.ing[k] * maxCycles));
+  keys.forEach(k => G.ing[k] = Math.max(0, (G.ing[k] || 0) - need[k] * maxCycles));
 
   document.getElementById('idleAmt').innerText  = `+${earn.toLocaleString()} ฿`;
   document.getElementById('idleTime').innerText = `ไม่อยู่ ${Math.floor(elapsed / 60)} นาที`;
@@ -148,10 +172,11 @@ function _applyIdleEarnings(elapsed) {
 }
 
 function _applyBranchIdleEarnings(elapsed) {
+  const idleM = _idleIncomeMult();
   G.branches.forEach(b => {
     if (!b.owned || b.id === G.activeBranch) return;
     const bd = BRANCHES.find(x => x.id === b.id);
-    if (bd) G.money += Math.round(bd.idleRate * (elapsed / 60));
+    if (bd) G.money += Math.round(bd.idleRate * (elapsed / 60) * idleM);
   });
 }
 
