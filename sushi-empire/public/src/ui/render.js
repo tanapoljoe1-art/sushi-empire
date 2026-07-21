@@ -6,6 +6,7 @@ import { hasIngredients, ingredientCost, calcServeEarn, effectiveIng } from '../
 import { updateNavDots } from '../systems/nav.js';
 import { refreshUnlockUI } from '../systems/unlocks.js';
 import { renderDailySpecialBanner, isDailySpecial, ensureDailySpecial } from '../systems/daily.js';
+import { ensureFishMarket, marketTag, renderMarketBanner } from '../systems/market.js';
 import { updateKitchenTheme } from './kitchen-scene.js';
 
 export function toast(msg) {
@@ -50,6 +51,8 @@ export function updateUI() {
   updateBpmHud();
   ensureDailySpecial();
   renderDailySpecialBanner();
+  ensureFishMarket();
+  renderMarketBanner();
   updateKitchenTheme(G);
   renderMenu();
   updateNavDots();
@@ -159,17 +162,21 @@ export function renderUpgrades() {
 }
 
 export function renderIngredients() {
+  ensureFishMarket();
   const m       = MENUS.find(x => x.id === G.menu);
   const needed  = m ? effectiveIng(m.id) : {};
   getEl('ingRow').innerHTML = Object.entries(INGREDIENTS).map(([id, ing]) => {
     const have   = G.ing[id] || 0;
     const need   = needed[id] || 0;
     const enough = need > 0 ? have >= need : true;
-    const cls    = need > 0 ? (enough ? 'enough' : 'low') : '';
+    const tag    = marketTag(id);
+    const cls    = (need > 0 ? (enough ? 'enough' : 'low') : '') + (tag.cls ? ' mk-' + tag.cls : '');
     const price  = ingredientCost(id);
+    const tagHtml = tag.label ? `<span class="mk-pill ${tag.cls}">${tag.label}</span>` : '';
     return `<div class="ing-chip ${cls}" onclick="buyIngredient('${id}')">
       ${ing.emoji} <span>${have}</span>
       <span style="opacity:.5;font-size:9px">+${ing.buyAmt} / ${price}฿</span>
+      ${tagHtml}
     </div>`;
   }).join('');
 }

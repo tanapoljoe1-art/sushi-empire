@@ -16,15 +16,15 @@ Sushi Empire = idle/incremental ทำซูชิในเบราว์เซ
 
 ## State
 
-- **HEAD:** รอบ 7 บน working tree (ดู git log หลัง commit)
-- **Done รอบ 7:** Balance Lv.1–15 · story flags · rival weekly · deco multi-slot + kitchen strip · saveVersion 3
-- **Open infra:** Render auto-deploy Connect · post-mortem webhook
+- **HEAD:** รอบ 8 (ดู git log)
+- **Done รอบ 8:** Fish market · spoil · coach marks · post-mortem doc · saveVersion 4
+- **Open infra:** Render still needs **Connect** on dashboard (see `POSTMORTEM-RENDER-AUTODEPLOY.md`)
 
 ## Next step (แนะนำ)
-1. Render Connect + post-mortem webhook
-2. Resource tension / daily fish market (ถ้าอยาก depth เศรษฐกิจ)
-3. Live deploy smoke หลัง push
-4. Coach marks / onboarding เบา
+1. Render Connect มือ + verify push→deploy
+2. Upgrade trees / battle pass เบา
+3. Polish 3D kitchen
+4. Live smoke หลัง deploy
 
 ## Then (เทคนิคเดิม ยังใช้ได้)
 1. Auto-deploy: Connect GitHub ใหม่บน Render ถ้ายังพัง
@@ -43,7 +43,7 @@ Sushi Empire = idle/incremental ทำซูชิในเบราว์เซ
 - `server.js` serves the Vite-built `dist/` folder if it exists, otherwise falls back to serving `public/` directly — so the game runs with zero build step for quick local testing (`node server.js`), and `npx vite build` is only needed to produce the optimized bundle actually deployed.
 - Module layout under `public/src/`: `core/state.js` (game state + save/load + export/import), `core/effects.js`, `core/dom.js`, `data.js`, `systems/*.js`, `ui/render.js`, `ui/background.js`, `ui/kitchen-scene.js`.
 - User's stated long-term intent: keep all HTML/CSS UI panels as 2D permanently; only the kitchen/chef/plate/steam visual behind them should eventually become a 3D Three.js scene.
-- **Save key:** `localStorage['SE5']`. Export wrapper magic: `SUSHI_EMPIRE_SAVE` with FNV-ish checksum. `SAVE_VERSION = 3` (deco slots + storyFlags + rivalWeekly).
+- **Save key:** `localStorage['SE5']`. Export wrapper magic: `SUSHI_EMPIRE_SAVE` with FNV-ish checksum. `SAVE_VERSION = 4` (deco slots + storyFlags + rivalWeekly).
 - **Cook button stacking:** `#cookWrap` must live **outside** `.shell` (shell creates `z-index:1` stacking context). Cook z=180, bnav z=200, modals z=300.
 - **Daily LB:** server keeps `leaderboard` (all-time) + `dailyLeaderboard` (UTC day); client emits `{ mode: 'daily'|'all' }` and payload `{ mode, day, rows }`. Local keys: `SE5_lb` and `SE5_lb_D_YYYY-MM-DD`.
 - Playwright is a **devDependency** for local smoke tests only (not required on Render).

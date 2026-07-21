@@ -204,6 +204,7 @@ export function hideTitle() {
   const ts = getEl('titleScreen');
   ts.classList.add('out');
   setTimeout(() => { ts.style.display = 'none'; }, 650);
+  import('./coach.js').then(m => m.runCoachSequence()).catch(() => {});
 }
 
 // ── Pause menu ────────────────────────────────────────────────────────────────

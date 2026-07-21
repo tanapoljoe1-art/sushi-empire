@@ -23,6 +23,8 @@ import { closeEvent, closeVip, challengeVip, tickEventScheduler, updateEventFore
 import { refreshUnlockUI, markExistingUnlocksSeen } from './systems/unlocks.js';
 import { ensureDailySpecial } from './systems/daily.js';
 import { ensureRivalWeekly, renderRivalBanner, claimRivalReward } from './systems/rival.js';
+import { ensureFishMarket, renderMarketBanner, tickSpoil } from './systems/market.js';
+import { runCoachSequence, dismissCoachTip } from './systems/coach.js';
 import { ctxMgTap, ctxMgSkip } from './systems/context-mg.js';
 import { applyAllStaffBonuses, renderStaff, hireStaff, levelUpStaff, restStaff, fireStaff, unlockSkill } from './systems/staff.js';
 import { applyDecoBonus, buyDeco, unequipSlot } from './systems/decoration.js';
@@ -78,6 +80,8 @@ markExistingUnlocksSeen();
 ensureDailySpecial();
 ensureRivalWeekly();
 renderRivalBanner();
+ensureFishMarket();
+renderMarketBanner();
 updateEventForecastUI();
 connectNet().then(() => initSpectate()); // online LB + spectate handlers
 
@@ -95,6 +99,9 @@ document.addEventListener('keydown', _kickAudio, { once: true });
 
 // Auto-save every 10 s
 setInterval(() => { if (settings.autosave) save(); }, 10000);
+
+// Fish spoil tension (high stock of perishables)
+setInterval(tickSpoil, 45000);
 
 // Passive income from owned branches (not active) — runs every 1 s
 setInterval(() => {
@@ -153,7 +160,7 @@ Object.assign(window, {
   restStaff, rhTap, savePlayerName, selMenu, selectMG, sendReaction, sendSpectateChat, serve, setLbMode, showPrestModal,
   startMemory, startSlice, storyChoose, storyTapOutside, submitScore,
   switchBranch, titleContinue, titleDeleteSave, titleNewGame, titleSettings,
-  toggleSetting, unequipSlot, unlockSkill,
+  toggleSetting, unequipSlot, unlockSkill, dismissCoachTip,
   exportSaveFile, exportSaveCopy, importSaveFromText, importSaveFromFile,
 });
 

@@ -565,6 +565,34 @@ nav{ display:none; } /* hide old nav — keep for goTab compat */
 .lb-mode{flex:1;padding:8px 10px;border-radius:12px;border:1px solid var(--rim);background:var(--glass);color:var(--muted);font-weight:800;font-size:12px;font-family:'Noto Sans Thai',sans-serif;cursor:pointer;transition:all .15s;}
 .lb-mode.on{border-color:rgba(232,196,106,.45);background:rgba(232,196,106,.12);color:var(--gold);}
 
+/* Fish market */
+.market-banner{margin:0 0 8px;padding:8px 12px;border-radius:14px;border:1px solid rgba(56,189,248,.3);
+  background:linear-gradient(135deg,rgba(56,189,248,.1),rgba(45,212,191,.06));
+  display:flex;align-items:center;gap:10px}
+.mk-ico{font-size:22px}
+.mk-inf{flex:1;min-width:0}
+.mk-lbl{font-size:10px;font-weight:800;color:#7dd3fc;letter-spacing:.04em}
+.mk-line{display:flex;flex-wrap:wrap;gap:8px;font-size:11px;font-weight:700;margin-top:2px}
+.mk-deal{color:var(--green)}
+.mk-scarce{color:var(--red)}
+.mk-day{font-size:10px;color:var(--muted);flex-shrink:0}
+.ing-chip.mk-deal{border-color:rgba(74,222,128,.4)}
+.ing-chip.mk-scarce{border-color:rgba(255,77,109,.35)}
+.mk-pill{font-size:8px;font-weight:900;padding:1px 4px;border-radius:4px;margin-left:2px}
+.mk-pill.deal{background:rgba(74,222,128,.2);color:var(--green)}
+.mk-pill.scarce{background:rgba(255,77,109,.2);color:var(--red)}
+
+/* Coach tip */
+.coach-tip{position:fixed;z-index:800;background:linear-gradient(145deg,#1a1410f7,#0c1018f7);
+  border:1px solid rgba(232,196,106,.4);border-radius:16px;padding:12px 14px;
+  box-shadow:0 12px 40px rgba(0,0,0,.55);display:none;pointer-events:auto}
+.coach-tip.vis{display:block;animation:coachIn .28s cubic-bezier(.34,1.56,.64,1)}
+@keyframes coachIn{0%{opacity:0;transform:translateY(8px) scale(.96)}100%{opacity:1;transform:none}}
+.coach-title{font-size:13px;font-weight:900;color:var(--gold);margin-bottom:4px}
+.coach-body{font-size:12px;color:var(--text);line-height:1.45;margin-bottom:10px}
+.coach-ok{width:100%;padding:8px;border:none;border-radius:10px;background:var(--goldg);
+  color:#1a0e00;font-weight:900;font-size:12px;font-family:'Noto Sans Thai',sans-serif;cursor:pointer}
+
 /* Rival weekly */
 .rival-banner{margin:0 0 10px;padding:10px 12px;border-radius:14px;border:1px solid rgba(255,77,109,.35);
   background:linear-gradient(135deg,rgba(255,77,109,.12),rgba(167,139,250,.08));}

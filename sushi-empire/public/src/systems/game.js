@@ -177,8 +177,16 @@ export function calcServeEarn(menuId, opts = {}) {
 
 export function ingredientCost(id) {
   const ing = INGREDIENTS[id];
+  if (!ing) return 0;
   const ev  = activeEvent(G, EVENTS);
-  return ev?.ingredientDiscount ? Math.round(ing.buyCost * (1 - ev.ingredientDiscount)) : ing.buyCost;
+  let cost = ing.buyCost;
+  // Daily fish market mult (lazy import-free: read from G)
+  try {
+    const m = G.fishMarket?.prices?.[id];
+    if (typeof m === 'number' && m > 0) cost = Math.round(cost * m);
+  } catch (_) {}
+  if (ev?.ingredientDiscount) cost = Math.round(cost * (1 - ev.ingredientDiscount));
+  return Math.max(1, cost);
 }
 
 export function buyIngredient(id) {
@@ -553,6 +561,7 @@ export function serve() {
   }
 
   trackQuestProgress('serve');
+  import('./coach.js').then(m => m.coachOnFirstServe()).catch(() => {});
   trackQuestProgress('earn', earn);
   if (isDailySpecial(menuId)) trackQuestProgress('special');
   tickStaffMood();
@@ -572,6 +581,7 @@ export function serve() {
     toast('🎉 Level Up! Lv.' + G.level);
     checkFeatureUnlocks(prevLv, G.level);
     checkStoryTriggers();
+    import('./coach.js').then(m => m.coachOnLevel(G.level)).catch(() => {});
   }
   if (G.served % 5 === 0) checkStoryTriggers();
 
@@ -854,6 +864,7 @@ export function doPrestige() {
     rushCleared:         G.rushCleared,
     storyData:           G.storyData,
     storyFlags:          G.storyFlags || {},
+    coachSeen:            G.coachSeen || {},
     rivalWeekly:         G.rivalWeekly || { weekKey:'', playerEarn:0, rivalTarget:0, claimed:false },
     playerName:          G.playerName,
     mgHighScores:        G.mgHighScores,

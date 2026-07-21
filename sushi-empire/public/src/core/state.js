@@ -29,7 +29,7 @@ export const BAL = {
 
 export function defaultState() {
   return {
-    saveVersion: 3,
+    saveVersion: 4,
     money: 150, rating: 0, level: 1,
     menu: 'salmon', cooking: false, plateReady: false,
     streak: 0, served: 0, vipServed: 0, rushCleared: 0, mgWins: 0,
@@ -93,6 +93,8 @@ export function defaultState() {
     storyData: { seenChapters:{}, pendingChapters:[] },
     storyFlags: {},
     rivalWeekly: { weekKey:'', playerEarn:0, rivalTarget:0, claimed:false },
+    fishMarket: { dayKey:'', prices:{}, spoilTick:0 },
+    coachSeen: {},
     // Player
     playerName: '',
   };
@@ -101,7 +103,7 @@ export function defaultState() {
 export let G = defaultState();
 
 /** Bump when save shape needs a migration. Written on every save. */
-export const SAVE_VERSION = 3;
+export const SAVE_VERSION = 4;
 export const SAVE_KEY = 'SE5';
 export const DECO_SLOTS = ['wall', 'counter', 'light', 'floor'];
 
@@ -153,6 +155,14 @@ function migrateSave(data) {
     }
     v = 3;
   }
+  // v3 → v4: fish market + coach
+  if (v < 4) {
+    if (!data.fishMarket || typeof data.fishMarket !== 'object') {
+      data.fishMarket = { dayKey: '', prices: {}, spoilTick: 0 };
+    }
+    if (!data.coachSeen || typeof data.coachSeen !== 'object') data.coachSeen = {};
+    v = 4;
+  }
   data.saveVersion = SAVE_VERSION;
   return data;
 }
@@ -173,6 +183,8 @@ function normalizeLoadedState(parsed) {
   DECO_SLOTS.forEach(s => { if (!(s in G.deco.slots)) G.deco.slots[s] = null; });
   if (!G.storyFlags) G.storyFlags = {};
   if (!G.rivalWeekly) G.rivalWeekly = { weekKey:'', playerEarn:0, rivalTarget:0, claimed:false };
+  if (!G.fishMarket) G.fishMarket = { dayKey:'', prices:{}, spoilTick:0 };
+  if (!G.coachSeen) G.coachSeen = {};
   if (!G.fusion) G.fusion = { discovered:[], newDisc:[] };
   if (!G.storyData) G.storyData = { seenChapters:{}, pendingChapters:[] };
   if (!G.mgHighScores) G.mgHighScores = { rhythm:null, fish:null, memory:null };

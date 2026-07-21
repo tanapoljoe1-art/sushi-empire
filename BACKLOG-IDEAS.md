@@ -104,19 +104,25 @@
 - [x] Kitchen visual strip จาก deco  
 - [x] saveVersion → 3  
 
+## รอบ 8 — Fish market / Spoil / Coach / Post-mortem (2026-07-21)
+- [x] Daily fish market (ราคา seed รายวัน + แบนเนอร์ + ถูก/แพงบนชิป)  
+- [x] Resource tension: spoil วัตถุดิบสดเมื่อสต็อกสูง  
+- [x] Coach marks ครั้งแรก (cook / วัตถุดิบ / upgrade / perfect / rival)  
+- [x] Post-mortem Render auto-deploy → `POSTMORTEM-RENDER-AUTODEPLOY.md`  
+- [x] saveVersion → 4  
+
 ### ยังค้าง (infra + ต่อ)
-- [ ] **Render auto-deploy** — Connect ใหม่  
-- [ ] **Post-mortem** webhook  
-- [ ] Polish 3D kitchen ต่อ, battle pass, resource tension, …  
+- [ ] **Render auto-deploy** — ยังต้อง Connect มือบน dashboard (ดู post-mortem)  
+- [ ] Polish 3D kitchen ต่อ, battle pass, upgrade trees, …  
 
 ---
 
 # 🔜 คิวถัดไป (แนะนำทำตามลำดับ)
 
-1. Render Connect + post-mortem webhook  
-2. Resource tension / daily fish market  
-3. Coach marks / onboarding  
-4. Polish 3D + deco set visuals  
+1. Render Connect (ทำมือ) แล้ว verify push → deploy  
+2. Upgrade trees / soft systems depth  
+3. Polish 3D + accessibility  
+4. Battle pass เบา / seasonality  
 5. …ตาม Roadmap 30 วัน
 
 ---
@@ -133,8 +139,8 @@
 | `calcServeEarn` รวมศูนย์ | ✅ | |
 | Earn breakdown UI | ✅ | ใต้ earn preview |
 | ฿/min บน HUD | ✅ | chip 📈 |
-| Resource tension / spoil | 📋 | วัตถุดิบหมดอายุ หรือราคาตลาดขึ้นลง |
-| Daily fish market | 📋 | ราคา ing หมุนรายชั่วโมง/วัน |
+| Resource tension / spoil | ✅ | วัตถุดิบหมดอายุ หรือราคาตลาดขึ้นลง |
+| Daily fish market | ✅ | ราคา ing หมุนรายชั่วโมง/วัน |
 | Soft cap upgrades + diminishing | ✅ บางส่วน | BAL.upgradeCost โค้งนุ่ม + golden 35%/lv |
 | Upgrade trees 3 สาย | 📋 | Volume / Quality / Empire — respec แพง |
 | Debug panel (dev) | 📋 | ให้เงิน, skip time, force event |
@@ -344,7 +350,7 @@
 | ไอเดีย | สถานะ | รายละเอียด |
 |--------|--------|------------|
 | Progressive unlock แท็บ | ✅ | unlocks.js — staff3 mg3 deco4 fusion5 br8 prest15 |
-| Coach marks ครั้งแรกต่อระบบ | 📋 | |
+| Coach marks ครั้งแรกต่อระบบ | ✅ | |
 | ลดแท็บล่าง / รวม meta ใต้ “อาณาจักร” | 📋 | |
 | Accessibility: ปุ่มใหญ่, reduce motion | 📋 | มี anim setting แล้ว ขยายผล |
 | Title screen โชว์ ach / prestige skin | 📋 | |
@@ -394,7 +400,7 @@
 | ES modules + Vite | ✅ | |
 | Render deploy มือ | ใช้ได้ | |
 | Render **auto-deploy** หลัง recreate repo | 🔜 | Connect ใหม่ อย่า toggle ซ้ำ; permissions GitHub App ผ่านแล้ว |
-| Post-mortem webhook | 📋 | หลัง fix |
+| Post-mortem webhook | ✅ doc | `POSTMORTEM-RENDER-AUTODEPLOY.md` — ยังต้อง Connect มือ |
 | อย่า commit HANDOFF ถ้าไม่ต้องการ — แต่ **ควร push BACKLOG + ROADMAP** | 📋 | กันหายจาก /tmp |
 
 ---
