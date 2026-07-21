@@ -125,19 +125,25 @@
 - [x] Accessibility: reduce-motion + ปุ่มใหญ่ + persist settings  
 - [x] Spy ผิดเมนู → คิว −1 ชั่วคราว 60s  
 
+## รอบ 11 — Crisis choices / Map / Season (2026-07-21)
+- [x] Negative events 3 ทาง: ไฟดับ / สุขาภิบาล / Tsunami ลดราคา  
+- [x] Map UI สาขา (brMap + nodes)  
+- [x] Seasonality เบา (โบนัสเมนู + ราคา ing ตามฤดู)  
+- [x] Debug force crisis events  
+
 ### ยังค้าง (infra + ต่อ)
-- [ ] **Render auto-deploy** — Connect มือ (ดู post-mortem)  
-- [ ] Battle pass premium / seasonality เมนู  
-- [ ] Map UI / negative events  
+- [ ] **Render auto-deploy** — Connect มือ  
+- [ ] Battle pass premium  
+- [ ] Event log / player-triggered festival  
 
 ---
 
 # 🔜 คิวถัดไป (แนะนำทำตามลำดับ)
 
 1. Render Connect มือ  
-2. Negative events 3 ทางเลือก  
-3. Map UI สาขา  
-4. Seasonality / premium BP  
+2. Event log 10 รายการ  
+3. Player-triggered festival  
+4. Premium BP track  
 5. …ตาม Roadmap 30 วัน
 
 ---
@@ -188,7 +194,7 @@
 | Daily Special ×1.5–2 | ✅ | x1.75 + banner + quest |
 | Ingredient scarcity tiers | 📋 | Common / Rare / Auction |
 | เปลี่ยน gold/diamond ให้อยู่ธีมซูชิ | 📋 | ทรัฟเฟิล, ไข่ปลาคุณภาพ, ยูซุ ฯลฯ |
-| Seasonality | 🧊 | เมนูตามฤดู |
+| Seasonality | ✅ เบา | เมนูตามฤดู |
 
 ---
 
@@ -239,7 +245,7 @@
 | Forecast “อีก ~2 นาทีอาจ Rush” | ✅ | chip ⚡ + nextEventAt |
 | Cooldown ต่อชนิด + pity timer | ✅ | EVENT_COOLDOWN_MS + pity 90s |
 | Player-triggered event | 📋 | จ่ายเงินจัดเทศกาล |
-| Negative events + เลือกตอบ 3 ทาง | 📋 | ไฟดับ / สุขาภิบาล / คู่แข่งลดราคา |
+| Negative events + เลือกตอบ 3 ทาง | ✅ | ไฟดับ / สุขาภิบาล / คู่แข่งลดราคา |
 | Event log 10 รายการ | 📋 | รู้สึกมีโลก |
 | Event chain / quest ผูก event | 📋 | |
 
@@ -265,7 +271,7 @@
 | Per-branch specialization | ✅ พื้นฐาน | spec บน BRANCHES — weights + seafood/premium/patience/rating |
 | Manager assign ต่อสาขา | ✅ | select บนการ์ดสาขา · idle +20%+ |
 | Crisis ต่อสาขา (สลับไปแก้ 30วิ) | 📋 | |
-| Map UI โลก/เมือง | 📋 | แทน list การ์ดอย่างเดียว |
+| Map UI โลก/เมือง | ✅ | แทน list การ์ดอย่างเดียว |
 | Empire prestige ทางเลือก | 📋 | เงื่อนไขจำนวนสาขา |
 
 ---

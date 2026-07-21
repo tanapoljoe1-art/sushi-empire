@@ -7,6 +7,7 @@ import { updateNavDots } from '../systems/nav.js';
 import { refreshUnlockUI } from '../systems/unlocks.js';
 import { renderDailySpecialBanner, isDailySpecial, ensureDailySpecial } from '../systems/daily.js';
 import { ensureFishMarket, marketTag, renderMarketBanner } from '../systems/market.js';
+import { renderSeasonBanner } from '../systems/season.js';
 import { updateKitchenTheme } from './kitchen-scene.js';
 
 export function toast(msg) {
@@ -53,6 +54,7 @@ export function updateUI() {
   renderDailySpecialBanner();
   ensureFishMarket();
   renderMarketBanner();
+  renderSeasonBanner();
   updateKitchenTheme(G);
   renderMenu();
   updateNavDots();

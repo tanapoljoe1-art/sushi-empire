@@ -306,6 +306,7 @@
 <!-- ══ MAIN PAGE ══ -->
 <div class="pg on" id="pg-main">
   <div id="dailySpecialBanner" class="daily-special-banner" style="display:none"></div>
+  <div id="seasonBanner" class="season-banner" style="display:none"></div>
   <div id="marketBanner" class="market-banner" style="display:none"></div>
   <div id="rivalBanner" class="rival-banner" style="display:none"></div>
   <div class="resto" id="restoCard">
@@ -469,7 +470,9 @@
 
 <!-- ══ BRANCHES PAGE ══ -->
 <div class="pg" id="pg-br">
-  <div class="slbl">สาขาร้าน</div>
+  <div class="slbl">แผนที่อาณาจักร</div>
+  <div id="brMap" class="br-map" aria-label="Branch map"></div>
+  <div class="slbl">รายละเอียดสาขา</div>
   <div class="brlst" id="brList"></div>
 </div>
 
@@ -612,7 +615,8 @@
     <div class="mtitle" id="evMN">Rush Hour!</div>
     <div class="msub"   id="evMD">รายได้ x2 เป็นเวลา 60 วินาที!</div>
     <div class="mamt"   id="evMA">x2 💰</div>
-    <button class="mbtn red" onclick="closeEvent()">รับเลย! 🔥</button>
+    <div id="evChoices" class="ev-choices" style="display:none"></div>
+    <button class="mbtn red" id="evAcceptBtn" onclick="closeEvent()">รับเลย! 🔥</button>
   </div>
 </div>
 

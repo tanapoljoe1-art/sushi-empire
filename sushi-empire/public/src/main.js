@@ -19,11 +19,12 @@ import {
   cook, serve, buyIngredient, buyUpgrade, respecUpgrades, setUpgTreeFilter, buyBranch, switchBranch,
   showPrestModal, closePrest, doPrestige, closeAch, spawnQueue,
 } from './systems/game.js';
-import { closeEvent, closeVip, challengeVip, tickEventScheduler, updateEventForecastUI } from './systems/events.js';
+import { closeEvent, closeVip, challengeVip, tickEventScheduler, updateEventForecastUI, chooseEventOption } from './systems/events.js';
 import { refreshUnlockUI, markExistingUnlocksSeen } from './systems/unlocks.js';
 import { ensureDailySpecial } from './systems/daily.js';
 import { ensureRivalWeekly, renderRivalBanner, claimRivalReward } from './systems/rival.js';
 import { ensureFishMarket, renderMarketBanner, tickSpoil } from './systems/market.js';
+import { renderSeasonBanner } from './systems/season.js';
 import { runCoachSequence, dismissCoachTip } from './systems/coach.js';
 import { ensureBattlePass, renderBattlePass, claimBattlePassTier, claimAllBattlePass } from './systems/battlepass.js';
 import {
@@ -89,6 +90,7 @@ ensureRivalWeekly();
 renderRivalBanner();
 ensureFishMarket();
 renderMarketBanner();
+renderSeasonBanner();
 ensureBattlePass();
 renderBattlePass();
 applyA11yClasses();
@@ -164,7 +166,7 @@ setInterval(() => syncBgmToGame(G), 4000);
 // clicks that exact button, not at load time.
 Object.assign(window, {
   assignBranchManager, bnavDrawer, bnavGo, buyBranch, buyDeco, buyIngredient, buyPrestigeItem, buyUpgrade, claimAllBattlePass, claimBattlePassTier, claimQuest,
-  challengeVip, claimRivalReward, clearFusionSlot, closeAch, closeConfirm, closeDrawer, closeEvent, closeIdle,
+  challengeVip, claimRivalReward, clearFusionSlot, closeAch, closeConfirm, closeDrawer, chooseEventOption, closeEvent, closeIdle,
   closePause, closePrest, closeSettings, closeSpectateModal, closeVip, confirmOk, cook, ctxMgSkip, ctxMgTap, doFusion,
   doPrestige, drawerGo, fireStaff, goTab, hireStaff, hostFromModal, joinFromModal, leaveSpectateRoom, levelUpStaff, openPause,
   openSpectateModal, openStoryPing, pauseNewGame, pauseSettings, pauseToTitle, pickFusionIng,

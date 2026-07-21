@@ -20,6 +20,9 @@ const EVENT_COOLDOWN_MS = {
   festival: 100000,
   celebrity: 110000,
   lucky: 90000,
+  blackout: 100000,
+  inspect: 110000,
+  rival_sale: 95000,
 };
 
 const GLOBAL_GAP_MS = 28000; // minimum quiet time between events
@@ -32,8 +35,15 @@ function ensureEventState() {
 function eligibleEvents(now) {
   ensureEventState();
   let list = EVENTS.filter(e => {
+    // skip synthetic choice overlays
+    if (e.id && e.id.includes('_') && e.negative) return false;
+    if (e._overlay) return false;
     const cd = G.eventCooldowns[e.id] || 0;
-    return now >= cd;
+    if (now < cd) return false;
+    // negative crisis unlock mid-game
+    if (e.negative && (G.level || 1) < 5) return false;
+    // hide base defs that are only choice shells without dur when already handled
+    return true;
   });
   // VIP bias from deco
   if (G.decoVipBonus) {
@@ -121,12 +131,117 @@ function fireEvent(ev) {
     G._lastEventEndAt = Date.now();
     return;
   }
+  // Negative / choice events — pick 1 of 3 before any timer
+  if (ev.choice && Array.isArray(ev.choices)) {
+    showChoiceEvent(ev);
+    updateEventForecastUI();
+    return;
+  }
   G.eventTimeLeft = ev.dur;
   getEl('evMI').innerText = ev.icon;
   getEl('evMN').innerText = ev.name;
   getEl('evMD').innerText = ev.desc;
   getEl('evMA').innerText = ev.badge || '';
+  // hide choice box if present
+  const ch = getEl('evChoices');
+  if (ch) { ch.style.display = 'none'; ch.innerHTML = ''; }
+  const accept = getEl('evAcceptBtn');
+  if (accept) accept.style.display = '';
   getEl('eventModal').classList.add('vis');
+  updateEventForecastUI();
+}
+
+function showChoiceEvent(ev) {
+  getEl('evMI').innerText = ev.icon;
+  getEl('evMN').innerText = ev.name;
+  getEl('evMD').innerText = ev.desc;
+  getEl('evMA').innerText = ev.badge || 'เลือกทาง';
+  const accept = getEl('evAcceptBtn');
+  if (accept) accept.style.display = 'none';
+  let box = getEl('evChoices');
+  if (!box) {
+    box = document.createElement('div');
+    box.id = 'evChoices';
+    box.className = 'ev-choices';
+    getEl('eventModal').querySelector('.mbox')?.appendChild(box);
+  }
+  box.style.display = 'flex';
+  box.innerHTML = ev.choices.map((c, i) => {
+    const cost = choiceCost(c);
+    const costTxt = cost > 0 ? ` · ${cost.toLocaleString()}฿` : '';
+    return `<button type="button" class="ev-choice ${i===0?'primary':''}" onclick="chooseEventOption(${i})">
+      <div class="ev-ch-l">${c.label}${costTxt}</div>
+      <div class="ev-ch-d">${c.desc || ''}</div>
+    </button>`;
+  }).join('');
+  getEl('eventModal').classList.add('vis');
+}
+
+function choiceCost(c) {
+  if (!c) return 0;
+  if (c.cost != null) return c.cost;
+  if (c.costBase != null || c.costMult != null) {
+    return Math.round((c.costBase || 0) + (c.costMult || 0) * (G.level || 1));
+  }
+  return 0;
+}
+
+/** Player picked response for a choice event */
+export function chooseEventOption(idx) {
+  const ev = EVENTS.find(e => e.id === G.activeEvent);
+  if (!ev?.choices?.[idx]) return;
+  const c = ev.choices[idx];
+  const cost = choiceCost(c);
+  if (cost > 0 && G.money < cost) {
+    toast('✕ เงินไม่พอสำหรับทางนี้');
+    return;
+  }
+  if (cost > 0) G.money -= cost;
+  if (c.rating) G.rating = Math.min(100, G.rating + c.rating);
+
+  getEl('eventModal').classList.remove('vis');
+  const box = getEl('evChoices');
+  if (box) { box.style.display = 'none'; box.innerHTML = ''; }
+  const accept = getEl('evAcceptBtn');
+  if (accept) accept.style.display = '';
+
+  // Timed debuff/buff path
+  if (c.start && c.start.dur) {
+    // Merge temporary event fields onto a synthetic runtime overlay
+    G._choiceOverlay = { ...c.start, id: ev.id + '_' + c.id, icon: ev.icon, name: ev.name + ' · ' + c.label, desc: c.desc || '' };
+    G.activeEvent = G._choiceOverlay.id;
+    G.eventTimeLeft = c.start.dur;
+    // Register overlay so activeEvent() finds it — stash on EVENTS runtime
+    G._choiceOverlay._overlay = true;
+    if (!EVENTS.find(e => e.id === G._choiceOverlay.id)) {
+      EVENTS.push(G._choiceOverlay);
+    } else {
+      const i = EVENTS.findIndex(e => e.id === G._choiceOverlay.id);
+      EVENTS[i] = G._choiceOverlay;
+    }
+    showEventBanner();
+    clearInterval(eventCountdown);
+    eventCountdown = setInterval(() => {
+      G.eventTimeLeft--;
+      const el = getEl('evTimer');
+      if (el) el.innerText = G.eventTimeLeft + 's';
+      updateEventForecastUI();
+      if (G.eventTimeLeft <= 0) endEvent();
+    }, 1000);
+    toast(c.label);
+  } else {
+    // Instant resolve
+    G.activeEvent = null;
+    G.eventTimeLeft = 0;
+    const now = Date.now();
+    G.eventCooldowns[ev.id] = now + (EVENT_COOLDOWN_MS[ev.id] || 90000);
+    G._lastEventEndAt = now;
+    G.nextEventAt = now + GLOBAL_GAP_MS + Math.random() * 15000;
+    toast(c.label + (cost ? ` (−${cost.toLocaleString()}฿)` : ''));
+    trackQuestProgress('event');
+  }
+  updateUI();
+  save();
   updateEventForecastUI();
 }
 
@@ -203,7 +318,14 @@ export function endEvent() {
 
   const now = Date.now();
   const cdScale = G.shopEventCdMult || 1;
-  if (ev) G.eventCooldowns[ev.id] = now + Math.round((EVENT_COOLDOWN_MS[ev.id] || 60000) * cdScale);
+  if (ev) {
+    const baseId = (ev.id || '').split('_')[0];
+    const cdKey = EVENT_COOLDOWN_MS[ev.id] != null ? ev.id : (EVENT_COOLDOWN_MS[baseId] != null ? baseId : ev.id);
+    // map blackout_pay etc. → blackout
+    const negBase = ['blackout','inspect','rival'].find(k => (ev.id||'').startsWith(k));
+    const key = negBase || cdKey;
+    G.eventCooldowns[key] = now + Math.round((EVENT_COOLDOWN_MS[key] || EVENT_COOLDOWN_MS[baseId] || 60000) * cdScale);
+  }
   G._lastEventEndAt = now;
   G.nextEventAt = now + Math.round((GLOBAL_GAP_MS + 10000 + Math.random() * 20000) * cdScale);
 
@@ -288,22 +410,16 @@ export function challengeVip() {
 
 /** Debug / tests: force a named event by id */
 export function forceEvent(id) {
-  import('../core/state.js').then(({ G, save }) => {
-    import('../data.js').then(({ EVENTS }) => {
-      import('../ui/render.js').then(({ toast, updateUI }) => {
-        const def = EVENTS.find(e => e.id === id);
-        if (!def) { toast('ไม่พบ event ' + id); return; }
-        if (id === 'vip') {
-          triggerVIP();
-          return;
-        }
-        G.activeEvent = id;
-        G.eventTimeLeft = def.instant ? 0 : (def.dur || 60);
-        showEventBanner();
-        toast('Event: ' + (def.name || id));
-        updateUI();
-        save();
-      });
-    });
-  });
+  const def = EVENTS.find(e => e.id === id);
+  if (!def) {
+    toast('ไม่พบ event ' + id);
+    return;
+  }
+  if (document.querySelector('.mbg.vis')) {
+    document.querySelectorAll('.mbg.vis').forEach(el => el.classList.remove('vis'));
+  }
+  fireEvent(def);
+  toast('Event: ' + (def.name || id));
+  updateUI();
+  save();
 }

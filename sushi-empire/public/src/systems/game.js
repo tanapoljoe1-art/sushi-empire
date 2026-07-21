@@ -21,6 +21,7 @@ import { checkFeatureUnlocks } from './unlocks.js';
 import { dailySpecialMult, isDailySpecial } from './daily.js';
 import { applyPrestigeShop, renderPrestigeShop } from './prestige-shop.js';
 import { addBattlePassXp, bpXpForServe, renderBattlePass } from './battlepass.js';
+import { seasonMenuMult, seasonIngMult } from './season.js';
 
 let cookInt        = null;
 let nextCustomerId = 0;
@@ -140,6 +141,8 @@ export function calcServeEarn(menuId, opts = {}) {
   // Daily special
   const dsMult = dailySpecialMult(menuId);
   if (dsMult > 1) earn = Math.round(earn * dsMult);
+  const sMult = seasonMenuMult(menuId);
+  if (sMult > 1) earn = Math.round(earn * sMult);
 
   if (G.streak >= 5) {
     const sm = (G.decoStreakMult || 1) * fus.streakMult;
@@ -183,11 +186,13 @@ export function ingredientCost(id) {
   if (!ing) return 0;
   const ev  = activeEvent(G, EVENTS);
   let cost = ing.buyCost;
-  // Daily fish market mult (lazy import-free: read from G)
+  // Daily fish market mult
   try {
     const m = G.fishMarket?.prices?.[id];
     if (typeof m === 'number' && m > 0) cost = Math.round(cost * m);
   } catch (_) {}
+  // Season lean
+  try { cost = Math.round(cost * seasonIngMult(id)); } catch (_) {}
   if (ev?.ingredientDiscount) cost = Math.round(cost * (1 - ev.ingredientDiscount));
   return Math.max(1, cost);
 }
@@ -837,7 +842,43 @@ export function switchBranch(id) {
   toast('📍 สลักสาขาแล้ว!');
 }
 
+// Simple world map of branches (positions are art-directed, not geo)
+const BRANCH_MAP_POS = {
+  main: { x: 22, y: 58 },
+  mall: { x: 48, y: 42 },
+  beach: { x: 72, y: 68 },
+  airport: { x: 38, y: 22 },
+  tokyo: { x: 78, y: 28 },
+  paris: { x: 18, y: 28 },
+  dubai: { x: 62, y: 48 },
+  space: { x: 88, y: 12 },
+};
+
+function renderBranchMap() {
+  const map = getEl('brMap');
+  if (!map) return;
+  const nodes = BRANCHES.map(bd => {
+    const gb = G.branches.find(b => b.id === bd.id) || { owned: false };
+    const pos = BRANCH_MAP_POS[bd.id] || { x: 50, y: 50 };
+    const own = gb.owned;
+    const cur = G.activeBranch === bd.id;
+    const cls = cur ? 'cur' : own ? 'own' : 'locked';
+    const click = own
+      ? `switchBranch('${bd.id}')`
+      : `buyBranch('${bd.id}')`;
+    return `<button type="button" class="br-node ${cls}" style="left:${pos.x}%;top:${pos.y}%"
+      onclick="${click}" title="${bd.name} · ${bd.loc}">
+      <span class="br-node-e">${bd.emoji}</span>
+      <span class="br-node-n">${bd.name}</span>
+      ${cur ? '<span class="br-node-pip">●</span>' : ''}
+    </button>`;
+  }).join('');
+  map.innerHTML = `<div class="br-map-bg"></div><div class="br-map-label">🗺️ แผนที่อาณาจักร</div>${nodes}`;
+}
+
 export function renderBr() {
+
+  renderBranchMap();
   getEl('brList').innerHTML = BRANCHES.map(bd => {
     const gb  = G.branches.find(b => b.id === bd.id) || { id: bd.id, owned: false };
     const own = gb.owned;

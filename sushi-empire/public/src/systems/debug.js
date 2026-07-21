@@ -106,6 +106,9 @@ function panelEl() {
       <button type="button" onclick="debugForceEvent('rush')">Event Rush</button>
       <button type="button" onclick="debugForceEvent('critic')">Event Critic</button>
       <button type="button" onclick="debugForceEvent('vip')">Event VIP</button>
+      <button type="button" onclick="debugForceEvent('blackout')">ไฟดับ</button>
+      <button type="button" onclick="debugForceEvent('inspect')">สุขาภิบาล</button>
+      <button type="button" onclick="debugForceEvent('rival_sale')">Tsunami ลด</button>
       <button type="button" onclick="debugSpawnSpy()">คิว Spy</button>
       <button type="button" onclick="debugSpawnCriticCust()">คิว Critic</button>
       <button type="button" onclick="debugBpXp(50)">BP +50 XP</button>

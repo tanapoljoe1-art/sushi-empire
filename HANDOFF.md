@@ -16,14 +16,14 @@ Sushi Empire = idle/incremental ทำซูชิในเบราว์เซ
 
 ## State
 
-- **HEAD:** รอบ 10 (ดู git log)
-- **Done รอบ 10:** Debug panel · Critic/Spy customers · A11y bigTap/reduce-motion
+- **HEAD:** รอบ 11 (ดู git log)
+- **Done รอบ 11:** Crisis choice events · Branch map · Season banners
 - **Open infra:** Render **Connect** still manual (`POSTMORTEM-RENDER-AUTODEPLOY.md`)
 
 ## Next step (แนะนำ)
 1. Render Connect มือ + verify push→deploy
-2. Negative events 3 ทางเลือก
-3. Map UI สาขา
+2. Event log
+3. Player-triggered festival
 4. Live smoke หลัง deploy
 
 ## Then (เทคนิคเดิม ยังใช้ได้)

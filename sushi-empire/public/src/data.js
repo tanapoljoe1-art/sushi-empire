@@ -185,6 +185,44 @@ export const EVENTS = [
    earnMult:3, guaranteedVip:true, badge:'x3 💰 + VIP'},
   {id:'lucky',  name:'วันโชคดี! 🍀',   desc:'วัตถุดิบลดราคา 50% + Streak ไม่ลด', icon:'🍀', dur:120, color:'#2ecc71',
    ingredientDiscount:0.5, streakProtect:true, badge:'-50% วัตถุดิบ'},
+  // Negative events — player picks 1 of 3 responses (see events.js chooseEventOption)
+  {id:'blackout', name:'ไฟดับ! 🌑', desc:'ไฟฟ้าในครัวดับ — เลือกทางรับมือ', icon:'🌑', dur:0, color:'#64748b',
+   negative:true, choice:true, badge:'วิกฤต',
+   choices:[
+     {id:'pay', label:'⚡ จ้างช่างด่วน', desc:'จ่ายเงิน แก้ทันที', costMult:80, costBase:200},
+     {id:'endure', label:'🕯️ ใช้เทียน', desc:'รายได้ −40% · อดทน 50 วิ', start:{dur:50, earnMult:0.6, patienceMult:0.85, badge:'−40% ฿'}},
+     {id:'promo', label:'📢 โปรลดราคา', desc:'รายได้ −20% แต่คิว +1 · 40 วิ', start:{dur:40, earnMult:0.8, queueDelta:1, badge:'คิว+ · ฿−'}},
+   ]},
+  {id:'inspect', name:'ตรวจสุขาภิบาล 🧪', desc:'เจ้าหน้าที่มาตรวจร้าน — เลือกทางรับ', icon:'🧪', dur:0, color:'#22d3ee',
+   negative:true, choice:true, badge:'ตรวจ',
+   choices:[
+     {id:'comply', label:'✅ ร่วมมือเต็มที่', desc:'เสียเงิน + ได้ Rating', costMult:50, costBase:150, rating:5},
+     {id:'rush_clean', label:'🧹 เก็บกวาดด่วน', desc:'ความเร็ว −15% · 55 วิ', start:{dur:55, earnMult:0.9, badge:'ช้าลง'}},
+     {id:'bribe', label:'💼 ค่าดำเนินการ', desc:'จ่ายหนัก แต่จบเร็ว + ไม่ debuff', costMult:120, costBase:400},
+   ]},
+  {id:'rival_sale', name:'Tsunami ลดราคา! ⚔️', desc:'คู่แข่งจัดโปร — ลูกค้าหนี?', icon:'⚔️', dur:0, color:'#f43f5e',
+   negative:true, choice:true, badge:'คู่แข่ง',
+   choices:[
+     {id:'match', label:'📉 ลดราคาสู้', desc:'รายได้ −30% · คิว +1 · 60 วิ', start:{dur:60, earnMult:0.7, queueDelta:1, badge:'ลดราคา'}},
+     {id:'quality', label:'✨ เน้นคุณภาพ', desc:'Rating +3 · รายได้ปกติ · อดทนสูงขึ้น 45 วิ', start:{dur:45, patienceMult:1.2, ratingGainOverride:2, badge:'คุณภาพ'}, rating:3},
+     {id:'ignore', label:'🧘 ไม่สน', desc:'คิว −1 · 50 วิ แต่ไม่เสียเงิน', start:{dur:50, queueDelta:-1, earnMult:0.95, badge:'เงียบ'}},
+   ]},
+];
+
+/** Calendar seasons — bonus menus / ingredient price lean */
+export const SEASONS = [
+  { id:'spring', name:'ฤดูใบไม้ผลิ', emoji:'🌸', months:[2,3,4],
+    menuBoost:['sakura_maki','salmon','shrimp'], ingCheap:['salmon','nori'], ingDear:['uni'],
+    earnTag:'ซากุระ', menuEarnMult:1.12 },
+  { id:'summer', name:'ฤดูร้อน', emoji:'☀️', months:[5,6,7],
+    menuBoost:['shrimp','uni','tuna'], ingCheap:['shrimp','egg'], ingDear:['salmon'],
+    earnTag:'ซีฟู้ดร้อน', menuEarnMult:1.10 },
+  { id:'autumn', name:'ฤดูใบไม้ร่วง', emoji:'🍁', months:[8,9,10],
+    menuBoost:['uni','omakase','toro'], ingCheap:['uni','tuna'], ingDear:['shrimp'],
+    earnTag:'อูนิหน้า', menuEarnMult:1.14 },
+  { id:'winter', name:'ฤดูหนาว', emoji:'❄️', months:[11,0,1],
+    menuBoost:['omakase','dragon','wagyu'], ingCheap:['rice','nori'], ingDear:['wagyu','caviar'],
+    earnTag:'อุ่นเครื่อง', menuEarnMult:1.08 },
 ];
 
 export const PRESTIGE_BONUSES = [
