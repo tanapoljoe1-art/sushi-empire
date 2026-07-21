@@ -1,6 +1,6 @@
 // ── Host / Spectate rooms (Socket.IO) ─────────────────────────────────────────
 import { G, save } from '../core/state.js';
-import { getEl } from '../core/dom.js';
+import { getEl, escapeHtml } from '../core/dom.js';
 import { toast, updateUI } from '../ui/render.js';
 import { connectNet, getSocket } from './net.js';
 
@@ -26,7 +26,7 @@ function setHud() {
       <button class="sp-btn" onclick="leaveSpectateRoom()">ปิดห้อง</button>`;
   } else {
     const s = lastSnapshot || {};
-    el.innerHTML = `<span>👁 ชม · ${s.playerName || 'เชฟ'} · ห้อง <b>${roomCode || ''}</b></span>
+    el.innerHTML = `<span>👁 ชม · ${escapeHtml(s.playerName || 'เชฟ')} · ห้อง <b>${escapeHtml(roomCode || '')}</b></span>
       <span>💰 ${(s.money || 0).toLocaleString()} · Lv.${s.level || 1} · 🔥${s.streak || 0}</span>
       <div class="sp-react">
         <button class="sp-btn" onclick="sendReaction('👏')">👏</button>
@@ -207,7 +207,7 @@ export async function initSpectate() {
     const box = getEl('spectateChat');
     if (!box) return;
     const line = document.createElement('div');
-    line.innerHTML = `<b style="color:${isHost ? 'var(--gold)' : 'var(--teal)'}">${name}</b>: ${msg}`;
+    line.innerHTML = `<b style="color:${isHost ? 'var(--gold)' : 'var(--teal)'}">${escapeHtml(name)}</b>: ${escapeHtml(msg)}`;
     box.appendChild(line);
     box.scrollTop = box.scrollHeight;
   });

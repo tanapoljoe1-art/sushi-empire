@@ -116,7 +116,7 @@ async function ensureThree() {
     }
     steamGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     const steamMat = new THREE.PointsMaterial({
-      color: 0xffffff, size: 0.08, transparent: true, opacity: 0.25, depthAttenuation: true,
+      color: 0xffffff, size: 0.08, transparent: true, opacity: 0.25,
     });
     const steam = new THREE.Points(steamGeo, steamMat);
     steam.position.set(0.55, 0.45, 0.25);

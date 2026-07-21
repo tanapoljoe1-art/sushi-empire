@@ -1,7 +1,7 @@
 // ── Quests ────────────────────────────────────────────────────────────────────
 import { G, save, dayKeyUTC } from '../core/state.js';
 import { DAILY_POOL, WEEKLY_POOL, ACHIEVEMENTS, INGREDIENTS } from '../data.js';
-import { getEl } from '../core/dom.js';
+import { getEl, escapeHtml } from '../core/dom.js';
 import { toast, updateUI } from '../ui/render.js';
 
 export function initQuests() {
@@ -295,7 +295,7 @@ export async function renderLB() {
       <div class="lb-rank ${rankCls}">${medal}</div>
       <div class="lb-avatar">${r.emoji || '👤'}</div>
       <div class="lb-inf">
-        <div class="lb-name">${r.name}${isMe ? ' (คุณ)' : ''}</div>
+        <div class="lb-name">${escapeHtml(r.name)}${isMe ? ' (คุณ)' : ''}</div>
         <div class="lb-sub">Lv.${r.lv} · เสิร์ฟ ${r.served} ครั้ง</div>
       </div>
       <div class="lb-score">${r.score.toLocaleString()}<span>คะแนน</span></div>

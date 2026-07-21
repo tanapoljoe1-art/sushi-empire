@@ -42,6 +42,10 @@ function ensureDailyBoard() {
   }
 }
 
+function sanitizeName(name, fallback) {
+  return String(name ?? '').trim().slice(0, 20) || fallback;
+}
+
 function makeRoomCode() {
   const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = '';
@@ -70,7 +74,7 @@ io.on('connection', (socket) => {
 
   socket.on('createRoom', ({ playerName }) => {
     const code = makeRoomCode();
-    rooms.set(code, { host: socket.id, hostName: playerName || 'เชฟ', spectators: [], snapshot: null });
+    rooms.set(code, { host: socket.id, hostName: sanitizeName(playerName, 'เชฟ'), spectators: [], snapshot: null });
     socket.join(code);
     socket.roomCode = code;
     socket.isHost   = true;
@@ -97,7 +101,7 @@ io.on('connection', (socket) => {
     socket.join(code);
     socket.roomCode   = code;
     socket.isHost     = false;
-    socket.viewerName = viewerName || 'ผู้ชม';
+    socket.viewerName = sanitizeName(viewerName, 'ผู้ชม');
     room.spectators.push({ id: socket.id, name: socket.viewerName });
     socket.emit('joinedRoom', { code, hostName: room.hostName, snapshot: room.snapshot, spectators: room.spectators });
     io.to(room.host).emit('spectatorJoined', { name: socket.viewerName, count: room.spectators.length });
@@ -120,9 +124,14 @@ io.on('connection', (socket) => {
   });
 
   socket.on('submitScore', ({ name, score, level, served, prestige, day }) => {
+    const now = Date.now();
+    if (socket._lastScoreAt && now - socket._lastScoreAt < 3000) return; // rate limit: 1 submit / 3s
+    socket._lastScoreAt = now;
+
     ensureDailyBoard();
+    const cleanName = sanitizeName(name, 'เชฟ');
     const entry = {
-      name,
+      name: cleanName,
       score: Number(score) || 0,
       level: Number(level) || 1,
       served: Number(served) || 0,
@@ -132,9 +141,9 @@ io.on('connection', (socket) => {
     };
 
     // All-time (best score per name wins)
-    const prevAll = leaderboard.find(r => r.name === name);
+    const prevAll = leaderboard.find(r => r.name === cleanName);
     if (!prevAll || entry.score >= prevAll.score) {
-      leaderboard = leaderboard.filter(r => r.name !== name);
+      leaderboard = leaderboard.filter(r => r.name !== cleanName);
       leaderboard.push({ ...entry });
       leaderboard.sort((a, b) => b.score - a.score);
       leaderboard = leaderboard.slice(0, 50);
@@ -142,9 +151,9 @@ io.on('connection', (socket) => {
 
     // Daily board — only if client day matches server UTC day
     if (!day || day === dailyDayKey) {
-      const prevD = dailyLeaderboard.find(r => r.name === name);
+      const prevD = dailyLeaderboard.find(r => r.name === cleanName);
       if (!prevD || entry.score >= prevD.score) {
-        dailyLeaderboard = dailyLeaderboard.filter(r => r.name !== name);
+        dailyLeaderboard = dailyLeaderboard.filter(r => r.name !== cleanName);
         dailyLeaderboard.push({ ...entry, day: dailyDayKey });
         dailyLeaderboard.sort((a, b) => b.score - a.score);
         dailyLeaderboard = dailyLeaderboard.slice(0, 50);

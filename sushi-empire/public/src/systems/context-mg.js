@@ -37,6 +37,7 @@ function animate() {
 
 export function startContextChallenge(kind, { title, desc, onWin, onLose, skipLabel } = {}) {
   if (ctx.active) return;
+  if (document.querySelector('.mbg.vis')) return; // don't stack over another open modal (e.g. VIP from a guaranteedVip event)
   ctx.active = true;
   ctx.kind = kind || 'vip';
   ctx.hits = 0;

@@ -25,7 +25,7 @@ const EVENT_COOLDOWN_MS = {
   rival_sale: 95000,
 };
 
-const GLOBAL_GAP_MS = 28000; // minimum quiet time between events
+const GLOBAL_GAP_MS = 55000; // minimum quiet time between events
 
 function ensureEventState() {
   if (!G.eventCooldowns || typeof G.eventCooldowns !== 'object') G.eventCooldowns = {};
@@ -187,12 +187,12 @@ export function tickEventScheduler() {
 
   // Chance rises with marketing upgrade; pity after long quiet gap
   const quietFor = now - (G._lastEventEndAt || (now - 60000));
-  const pity = quietFor > 90000;
-  const chance = pity ? 1 : (0.32 + (G.up.marketing || 0) * 0.08);
+  const pity = quietFor > 150000;
+  const chance = pity ? 1 : (0.16 + (G.up.marketing || 0) * 0.05);
 
   if (Math.random() > chance) {
     // Missed roll — try again soon
-    G.nextEventAt = now + 8000 + Math.random() * 10000;
+    G.nextEventAt = now + 15000 + Math.random() * 15000;
     return;
   }
 
@@ -368,9 +368,11 @@ export function closeEvent() {
   }
   if (ev.guaranteedVip) triggerVIP();
 
-  // Critic: optional skill check after accepting the event
+  // Critic: optional skill check after accepting the event — waits for any
+  // modal opened by this same event (e.g. guaranteedVip's vipModal) to close
+  // first, so the two never show stacked on top of each other.
   if (ev.id === 'critic') {
-    setTimeout(() => {
+    const startCriticChallenge = () => {
       startContextChallenge('critic', {
         title: '📰 นักวิจารณ์ทดสอบ!',
         desc: 'ตัดให้ตรงโซนเขียว 3 ครั้ง — ผ่านแล้วได้ Rating โบนัส',
@@ -388,7 +390,17 @@ export function closeEvent() {
           updateUI();
         },
       });
-    }, 350);
+    };
+    let attemptsLeft = 40; // ~20s worth of polling before giving up
+    const waitThenStart = () => {
+      if (document.querySelector('.mbg.vis')) {
+        if (--attemptsLeft <= 0) return; // player left another modal open — skip this bonus check
+        setTimeout(waitThenStart, 500);
+        return;
+      }
+      startCriticChallenge();
+    };
+    setTimeout(waitThenStart, 350);
   }
 }
 

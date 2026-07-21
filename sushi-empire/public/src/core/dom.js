@@ -8,3 +8,10 @@ export function getEl(id) {
   if (!_cache[id]) _cache[id] = document.getElementById(id);
   return _cache[id];
 }
+
+// Escapes user-supplied text (e.g. player names) before interpolating into innerHTML.
+export function escapeHtml(str) {
+  return String(str ?? '').replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[c]));
+}
