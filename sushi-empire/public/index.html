@@ -181,103 +181,6 @@
 <canvas id="bgCanvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;"></canvas>
 <div class="shell">
 
-<!-- ══ BOTTOM NAV ══ -->
-<div class="bnav" id="bnav">
-  <button class="bntab on" id="bnt-main" onclick="bnavGo('main')">
-    <span class="bntab-ico">🍣</span>
-    <span class="bntab-lbl">ร้าน</span>
-  </button>
-  <button class="bntab" id="bnt-play" onclick="bnavDrawer('play')">
-    <span class="bntab-ico">🎮</span>
-    <span class="bntab-lbl">เล่น</span>
-    <span class="bdot" id="dot-play"></span>
-  </button>
-  <button class="bntab" id="bnt-team" onclick="bnavDrawer('team')">
-    <span class="bntab-ico">👨‍🍳</span>
-    <span class="bntab-lbl">ทีม</span>
-  </button>
-  <button class="bntab" id="bnt-prog" onclick="bnavDrawer('prog')">
-    <span class="bntab-ico">📊</span>
-    <span class="bntab-lbl">Progress</span>
-    <span class="bdot" id="dot-prog"></span>
-  </button>
-  <button class="bntab" id="bnt-shop" onclick="bnavDrawer('shop')">
-    <span class="bntab-ico">🏪</span>
-    <span class="bntab-lbl">Shop</span>
-  </button>
-</div>
-
-<!-- ══ DRAWER BACKDROP ══ -->
-<div class="drawer-bg" id="drawerBg" onclick="closeDrawer()"></div>
-
-<!-- ══ PLAY DRAWER ══ -->
-<div class="drawer" id="drawer-play">
-  <div class="drawer-handle"></div>
-  <div class="drawer-title">เลือกกิจกรรม</div>
-  <div class="drawer-grid">
-    <div class="ditem" id="ditem-mg"     onclick="drawerGo('mg','play')">
-      <span class="ditem-ico">🎮</span>
-      <div><div class="ditem-txt">Mini-game</div><div class="ditem-sub">3 เกม · รับรางวัล</div></div>
-    </div>
-    <div class="ditem" id="ditem-fusion" onclick="drawerGo('fusion','play')">
-      <span class="ditem-ico">🧪</span>
-      <div><div class="ditem-txt">Fusion Lab</div><div class="ditem-sub">ค้นพบเมนูลับ</div></div>
-    </div>
-  </div>
-</div>
-
-<!-- ══ TEAM DRAWER ══ -->
-<div class="drawer" id="drawer-team">
-  <div class="drawer-handle"></div>
-  <div class="drawer-title">จัดการทีม</div>
-  <div class="drawer-grid">
-    <div class="ditem" id="ditem-staff" onclick="drawerGo('staff','team')">
-      <span class="ditem-ico">👨‍🍳</span>
-      <div><div class="ditem-txt">ทีมงาน</div><div class="ditem-sub">จ้าง · skill tree</div></div>
-    </div>
-    <div class="ditem" id="ditem-deco" onclick="drawerGo('deco','team')">
-      <span class="ditem-ico">🎨</span>
-      <div><div class="ditem-txt">ตกแต่ง</div><div class="ditem-sub">bonus ร้าน</div></div>
-    </div>
-  </div>
-</div>
-
-<!-- ══ PROGRESS DRAWER ══ -->
-<div class="drawer" id="drawer-prog">
-  <div class="drawer-handle"></div>
-  <div class="drawer-title">ความคืบหน้า</div>
-  <div class="drawer-grid">
-    <div class="ditem" id="ditem-quest" onclick="drawerGo('quest','prog')">
-      <span class="ditem-ico">📋</span>
-      <div><div class="ditem-txt">Quest</div><div class="ditem-sub">Daily · Weekly</div></div>
-    </div>
-    <div class="ditem" id="ditem-lb" onclick="drawerGo('lb','prog')">
-      <span class="ditem-ico">🏅</span>
-      <div><div class="ditem-txt">อันดับ</div><div class="ditem-sub">Leaderboard</div></div>
-    </div>
-    <div class="ditem" id="ditem-ach" onclick="drawerGo('ach','prog')">
-      <span class="ditem-ico">🏆</span>
-      <div><div class="ditem-txt">ความสำเร็จ</div><div class="ditem-sub">Achievements</div></div>
-    </div>
-  </div>
-</div>
-
-<!-- ══ SHOP DRAWER ══ -->
-<div class="drawer" id="drawer-shop">
-  <div class="drawer-handle"></div>
-  <div class="drawer-title">ร้านค้าและขยายกิจการ</div>
-  <div class="drawer-grid">
-    <div class="ditem" id="ditem-br" onclick="drawerGo('br','shop')">
-      <span class="ditem-ico">🏪</span>
-      <div><div class="ditem-txt">สาขา</div><div class="ditem-sub">ขยายกิจการ</div></div>
-    </div>
-    <div class="ditem" id="ditem-prest" onclick="drawerGo('prest','shop')">
-      <span class="ditem-ico">✨</span>
-      <div><div class="ditem-txt">Prestige</div><div class="ditem-sub">รีเซ็ต · bonus</div></div>
-    </div>
-  </div>
-</div>
-
 <header>
   <div class="logo">🍣 <span>SUSHI EMPIRE<span class="logo-sub">すし帝国</span></span></div>
   <div class="hstats">
@@ -606,6 +509,109 @@
 </div>
 
 </div><!-- end .shell -->
+
+<!-- ══ BOTTOM NAV ══ -->
+<!-- Outside .shell so it can't be trapped below body-level fixed siblings — same
+     reasoning as the drawer block and cook button below. -->
+<div class="bnav" id="bnav">
+  <button class="bntab on" id="bnt-main" onclick="bnavGo('main')">
+    <span class="bntab-ico">🍣</span>
+    <span class="bntab-lbl">ร้าน</span>
+  </button>
+  <button class="bntab" id="bnt-play" onclick="bnavDrawer('play')">
+    <span class="bntab-ico">🎮</span>
+    <span class="bntab-lbl">เล่น</span>
+    <span class="bdot" id="dot-play"></span>
+  </button>
+  <button class="bntab" id="bnt-team" onclick="bnavDrawer('team')">
+    <span class="bntab-ico">👨‍🍳</span>
+    <span class="bntab-lbl">ทีม</span>
+  </button>
+  <button class="bntab" id="bnt-prog" onclick="bnavDrawer('prog')">
+    <span class="bntab-ico">📊</span>
+    <span class="bntab-lbl">Progress</span>
+    <span class="bdot" id="dot-prog"></span>
+  </button>
+  <button class="bntab" id="bnt-shop" onclick="bnavDrawer('shop')">
+    <span class="bntab-ico">🏪</span>
+    <span class="bntab-lbl">Shop</span>
+  </button>
+</div>
+
+<!-- ══ DRAWER BACKDROP + SUB-MENU DRAWERS ══ -->
+<!-- Outside .shell for the same reason as the cook button below: .shell has
+     position:relative;z-index:1, which creates its own stacking context, so
+     any fixed-position overlay nested inside it can never out-rank a body-level
+     sibling like #cookWrap/#bnav no matter how high its own z-index reads. -->
+<div class="drawer-bg" id="drawerBg" onclick="closeDrawer()"></div>
+
+<!-- ══ PLAY DRAWER ══ -->
+<div class="drawer" id="drawer-play">
+  <div class="drawer-handle"></div>
+  <div class="drawer-title">เลือกกิจกรรม</div>
+  <div class="drawer-grid">
+    <div class="ditem" id="ditem-mg"     onclick="drawerGo('mg','play')">
+      <span class="ditem-ico">🎮</span>
+      <div><div class="ditem-txt">Mini-game</div><div class="ditem-sub">3 เกม · รับรางวัล</div></div>
+    </div>
+    <div class="ditem" id="ditem-fusion" onclick="drawerGo('fusion','play')">
+      <span class="ditem-ico">🧪</span>
+      <div><div class="ditem-txt">Fusion Lab</div><div class="ditem-sub">ค้นพบเมนูลับ</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TEAM DRAWER ══ -->
+<div class="drawer" id="drawer-team">
+  <div class="drawer-handle"></div>
+  <div class="drawer-title">จัดการทีม</div>
+  <div class="drawer-grid">
+    <div class="ditem" id="ditem-staff" onclick="drawerGo('staff','team')">
+      <span class="ditem-ico">👨‍🍳</span>
+      <div><div class="ditem-txt">ทีมงาน</div><div class="ditem-sub">จ้าง · skill tree</div></div>
+    </div>
+    <div class="ditem" id="ditem-deco" onclick="drawerGo('deco','team')">
+      <span class="ditem-ico">🎨</span>
+      <div><div class="ditem-txt">ตกแต่ง</div><div class="ditem-sub">bonus ร้าน</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PROGRESS DRAWER ══ -->
+<div class="drawer" id="drawer-prog">
+  <div class="drawer-handle"></div>
+  <div class="drawer-title">ความคืบหน้า</div>
+  <div class="drawer-grid">
+    <div class="ditem" id="ditem-quest" onclick="drawerGo('quest','prog')">
+      <span class="ditem-ico">📋</span>
+      <div><div class="ditem-txt">Quest</div><div class="ditem-sub">Daily · Weekly</div></div>
+    </div>
+    <div class="ditem" id="ditem-lb" onclick="drawerGo('lb','prog')">
+      <span class="ditem-ico">🏅</span>
+      <div><div class="ditem-txt">อันดับ</div><div class="ditem-sub">Leaderboard</div></div>
+    </div>
+    <div class="ditem" id="ditem-ach" onclick="drawerGo('ach','prog')">
+      <span class="ditem-ico">🏆</span>
+      <div><div class="ditem-txt">ความสำเร็จ</div><div class="ditem-sub">Achievements</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SHOP DRAWER ══ -->
+<div class="drawer" id="drawer-shop">
+  <div class="drawer-handle"></div>
+  <div class="drawer-title">ร้านค้าและขยายกิจการ</div>
+  <div class="drawer-grid">
+    <div class="ditem" id="ditem-br" onclick="drawerGo('br','shop')">
+      <span class="ditem-ico">🏪</span>
+      <div><div class="ditem-txt">สาขา</div><div class="ditem-sub">ขยายกิจการ</div></div>
+    </div>
+    <div class="ditem" id="ditem-prest" onclick="drawerGo('prest','shop')">
+      <span class="ditem-ico">✨</span>
+      <div><div class="ditem-txt">Prestige</div><div class="ditem-sub">รีเซ็ต · bonus</div></div>
+    </div>
+  </div>
+</div>
 
 <!-- COOK BUTTON — outside .shell so fixed stacking is not trapped by shell z-index -->
 <div class="cookwrap" id="cookWrap">
