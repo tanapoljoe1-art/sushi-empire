@@ -1,0 +1,116 @@
+// ── Entry point ────────────────────────────────────────────────────────────────
+import { G, load, save } from './core/state.js';
+import { MENUS, FUSION_RECIPES, BRANCHES } from './data.js';
+import { getEl } from './core/dom.js';
+import { startGameBg } from './ui/background.js';
+import { updateUI, renderUpgrades, renderIngredients, updateEarnPreview, selMenu } from './ui/render.js';
+import { spawnSteam } from './ui/kitchen-scene.js';
+import { settings } from './systems/audio.js';
+import {
+  cook, serve, buyIngredient, buyUpgrade, buyBranch, switchBranch,
+  showPrestModal, closePrest, doPrestige, closeAch, spawnQueue,
+} from './systems/game.js';
+import { closeEvent, closeVip, triggerRandomEvent } from './systems/events.js';
+import { applyAllStaffBonuses, renderStaff, hireStaff, levelUpStaff, restStaff, fireStaff, unlockSkill } from './systems/staff.js';
+import { applyDecoBonus, buyDeco } from './systems/decoration.js';
+import { initQuests, claimQuest, submitScore, savePlayerName } from './systems/progress.js';
+import { initStory, checkStoryTriggers, openStoryPing, storyChoose, storyTapOutside } from './systems/story.js';
+import { initFusion, doFusion, pickFusionIng, clearFusionSlot } from './systems/fusion.js';
+import { selectMG, rhTap, startSlice, startMemory } from './systems/minigames.js';
+import { closeIdle } from './core/state.js';
+import {
+  goTab, bnavGo, bnavDrawer, drawerGo, closeDrawer,
+  titleContinue, titleNewGame, titleDeleteSave, titleSettings, initTitleScreen,
+  openPause, closePause, pauseSettings, pauseToTitle, pauseNewGame,
+  closeConfirm, confirmOk, closeSettings, toggleSetting,
+} from './systems/nav.js';
+
+// ── Background canvas ─────────────────────────────────────────────────────────
+startGameBg();
+
+// ── Initialisation ────────────────────────────────────────────────────────────
+
+load();
+
+// Restore fusion menus discovered in a previous session
+(G.fusion && G.fusion.discovered || []).forEach(id => {
+  if (!MENUS.find(m => m.id === id)) {
+    const r = FUSION_RECIPES.find(x => x.id === id);
+    if (r) {
+      const fusionIng = {};
+      r.combo.forEach(k => fusionIng[k] = (fusionIng[k] || 0) + 1);
+      MENUS.push({ id:r.id, name:r.name, emoji:r.emoji, price:r.price,
+                   time:r.time, unlockLv:1, ing:fusionIng, isFusion:true });
+    }
+  }
+});
+
+applyAllStaffBonuses();
+applyDecoBonus();
+initQuests();
+initStory();
+initFusion();
+
+spawnQueue();
+spawnSteam();
+updateUI();
+renderUpgrades();
+renderIngredients();
+updateEarnPreview();
+
+// ── Periodic intervals ────────────────────────────────────────────────────────
+
+// Auto-save every 10 s
+setInterval(() => { if (settings.autosave) save(); }, 10000);
+
+// Passive income from owned branches (not active) — runs every 1 s
+setInterval(() => {
+  G.branches.forEach(b => {
+    if (b.owned && b.id !== G.activeBranch) {
+      const bd = BRANCHES.find(x => x.id === b.id);
+      if (bd) G.money += Math.round(bd.idleRate / 60);
+    }
+  });
+  updateUI();
+}, 1000);
+
+// Staff mood decay every 30 s
+setInterval(() => {
+  const anyHired = Object.keys(G.staff || {}).some(id => G.staff[id] && G.staff[id].hired);
+  if (!anyHired) return;
+  Object.values(G.staff || {}).forEach(info => {
+    if (info.hired && info.mood != null) info.mood = Math.max(10, (info.mood || 100) - 0.3);
+  });
+  const staffTab = getEl('tab-staff');
+  if (staffTab && staffTab.classList.contains('on')) renderStaff();
+}, 30000);
+
+// Story trigger check every 20 s
+setInterval(checkStoryTriggers, 20000);
+
+// Random event scheduler — periodic chance to trigger Rush Hour/VIP/Critic/Storm/etc.
+setInterval(() => {
+  if (G.activeEvent) return;
+  if (Math.random() < 0.2) triggerRandomEvent();
+}, 15000);
+
+// ── window-attach: index.html and template-string HTML use onclick="fn(...)"
+// attributes, which only resolve against `window`. This is the definitive set —
+// verified by grepping every onclick/oninput across index.html and every JS
+// file for the function name it invokes (51 names). Keep this list and that
+// grep in sync; a name missing here throws ReferenceError only when a player
+// clicks that exact button, not at load time.
+Object.assign(window, {
+  bnavDrawer, bnavGo, buyBranch, buyDeco, buyIngredient, buyUpgrade, claimQuest,
+  clearFusionSlot, closeAch, closeConfirm, closeDrawer, closeEvent, closeIdle,
+  closePause, closePrest, closeSettings, closeVip, confirmOk, cook, doFusion,
+  doPrestige, drawerGo, fireStaff, goTab, hireStaff, levelUpStaff, openPause,
+  openStoryPing, pauseNewGame, pauseSettings, pauseToTitle, pickFusionIng,
+  restStaff, rhTap, savePlayerName, selMenu, selectMG, serve, showPrestModal,
+  startMemory, startSlice, storyChoose, storyTapOutside, submitScore,
+  switchBranch, titleContinue, titleDeleteSave, titleNewGame, titleSettings,
+  toggleSetting, unlockSkill,
+});
+
+// Show title screen last (after everything is initialised)
+initTitleScreen();

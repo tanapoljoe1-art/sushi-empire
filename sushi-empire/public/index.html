@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>🍣 Sushi Empire</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;700;900&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ══════════ TITLE SCREEN ══════════ -->
+<div id="titleScreen">
+  <canvas id="bgCanvas2" style="position:absolute;inset:0;z-index:0;pointer-events:none;opacity:.6;"></canvas>
+
+  <div class="ts-logo-wrap">
+    <span class="ts-emoji">🍣</span>
+    <div class="ts-title">SUSHI EMPIRE</div>
+    <div class="ts-sub">すし帝国</div>
+    <div class="ts-tagline">จากร้านเล็ก สู่อาณาจักรซูชิ</div>
+  </div>
+
+  <div class="ts-save-preview" id="tsSavePreview" style="display:none">
+    <div class="ts-save-row">
+      <div class="ts-save-ico">🏪</div>
+      <div class="ts-save-inf">
+        <div class="ts-save-name" id="tsSaveName">Loading...</div>
+        <div class="ts-save-sub" id="tsSaveSub"></div>
+      </div>
+      <div style="font-size:12px;color:var(--gold)">▶</div>
+    </div>
+  </div>
+
+  <div class="ts-btns" id="tsBtns">
+    <button class="ts-btn primary" id="btnContinue" style="display:none" onclick="titleContinue()">
+      <span class="ts-btn-ico">▶️</span><span class="ts-btn-txt">เล่นต่อ</span><span class="ts-btn-arr">›</span>
+    </button>
+    <button class="ts-btn primary" id="btnNewGame" onclick="titleNewGame()">
+      <span class="ts-btn-ico">🍣</span><span class="ts-btn-txt">เริ่มเกมใหม่</span><span class="ts-btn-arr">›</span>
+    </button>
+    <button class="ts-btn purple" onclick="titleSettings()">
+      <span class="ts-btn-ico">⚙️</span><span class="ts-btn-txt">ตั้งค่า</span><span class="ts-btn-arr">›</span>
+    </button>
+    <button class="ts-btn danger" id="btnDeleteSave" style="display:none" onclick="titleDeleteSave()">
+      <span class="ts-btn-ico">🗑️</span><span class="ts-btn-txt">ลบเซฟ</span><span class="ts-btn-arr">›</span>
+    </button>
+  </div>
+  <div class="ts-ver">v5.0 · Sushi Empire © 2025</div>
+</div>
+
+<!-- ══════════ PAUSE MENU ══════════ -->
+<div id="pauseMenu">
+  <div class="pm-box">
+    <div class="pm-logo">🍣</div>
+    <div class="pm-game-title">SUSHI EMPIRE</div>
+    <div class="pm-stats">
+      <div class="pm-stat"><span class="pm-stat-v" id="pm_money">-</span><div class="pm-stat-l">เงิน ฿</div></div>
+      <div class="pm-stat"><span class="pm-stat-v" id="pm_level">-</span><div class="pm-stat-l">Level</div></div>
+      <div class="pm-stat"><span class="pm-stat-v" id="pm_served">-</span><div class="pm-stat-l">เสิร์ฟ</div></div>
+    </div>
+    <div class="pm-div"></div>
+    <div class="pm-btns">
+      <button class="pm-btn resume"  onclick="closePause()"><span>▶️</span> เล่นต่อ</button>
+      <button class="pm-btn settings" onclick="pauseSettings()"><span>⚙️</span> ตั้งค่า</button>
+      <button class="pm-btn title"   onclick="pauseToTitle()"><span>🏠</span> กลับหน้าหลัก</button>
+      <button class="pm-btn newgame" onclick="pauseNewGame()"><span>🔄</span> เริ่มเกมใหม่</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CONFIRM DIALOG ══════════ -->
+<div id="confirmDlg">
+  <div class="cd-box">
+    <div class="cd-icon"  id="cdIcon">⚠️</div>
+    <div class="cd-title" id="cdTitle">แน่ใจไหม?</div>
+    <div class="cd-sub"   id="cdSub">การกระทำนี้ไม่สามารถย้อนกลับได้</div>
+    <div class="cd-btns">
+      <button class="cd-btn cancel" onclick="closeConfirm()">ยกเลิก</button>
+      <button class="cd-btn red"    id="cdOkBtn" onclick="confirmOk()">ยืนยัน</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ SETTINGS MODAL ══════════ -->
+<div class="mbg" id="settingsModal">
+  <div class="mbox" style="max-width:320px">
+    <div class="mtitle" style="margin-bottom:14px">⚙️ ตั้งค่า</div>
+    <div class="set-row">
+      <div class="set-ico">🔊</div>
+      <div class="set-inf"><div class="set-lbl">เสียง</div><div class="set-sub">เอฟเฟกต์เสียง</div></div>
+      <button class="toggle on" id="toggleSound" onclick="toggleSetting('sound')"></button>
+    </div>
+    <div class="set-row">
+      <div class="set-ico">✨</div>
+      <div class="set-inf"><div class="set-lbl">Animation</div><div class="set-sub">ลด motion ถ้าช้า</div></div>
+      <button class="toggle on" id="toggleAnim" onclick="toggleSetting('anim')"></button>
+    </div>
+    <div class="set-row">
+      <div class="set-ico">🌙</div>
+      <div class="set-inf"><div class="set-lbl">Auto-save</div><div class="set-sub">บันทึกทุก 10 วินาที</div></div>
+      <button class="toggle on" id="toggleAutoSave" onclick="toggleSetting('autosave')"></button>
+    </div>
+    <div class="pm-div"></div>
+    <button class="mbtn" onclick="closeSettings()" style="margin-top:0">ปิด</button>
+  </div>
+</div>
+
+<canvas id="bgCanvas" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;"></canvas>
+<div class="shell">
+
+<!-- ══ BOTTOM NAV ══ -->
+<div class="bnav" id="bnav">
+  <button class="bntab on" id="bnt-main" onclick="bnavGo('main')">
+    <span class="bntab-ico">🍣</span>
+    <span class="bntab-lbl">ร้าน</span>
+  </button>
+  <button class="bntab" id="bnt-play" onclick="bnavDrawer('play')">
+    <span class="bntab-ico">🎮</span>
+    <span class="bntab-lbl">เล่น</span>
+    <span class="bdot" id="dot-play"></span>
+  </button>
+  <button class="bntab" id="bnt-team" onclick="bnavDrawer('team')">
+    <span class="bntab-ico">👨‍🍳</span>
+    <span class="bntab-lbl">ทีม</span>
+  </button>
+  <button class="bntab" id="bnt-prog" onclick="bnavDrawer('prog')">
+    <span class="bntab-ico">📊</span>
+    <span class="bntab-lbl">Progress</span>
+    <span class="bdot" id="dot-prog"></span>
+  </button>
+  <button class="bntab" id="bnt-shop" onclick="bnavDrawer('shop')">
+    <span class="bntab-ico">🏪</span>
+    <span class="bntab-lbl">Shop</span>
+  </button>
+</div>
+
+<!-- ══ DRAWER BACKDROP ══ -->
+<div class="drawer-bg" id="drawerBg" onclick="closeDrawer()"></div>
+
+<!-- ══ PLAY DRAWER ══ -->
+<div class="drawer" id="drawer-play">
+  <div class="drawer-handle"></div>
+  <div class="drawer-title">เลือกกิจกรรม</div>
+  <div class="drawer-grid">
+    <div class="ditem" id="ditem-mg"     onclick="drawerGo('mg','play')">
+      <span class="ditem-ico">🎮</span>
+      <div><div class="ditem-txt">Mini-game</div><div class="ditem-sub">3 เกม · รับรางวัล</div></div>
+    </div>
+    <div class="ditem" id="ditem-fusion" onclick="drawerGo('fusion','play')">
+      <span class="ditem-ico">🧪</span>
+      <div><div class="ditem-txt">Fusion Lab</div><div class="ditem-sub">ค้นพบเมนูลับ</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TEAM DRAWER ══ -->
+<div class="drawer" id="drawer-team">
+  <div class="drawer-handle"></div>
+  <div class="drawer-title">จัดการทีม</div>
+  <div class="drawer-grid">
+    <div class="ditem" id="ditem-staff" onclick="drawerGo('staff','team')">
+      <span class="ditem-ico">👨‍🍳</span>
+      <div><div class="ditem-txt">ทีมงาน</div><div class="ditem-sub">จ้าง · skill tree</div></div>
+    </div>
+    <div class="ditem" id="ditem-deco" onclick="drawerGo('deco','team')">
+      <span class="ditem-ico">🎨</span>
+      <div><div class="ditem-txt">ตกแต่ง</div><div class="ditem-sub">bonus ร้าน</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PROGRESS DRAWER ══ -->
+<div class="drawer" id="drawer-prog">
+  <div class="drawer-handle"></div>
+  <div class="drawer-title">ความคืบหน้า</div>
+  <div class="drawer-grid">
+    <div class="ditem" id="ditem-quest" onclick="drawerGo('quest','prog')">
+      <span class="ditem-ico">📋</span>
+      <div><div class="ditem-txt">Quest</div><div class="ditem-sub">Daily · Weekly</div></div>
+    </div>
+    <div class="ditem" id="ditem-lb" onclick="drawerGo('lb','prog')">
+      <span class="ditem-ico">🏅</span>
+      <div><div class="ditem-txt">อันดับ</div><div class="ditem-sub">Leaderboard</div></div>
+    </div>
+    <div class="ditem" id="ditem-ach" onclick="drawerGo('ach','prog')">
+      <span class="ditem-ico">🏆</span>
+      <div><div class="ditem-txt">ความสำเร็จ</div><div class="ditem-sub">Achievements</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SHOP DRAWER ══ -->
+<div class="drawer" id="drawer-shop">
+  <div class="drawer-handle"></div>
+  <div class="drawer-title">ร้านค้าและขยายกิจการ</div>
+  <div class="drawer-grid">
+    <div class="ditem" id="ditem-br" onclick="drawerGo('br','shop')">
+      <span class="ditem-ico">🏪</span>
+      <div><div class="ditem-txt">สาขา</div><div class="ditem-sub">ขยายกิจการ</div></div>
+    </div>
+    <div class="ditem" id="ditem-prest" onclick="drawerGo('prest','shop')">
+      <span class="ditem-ico">✨</span>
+      <div><div class="ditem-txt">Prestige</div><div class="ditem-sub">รีเซ็ต · bonus</div></div>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div class="logo">🍣 <span>SUSHI EMPIRE<span class="logo-sub">すし帝国</span></span></div>
+  <div class="hstats">
+    <div class="chip gold">💴 <span class="cv" id="money">100</span></div>
+    <div class="chip green">⭐ <span class="cv" id="rating">0</span>%</div>
+    <div class="chip purple">✨ <span class="cv" id="prestige">0</span></div>
+    <div class="menu-btn" onclick="openPause()">☰</div>
+  </div>
+</header>
+
+<!-- EVENT BANNER -->
+<div class="event-banner" id="evBanner" style="display:none" onclick="goTab('main')">
+  <div class="ev-icon"  id="evIcon">⚡</div>
+  <div class="ev-info">
+    <div class="ev-name"  id="evName">Rush Hour!</div>
+    <div class="ev-desc"  id="evDesc">รายได้ x2 เป็นเวลา 60 วินาที!</div>
+  </div>
+  <div class="ev-timer" id="evTimer">60s</div>
+</div>
+
+<!-- hidden legacy nav — goTab() still references these IDs -->
+<nav>
+  <div class="ntab on" id="tab-main">ร้าน</div>
+  <div class="ntab" id="tab-mg">เกม</div>
+  <div class="ntab" id="tab-fusion">Fusion</div>
+  <div class="ntab" id="tab-staff">ทีม</div>
+  <div class="ntab" id="tab-quest">Quest</div>
+  <div class="ntab" id="tab-lb">อันดับ</div>
+  <div class="ntab" id="tab-deco">ตกแต่ง</div>
+  <div class="ntab" id="tab-br">สาขา</div>
+  <div class="ntab" id="tab-prest">Prestige</div>
+  <div class="ntab" id="tab-ach">ความสำเร็จ</div>
+</nav>
+
+<!-- ══ MAIN PAGE ══ -->
+<div class="pg on" id="pg-main">
+  <div class="resto" id="restoCard">
+    <div class="resto-bg"></div>
+    <div class="steam" id="steamEl"></div>
+    <div class="rlbl">สาขา: <span id="branchName">หลัก</span> &nbsp;·&nbsp; Lv.<span id="lvlDisplay">1</span></div>
+    <div class="scene">
+      <div class="qcol">
+        <div class="qlbl">คิว (<span id="qCount">0</span>)</div>
+        <div class="qwrap" id="qWrap"></div>
+      </div>
+      <div class="chefcol">
+        <div class="chefwrap">
+          <div class="chefglow off" id="chefGlow"></div>
+          <div class="chefemoji" id="chefEmoji">👨‍🍳</div>
+        </div>
+        <div class="ring-wrap" id="ringWrap" style="display:none">
+          <svg viewBox="0 0 58 58" width="56" height="56">
+            <defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#c8962a"/><stop offset="100%" stop-color="#f0d080"/>
+            </linearGradient></defs>
+            <circle class="rbg"  cx="29" cy="29" r="25"/>
+            <circle class="rarc" id="ringArc" cx="29" cy="29" r="25"/>
+          </svg>
+          <div class="rtxt" id="ringTxt">0%</div>
+          <div id="cookTimerSec" style="position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;color:var(--gold);white-space:nowrap;"></div>
+        </div>
+      </div>
+      <div class="platecol">
+        <div class="platewrap" id="plateWrap"><span id="plateEmoji">🍽️</span></div>
+        <div id="earnPreview" style="font-size:11px;color:rgba(232,196,106,.7);text-align:center;min-height:16px;margin-top:3px;font-weight:700;"></div>
+        <button class="servebtn" id="serveBtn" onclick="serve()">เสิร์ฟ ✨</button>
+      </div>
+    </div>
+    <div class="ibadge" id="idleBadge" style="display:none"><div class="idot"></div>เชฟ AI</div>
+  </div>
+
+  <div class="ratingwrap">
+    <div class="rrow"><div class="rlabel">ชื่อเสียง</div><div class="rval"><span id="rval">0</span>%</div></div>
+    <div class="btrack"><div class="bfill" id="bfill" style="width:0%"></div></div>
+    <div class="srow">
+      <div class="sbadge"    id="sbadge"></div>
+      <div class="prestbadge" id="prestbadge" style="display:none">✨ Prestige Bonus</div>
+    </div>
+  </div>
+
+  <div class="slbl">วัตถุดิบ</div>
+  <div class="ing-row" id="ingRow"></div>
+
+  <div class="slbl">เมนู</div>
+  <div class="mgrid" id="menuGrid"></div>
+
+  <div class="slbl">อัปเกรด</div>
+  <div class="ulst" id="upgList"></div>
+</div>
+
+<!-- ══ MINI-GAME PAGE ══ -->
+<div class="pg" id="pg-mg">
+  <div style="display:flex;gap:8px;margin-bottom:14px;">
+    <button class="mg-sel-btn active" id="mgs0" onclick="selectMG(0)">🥁 จังหวะ</button>
+    <button class="mg-sel-btn"        id="mgs1" onclick="selectMG(1)">🐟 จับปลา</button>
+    <button class="mg-sel-btn"        id="mgs2" onclick="selectMG(2)">🍱 จับคู่</button>
+  </div>
+
+  <!-- GAME 0: RHYTHM -->
+  <div id="mg_panel0">
+    <div class="mgcard">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <div class="mgh">🥁 จังหวะเชฟ</div>
+        <div id="rh_combo" style="font-size:12px;font-weight:900;color:var(--gold);min-width:60px;text-align:right;"></div>
+      </div>
+      <div class="mgd">กด ✂️ ตอนซูชิอยู่ในวงเป้าหมาย — Combo = รางวัลเพิ่ม!</div>
+      <div class="mgr" id="rhRwd">รางวัล: +200฿ (ขึ้นกับ Combo)</div>
+      <div class="rhlane" id="rhLane" onclick="rhTap()">
+        <div id="rhTgt" style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);width:52px;height:52px;border-radius:50%;border:2px solid rgba(232,196,106,.45);display:flex;align-items:center;justify-content:center;font-size:20px;background:rgba(232,196,106,.04);">🎯</div>
+        <div id="rhSpeedBar" style="position:absolute;bottom:0;left:0;right:0;height:3px;background:rgba(255,255,255,.06);border-radius:0 0 13px 13px;overflow:hidden;">
+          <div id="rhSpeedFill" style="height:100%;width:30%;background:var(--green);border-radius:inherit;transition:width .5s,background .5s;"></div>
+        </div>
+      </div>
+      <div id="rhRes" style="text-align:center;font-size:20px;font-weight:900;min-height:28px;margin:6px 0;"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div style="font-size:12px;color:var(--muted)">คะแนน: <span id="rhSc" style="color:var(--text);font-weight:700">0</span> / <span id="rhMax">5</span></div>
+        <div id="rh_lives" style="font-size:14px;letter-spacing:2px;">❤️❤️❤️</div>
+      </div>
+      <button class="mgbtn" id="rhBtn" onclick="rhTap()">✂️ เริ่ม!</button>
+    </div>
+  </div>
+
+  <!-- GAME 1: FISH CATCH -->
+  <div id="mg_panel1" style="display:none;">
+    <div class="mgcard">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <div class="mgh">🐟 จับปลา!</div>
+        <div id="sl_timer" style="font-size:16px;font-weight:900;color:var(--gold);">10s</div>
+      </div>
+      <div class="mgd">แตะปลา +1 คะแนน · แตะ 💣 เสีย 2 คะแนน · ปลา ⭐ คะแนน x2!</div>
+      <div id="sliceArea" style="width:100%;height:200px;background:linear-gradient(180deg,rgba(10,30,60,.6),rgba(5,15,30,.8));border-radius:14px;position:relative;overflow:hidden;margin-bottom:10px;border:1px solid rgba(74,158,255,.2);cursor:crosshair;user-select:none;">
+        <div style="position:absolute;inset:0;background:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22><circle cx=%225%22 cy=%225%22 r=%221%22 fill=%22rgba(255,255,255,0.06)%22/></svg>') repeat;background-size:20px 20px;pointer-events:none;"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div id="sliceSc" style="font-size:22px;font-weight:900;background:linear-gradient(135deg,#f0d080,#c8962a);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">🐟 × 0</div>
+        <div style="font-size:11px;color:var(--muted)">สถิติ: <span id="sl_best" style="color:var(--gold)">0</span></div>
+      </div>
+      <button class="mgbtn teal" id="sliceBtn" onclick="startSlice()">🎣 เริ่มเลย!</button>
+    </div>
+  </div>
+
+  <!-- GAME 2: MEMORY MATCH -->
+  <div id="mg_panel2" style="display:none;">
+    <div class="mgcard">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <div class="mgh">🍱 จับคู่ซูชิ</div>
+        <div id="mm_timer" style="font-size:16px;font-weight:900;color:var(--gold);">60s</div>
+      </div>
+      <div class="mgd">จำตำแหน่งซูชิแล้วจับคู่ให้ครบก่อนหมดเวลา!</div>
+      <div id="mm_grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0;"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="font-size:12px;color:var(--muted)">คู่: <span id="mm_pairs" style="color:var(--text);font-weight:700">0</span>/8</div>
+        <div style="font-size:12px;color:var(--muted)">พลิก: <span id="mm_flips" style="color:var(--text);font-weight:700">0</span></div>
+      </div>
+      <button class="mgbtn" style="background:linear-gradient(135deg,#ec4899,#8b5cf6);color:#fff;box-shadow:0 4px 12px rgba(139,92,246,.3);" id="mmBtn" onclick="startMemory()">🍱 เริ่มเกม!</button>
+    </div>
+  </div>
+
+  <!-- HIGH SCORES -->
+  <div class="mgcard" style="margin-top:0;">
+    <div class="mgh" style="margin-bottom:8px;">🏅 สถิติของคุณ</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+      <div style="text-align:center;background:rgba(255,255,255,.03);border:1px solid var(--rim);border-radius:12px;padding:10px;">
+        <div style="font-size:20px">🥁</div>
+        <div style="font-size:16px;font-weight:900;color:var(--gold)" id="hs_rhythm">-</div>
+        <div style="font-size:10px;color:var(--muted)">Combo</div>
+      </div>
+      <div style="text-align:center;background:rgba(255,255,255,.03);border:1px solid var(--rim);border-radius:12px;padding:10px;">
+        <div style="font-size:20px">🐟</div>
+        <div style="font-size:16px;font-weight:900;color:var(--teal)" id="hs_fish">-</div>
+        <div style="font-size:10px;color:var(--muted)">ปลา</div>
+      </div>
+      <div style="text-align:center;background:rgba(255,255,255,.03);border:1px solid var(--rim);border-radius:12px;padding:10px;">
+        <div style="font-size:20px">🍱</div>
+        <div style="font-size:16px;font-weight:900;color:var(--purple)" id="hs_memory">-</div>
+        <div style="font-size:10px;color:var(--muted)">พลิก</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ACHIEVEMENTS PAGE ══ -->
+<div class="pg" id="pg-ach">
+  <div class="slbl">ความสำเร็จ</div>
+  <div class="alst" id="achList"></div>
+</div>
+
+<!-- ══ BRANCHES PAGE ══ -->
+<div class="pg" id="pg-br">
+  <div class="slbl">สาขาร้าน</div>
+  <div class="brlst" id="brList"></div>
+</div>
+
+<!-- ══ PRESTIGE PAGE ══ -->
+<div class="pg" id="pg-prest">
+  <div class="slbl">Prestige System</div>
+  <div class="prestige-card" id="prestCard">
+    <div class="prestige-stars"  id="prestStars">☆☆☆☆☆</div>
+    <div class="prestige-title">Prestige Lv.<span id="prestLv">0</span></div>
+    <div class="prestige-desc" id="prestDesc">รีเซ็ตเกมเพื่อรับ Permanent Bonus ถาวร<br>ต้องการ Level 20 ขึ้นไป</div>
+    <div class="prestige-bonus" id="prestBonuses"></div>
+    <div id="prestBtnWrap"></div>
+  </div>
+  <div class="slbl">Bonus ปัจจุบัน</div>
+  <div id="prestCurrentBonuses" style="padding:0 2px;"></div>
+</div>
+
+<!-- ══ FUSION LAB PAGE ══ -->
+<div class="pg" id="pg-fusion">
+  <div class="fusion-cauldron" id="fusionLab">
+    <div class="slbl" style="justify-content:center;padding-top:0">🧪 Fusion Lab</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:14px;position:relative;z-index:1">
+      เลือกวัตถุดิบ 2–3 อย่าง แล้วกด Fuse เพื่อค้นพบเมนูลับ!
+    </div>
+    <span class="cauldron-emoji" id="cauldronEmoji">🫕</span>
+    <div class="fusion-slots" id="fusionSlots">
+      <div class="fusion-slot" id="fslot0" onclick="clearFusionSlot(0)">
+        <div class="slot-remove">✕</div>
+        <span id="fslot0_emoji" style="font-size:28px">?</span>
+      </div>
+      <div class="fusion-plus">+</div>
+      <div class="fusion-slot" id="fslot1" onclick="clearFusionSlot(1)">
+        <div class="slot-remove">✕</div>
+        <span id="fslot1_emoji" style="font-size:28px">?</span>
+      </div>
+      <div class="fusion-plus" id="fusionPlus2">+</div>
+      <div class="fusion-slot" id="fslot2" onclick="clearFusionSlot(2)">
+        <div class="slot-remove">✕</div>
+        <span id="fslot2_emoji" style="font-size:28px">?</span>
+      </div>
+    </div>
+    <div class="fusion-result" id="fusionResult">
+      <span style="font-size:20px">✨</span>
+      <span>เลือกวัตถุดิบเพื่อเริ่มสร้างสรรค์</span>
+    </div>
+    <button class="fusion-btn" id="fusionBtn" onclick="doFusion()" disabled>
+      🧪 Fuse!
+    </button>
+  </div>
+  <div class="slbl">วัตถุดิบที่มี</div>
+  <div class="fusion-ing-grid" id="fusionIngGrid"></div>
+  <div class="slbl">เมนูที่ค้นพบแล้ว (<span id="discCount">0</span>/<span id="discTotal">0</span>)</div>
+  <div class="discovered-grid" id="discoveredGrid"></div>
+</div>
+
+<!-- ══ STAFF PAGE ══ -->
+<div class="pg" id="pg-staff">
+  <div class="slbl">ทีมงาน</div>
+  <div style="font-size:11px;color:var(--muted);margin-bottom:10px;padding:0 2px">จ้างและพัฒนาทีม — Chemistry bonus เมื่อทำงานร่วมกัน</div>
+  <div class="chem-banner" id="chemPanel" style="display:none">
+    <div class="chem-title">✨ Chemistry Bonus</div>
+    <div id="chemList"></div>
+  </div>
+  <div style="background:var(--glass);border:1px solid var(--rim);border-radius:14px;padding:11px 13px;margin-bottom:10px;" id="staffBonusSummary">
+    <span style="opacity:.5;font-size:12px">ยังไม่มีทีมงาน</span>
+  </div>
+  <div class="staff-roster" id="staffRoster"></div>
+</div>
+
+<!-- ══ QUEST PAGE ══ -->
+<div class="pg" id="pg-quest">
+  <div class="slbl">Daily Quest <span style="font-size:10px;color:var(--muted)" id="questReset"></span></div>
+  <div id="dailyQuests"></div>
+  <div class="slbl" style="margin-top:6px">Weekly Challenge</div>
+  <div id="weeklyQuests"></div>
+</div>
+
+<!-- ══ LEADERBOARD PAGE ══ -->
+<div class="pg" id="pg-lb">
+  <div class="slbl">Leaderboard</div>
+  <div style="font-size:11px;color:var(--muted);margin-bottom:10px;padding:0 2px">คะแนนจากทุกผู้เล่นในอุปกรณ์นี้ (บันทึกใน localStorage)</div>
+  <div style="background:var(--glass);border:1px solid rgba(232,196,106,.2);border-radius:14px;padding:11px 13px;margin-bottom:10px;display:flex;align-items:center;gap:10px;">
+    <div style="font-size:22px">👤</div>
+    <div style="flex:1">
+      <div style="font-size:12px;color:var(--muted)">ชื่อของคุณ</div>
+      <input id="playerName" maxlength="12" placeholder="ใส่ชื่อ..." style="background:transparent;border:none;outline:none;font-size:14px;font-weight:700;font-family:'Noto Sans Thai',sans-serif;color:var(--text);width:100%;" oninput="savePlayerName()">
+    </div>
+    <button onclick="submitScore()" style="padding:7px 13px;background:var(--goldg);border:none;border-radius:10px;color:#1a0e00;font-weight:900;font-size:12px;font-family:'Noto Sans Thai',sans-serif;cursor:pointer;">บันทึก</button>
+  </div>
+  <div id="lbList"></div>
+</div>
+
+<!-- ══ DECORATION PAGE ══ -->
+<div class="pg" id="pg-deco">
+  <div class="slbl">ตกแต่งร้าน</div>
+  <div style="font-size:11px;color:var(--muted);margin-bottom:10px;padding:0 2px">ใส่ได้ครั้งละ 1 ชิ้น — ให้ bonus ต่างกัน</div>
+  <div id="decoPreview" style="background:var(--glass);border:1px solid var(--rim);border-radius:14px;padding:12px;text-align:center;margin-bottom:10px;font-size:13px;color:var(--muted);">ยังไม่ได้ตกแต่ง</div>
+  <div class="deco-grid" id="decoGrid"></div>
+</div>
+
+<!-- ══ COOK BUTTON ══ -->
+<div class="cookwrap" id="cookWrap">
+  <button class="cookbtn" id="cookBtn" onclick="cook()">🍣 ทำซูชิ!</button>
+</div>
+
+</div><!-- end .shell -->
+
+<!-- ══ MODALS ══ -->
+<div class="mbg" id="idleModal">
+  <div class="mbox">
+    <div class="micon">💴</div>
+    <div class="mtitle">ยินดีต้อนรับกลับ!</div>
+    <div class="msub">เชฟ AI ทำงานระหว่างที่คุณไม่อยู่</div>
+    <div class="mamt" id="idleAmt">+0 ฿</div>
+    <div class="msub" id="idleTime"></div>
+    <button class="mbtn" onclick="closeIdle()">เก็บเงิน 💰</button>
+  </div>
+</div>
+
+<div class="mbg" id="achModal">
+  <div class="mbox">
+    <div class="micon" id="achMI">🏆</div>
+    <div class="mtitle">Achievement ปลดล็อค!</div>
+    <div class="msub" id="achMN" style="font-size:14px;font-weight:700;color:var(--text)"></div>
+    <div class="msub" id="achMD"></div>
+    <div class="mamt" id="achMA"></div>
+    <button class="mbtn" onclick="closeAch()">สุดยอด! 🎉</button>
+  </div>
+</div>
+
+<div class="mbg" id="eventModal">
+  <div class="mbox">
+    <div class="micon" id="evMI">⚡</div>
+    <div class="mtitle" id="evMN">Rush Hour!</div>
+    <div class="msub"   id="evMD">รายได้ x2 เป็นเวลา 60 วินาที!</div>
+    <div class="mamt"   id="evMA">x2 💰</div>
+    <button class="mbtn red" onclick="closeEvent()">รับเลย! 🔥</button>
+  </div>
+</div>
+
+<div class="mbg" id="prestigeModal">
+  <div class="mbox">
+    <div class="micon">✨</div>
+    <div class="mtitle">Prestige!</div>
+    <div class="msub">เกมจะถูกรีเซ็ต แต่คุณได้รับ Permanent Bonus ถาวร!</div>
+    <div class="mamt" id="prestMA">+10% รายได้</div>
+    <div class="msub">แน่ใจหรือไม่?</div>
+    <button class="mbtn purple" onclick="doPrestige()" style="margin-bottom:6px">✨ Prestige!</button>
+    <button class="mbtn" onclick="closePrest()" style="background:rgba(255,255,255,.08);color:var(--text)">ยกเลิก</button>
+  </div>
+</div>
+
+<div class="mbg" id="vipModal">
+  <div class="mbox">
+    <div class="micon">👑</div>
+    <div class="mtitle">ลูกค้า VIP!</div>
+    <div class="msub" id="vipDesc">เสิร์ฟให้ VIP ทันที รับโบนัสพิเศษ!</div>
+    <div class="mamt" id="vipAmt">+500฿</div>
+    <button class="mbtn" onclick="closeVip()">เสิร์ฟ VIP! 👑</button>
+  </div>
+</div>
+
+<!-- ══ STORY DIALOGUE ══ -->
+<div id="storyOverlay" style="
+  position:fixed;inset:0;z-index:850;
+  display:none;align-items:flex-end;justify-content:center;
+  padding-bottom:100px;
+  background:rgba(0,0,0,.45);
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+" onclick="storyTapOutside(event)">
+  <div id="storyBox" style="
+    width:92%;max-width:420px;
+    background:linear-gradient(145deg,rgba(18,14,6,.97),rgba(10,10,22,.97));
+    border:1px solid rgba(232,196,106,.22);border-radius:22px;
+    padding:18px 18px 14px;
+    box-shadow:0 -8px 40px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04);
+    animation:storyIn .4s cubic-bezier(.34,1.56,.64,1);
+    position:relative;overflow:hidden;
+  ">
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(232,196,106,.6),transparent);animation:shimmer 2.5s ease-in-out infinite;"></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+      <div id="storyAvatar" style="width:46px;height:46px;border-radius:50%;border:2px solid rgba(232,196,106,.35);background:rgba(232,196,106,.08);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;animation:avatarPop .35s cubic-bezier(.34,1.56,.64,1);">👨‍🍳</div>
+      <div>
+        <div id="storySpeaker" style="font-size:13px;font-weight:900;color:rgba(232,196,106,.9);font-family:'Shippori Mincho',serif;">ซากุระ</div>
+        <div id="storyRole"    style="font-size:10px;color:rgba(240,236,228,.4);margin-top:1px;">เชฟ</div>
+      </div>
+      <div id="storyChBadge" style="margin-left:auto;font-size:9px;font-weight:700;padding:3px 8px;border-radius:8px;background:rgba(167,139,250,.12);color:rgba(167,139,250,.8);border:1px solid rgba(167,139,250,.2);letter-spacing:.08em;">CH.1</div>
+    </div>
+    <div id="storyText" style="font-size:14px;line-height:1.75;color:rgba(240,236,228,.88);min-height:56px;padding:10px 12px;background:rgba(255,255,255,.03);border-radius:12px;border:1px solid rgba(255,255,255,.05);margin-bottom:12px;position:relative;"></div>
+    <div id="storyChoices" style="display:flex;flex-direction:column;gap:7px;"></div>
+    <div id="storyDots" style="display:flex;justify-content:center;gap:5px;margin-top:11px;"></div>
+  </div>
+</div>
+
+<!-- story ping toast -->
+<div id="storyPing" style="
+  position:fixed;bottom:84px;right:14px;z-index:800;
+  background:linear-gradient(135deg,rgba(18,14,6,.96),rgba(10,10,22,.96));
+  border:1px solid rgba(232,196,106,.3);border-radius:16px;padding:10px 14px;
+  display:none;align-items:center;gap:9px;cursor:pointer;
+  box-shadow:0 4px 20px rgba(0,0,0,.4);animation:pingIn .5s cubic-bezier(.34,1.56,.64,1);max-width:220px;
+" onclick="openStoryPing()">
+  <div id="storyPingAvatar" style="font-size:22px;">📖</div>
+  <div>
+    <div id="storyPingName" style="font-size:12px;font-weight:900;color:rgba(232,196,106,.9);">เรื่องราวใหม่!</div>
+    <div id="storyPingDesc" style="font-size:10px;color:rgba(240,236,228,.5);margin-top:1px;">แตะเพื่อดู</div>
+  </div>
+  <div style="font-size:16px;color:rgba(232,196,106,.6);">›</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ══ SCRIPTS — order matters: data → state → audio → ui → game → staff → decoration → progress → minigame → fusion → story → nav → main ══ -->
+<script type="module" src="/src/main.js"></script>
+
+</body>
+</html>

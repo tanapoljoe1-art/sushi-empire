@@ -1,0 +1,417 @@
+// ── Static game data ─────────────────────────────────────────────────────────
+export const EMOJIS = ['🤷','👩','👨','🧑','👴','👵','🧔'];
+
+export const MENUS = [
+  {id:'salmon', name:'แซลมอน',    emoji:'🍣',price:25,  time:2000,unlockLv:1, ing:{rice:1,salmon:1}},
+  {id:'tuna',   name:'ทูน่า',     emoji:'🍡',price:40,  time:2500,unlockLv:2, ing:{rice:1,tuna:1}},
+  {id:'shrimp', name:'กุ้ง',      emoji:'🤌',price:60,  time:3200,unlockLv:3, ing:{rice:1,shrimp:1}},
+  {id:'dragon', name:'ดราก้อนโรล',emoji:'🏯',price:100, time:4500,unlockLv:5, ing:{rice:2,tuna:1,shrimp:1}},
+  {id:'uni',    name:'อูนิ',      emoji:'🦐',price:160, time:6000,unlockLv:8, ing:{rice:1,uni:1,nori:1}},
+  {id:'omakase',name:'เอมาคาเสะ', emoji:'🍮',price:350, time:9000,unlockLv:12,ing:{salmon:2,tuna:2,uni:1,nori:2}},
+  // NEW: Premium Menu Items
+  {id:'toro',   name:'โอโทโร่',   emoji:'💎',price:480, time:10000,unlockLv:15,ing:{rice:1,tuna:2,gold:1}},
+  {id:'caviar', name:'คาเวียร์',  emoji:'🖤',price:520, time:11000,unlockLv:18,ing:{rice:1,uni:1,caviar:1,nori:1}},
+  {id:'wagyu',  name:'วากิว',     emoji:'🥩',price:680, time:13000,unlockLv:22,ing:{rice:2,wagyu:2,egg:1}},
+  {id:'phoenix',name:'ฟีนิกซ์',   emoji:'🔥',price:850, time:15000,unlockLv:26,ing:{salmon:2,tuna:2,wagyu:1,gold:1}},
+  {id:'emperor',name:'จักรพรรดิ', emoji:'👑',price:1200,time:18000,unlockLv:30,ing:{rice:3,tuna:3,caviar:2,gold:2}},
+  {id:'zenith', name:'เซนิท',     emoji:'⭐',price:2000,time:25000,unlockLv:40,ing:{wagyu:3,caviar:2,gold:2,diamond:1}},
+];
+
+export const INGREDIENTS = {
+  rice:  {name:'ข้าว',    emoji:'🍚',buyAmt:10,buyCost:50,  maxAmt:50},
+  salmon:{name:'แซลมอน',  emoji:'🐟',buyAmt:5, buyCost:80,  maxAmt:30},
+  tuna:  {name:'ทูน่า',   emoji:'🐠',buyAmt:5, buyCost:90,  maxAmt:30},
+  shrimp:{name:'กุ้ง',    emoji:'🦐',buyAmt:5, buyCost:70,  maxAmt:30},
+  uni:   {name:'อูนิ',    emoji:'🎣',buyAmt:3, buyCost:150, maxAmt:15},
+  nori:  {name:'สาหร่าย', emoji:'🌿',buyAmt:10,buyCost:40,  maxAmt:50},
+  // NEW: Premium Ingredients
+  gold:  {name:'ทองคำ',   emoji:'🥇',buyAmt:2, buyCost:500, maxAmt:10},
+  caviar:{name:'คาเวียร์', emoji:'⚫',buyAmt:2, buyCost:600, maxAmt:10},
+  wagyu: {name:'วากิว',    emoji:'🥩',buyAmt:3, buyCost:400, maxAmt:15},
+  egg:   {name:'ไข่ปลา',  emoji:'🥚',buyAmt:5, buyCost:60,  maxAmt:40},
+  diamond:{name:'เพชร',   emoji:'💎',buyAmt:1, buyCost:1000,maxAmt:5},
+};
+
+export const UPGRADES = [
+  {id:'kitchen',  name:'ครัวพรีเมียม', emoji:'🍳',desc:'ทำเร็วขึ้น +25%', max:5,base:200,  fx:g=>{g.speedMult=1+g.up.kitchen*.25;}},
+  {id:'waiter',   name:'พนักงานเสิร์ฟ',emoji:'🧑‍🍽️',desc:'เสิร์ฟอัตโนมัติ', max:1,base:600,  fx:g=>{g.autoServe=g.up.waiter>=1;}},
+  {id:'marketing',name:'โฆษณา',        emoji:'📢',desc:'ลูกค้า +1/คิว',  max:3,base:500,  fx:g=>{g.qSize=1+g.up.marketing;}},
+  {id:'patience', name:'บริการที่ยอดเยี่ยม',emoji:'😊',desc:'ลูกค้ารออดทนขึ้น',max:3,base:400,  fx:g=>{g.patMult=1+g.up.patience*.5;}},
+  {id:'storage',  name:'คลังวัตถุดิบ', emoji:'📦',desc:'ปริมาณวัตถุดิบเพิ่ม x1.5',max:3,base:350, fx:g=>{g.storageMult=1+g.up.storage*.5;}},
+  {id:'autoChef', name:'เชฟ AI',       emoji:'🤖',desc:'ทำอาหารอัตโนมัติ',max:1,base:1500, fx:g=>{g.autoChef=g.up.autoChef>=1;}},
+  // NEW: Advanced Upgrades
+  {id:'golden',   name:'ครัวทองคำ',    emoji:'🏆',desc:'รายได้ +50% ถาวร',max:3,base:5000, fx:g=>{g.goldenBonus=1+g.up.golden*.5;}},
+  {id:'mastery',  name:'ปรมาจารย์ซูชิ', emoji:'🎓',desc:'XP gain +100%',max:1,base:8000, fx:g=>{g.xpMult=2;}},
+  {id:'franchise',name:'แฟรนไชส์',     emoji:'🌐',desc:'Idle income x2',max:1,base:12000,fx:g=>{g.idleMult=2;}},
+];
+
+export const ACHIEVEMENTS = [
+  {id:'s1',   name:'มือใหม่',    desc:'เสิร์ฟครั้งแรก',      icon:'🍣',reward:50,   chk:g=>g.served>=1},
+  {id:'s20',  name:'เชฟมือดี',    desc:'เสิร์ฟครบ 20 ครั้ง',  icon:'⭐',reward:150,  chk:g=>g.served>=20},
+  {id:'s100', name:'ร้านดัง',        desc:'เสิร์ฟครบ 100 ครั้ง', icon:'🎖',reward:500,  chk:g=>g.served>=100},
+  {id:'s500', name:'ตำนานซูชิ',    desc:'เสิร์ฟครบ 500 ครั้ง', icon:'👑',reward:2000, chk:g=>g.served>=500},
+  {id:'m1k',  name:'รวยเร้',         desc:'มีเงิน 1,000฿',        icon:'💰',reward:100,  chk:g=>g.money>=1000},
+  {id:'m10k', name:'เศรษฐีซูชิ',    desc:'มีเงิน 10,000฿',       icon:'💎',reward:800,  chk:g=>g.money>=10000},
+  {id:'m100k',name:'มหาเศรษฐี',     desc:'มีเงิน 100,000฿',      icon:'🏦',reward:5000, chk:g=>g.money>=100000},
+  {id:'lv5',  name:'ร้านระดับ 5',    desc:'Level ถึง 5',           icon:'🏅',reward:200,  chk:g=>g.level>=5},
+  {id:'lv15', name:'ร้านเลเวลสูง',   desc:'Level ถึง 15',          icon:'🏆',reward:600,  chk:g=>g.level>=15},
+  {id:'lv30', name:'ปรมาจารย์',     desc:'Level ถึง 30',          icon:'🌟',reward:2500, chk:g=>g.level>=30},
+  {id:'sk15', name:'Streak เกิน',     desc:'Streak ถึง 15',         icon:'🔥',reward:200,  chk:g=>g.streak>=15},
+  {id:'sk30', name:'Combo Master',  desc:'Streak ถึง 30',         icon:'💫',reward:1000, chk:g=>g.streak>=30},
+  {id:'br2',  name:'ขยายสาขา',       desc:'เปิดสาขาที่ 2',         icon:'🏪',reward:400,  chk:g=>g.branches.filter(b=>b.owned).length>=2},
+  {id:'br5',  name:'จักรวรรดิ',      desc:'เปิด 5 สาขา',           icon:'🌍',reward:3000, chk:g=>g.branches.filter(b=>b.owned).length>=5},
+  {id:'mg5',  name:'นักเล่นเกม',     desc:'ชนะมินิเกม 5 ครั้ง',   icon:'🎮',reward:300,  chk:g=>g.mgWins>=5},
+  {id:'vip3', name:'บริการ VIP',     desc:'เสิร์ฟ VIP 3 คน',       icon:'👑',reward:500,  chk:g=>g.vipServed>=3},
+  {id:'prest1',name:'Prestige ครั้งแรก',desc:'Prestige ครั้งแรก',  icon:'✨',reward:1000, chk:g=>g.prestigeLevel>=1},
+  {id:'rush5',name:'Rush Master',    desc:'ผ่าน Rush Hour 5 ครั้ง',icon:'⚡',reward:400,  chk:g=>g.rushCleared>=5},
+  {id:'fus1', name:'นักต้มตุ๋น',       desc:'ค้นพบ Fusion Recipe แรก',icon:'🧪',reward:300,  chk:g=>(g.fusion&&g.fusion.discovered&&g.fusion.discovered.length||0)>=1},
+  {id:'fus5', name:'นักเคมีอาหาร',   desc:'ค้นพบ 5 เมนู Fusion',   icon:'🎮',reward:800,  chk:g=>(g.fusion&&g.fusion.discovered&&g.fusion.discovered.length||0)>=5},
+  {id:'fusAll',name:'Master Alchemist',desc:'ค้นพบทุก Fusion เมนู', icon:'🌟',reward:3000, chk:g=>(g.fusion&&g.fusion.discovered&&g.fusion.discovered.length||0)>=FUSION_RECIPES.length},
+];
+
+export const BRANCHES = [
+  {id:'main',   name:'สาขาหลัก',    loc:'ย่านเมือง',   emoji:'🏠',cost:0,    idleRate:5,  mult:1.0},
+  {id:'mall',   name:'เซ็นทรัล',     loc:'ศูนย์การค้า', emoji:'🏬',cost:3000, idleRate:18, mult:1.4},
+  {id:'beach',  name:'ริมทะเล',      loc:'ชายหาด',      emoji:'🏝️',cost:10000,idleRate:35, mult:1.8},
+  {id:'airport',name:'สนามบิน',      loc:'เขตปลอดภาษี', emoji:'✈️',cost:25000,idleRate:70, mult:2.2},
+  {id:'tokyo',  name:'สาขาในญี่ปุ่น', loc:'ชินจุกุ โตเกียว',emoji:'🗼',cost:60000,idleRate:150,mult:3.0},
+  // NEW: Premium Branches
+  {id:'paris',  name:'ปารีส',        loc:'ช็องส์-เอลิเซ', emoji:'🗼',cost:150000,idleRate:300,mult:4.0},
+  {id:'dubai',  name:'ดูไบ',         loc:'เบิร์จ คาลิฟา', emoji:'🏙️',cost:400000,idleRate:600,mult:5.5},
+  {id:'space',  name:'สถานีอวกาศ',   loc:'วงโคจรโลก',    emoji:'🚀',cost:1000000,idleRate:1200,mult:8.0},
+];
+
+// Each event is fully self-describing: everything a system needs to apply its
+// effect lives here as declarative fields (or, for the one case that's genuinely
+// imperative-but-pure-state, an onEnd hook — same contract as UPGRADES/STAFF_DATA/
+// DECO_DATA's existing `fx`: G-mutation only, never DOM). Adding a new event means
+// adding an entry here — no hunting through systems/*.js for hardcoded id checks.
+//
+// Fields:
+//   earnMult              multiply serve() earnings
+//   patienceMult          multiply customer patience (getPatience)
+//   queueDelta            +/- customers per spawnQueue batch
+//   ratingGainOverride    replace the normal streak-based rating gain on serve
+//   missRatingLossOverride replace the normal -5 rating loss when a customer leaves angry
+//   ingredientDiscount    fraction off ingredient purchase cost (0.5 = 50% off)
+//   streakProtect         streak doesn't reset when a customer leaves angry
+//   guaranteedVip         a VIP customer is guaranteed when this event's intro modal closes
+//   instant               no duration/modal — resolves immediately (only 'vip' today)
+//   badge                 short text for the event-intro modal's amount badge
+//   onEnd(g)              optional pure G-mutation hook run when the event ends
+export const EVENTS = [
+  {id:'rush',   name:'Rush Hour! 🔥',  desc:'รายได้ x2.5 เป็นเวลา 60 วินาที!', icon:'⚡', dur:60,  color:'#ff4d6d',
+   earnMult:2.5, patienceMult:0.7, queueDelta:1, badge:'x2.5 💰',
+   onEnd:g=>{ g.rushCleared++; }},
+  {id:'vip',    name:'VIP มาแล้ว! 👑', desc:'เสิร์ฟ VIP รับโบนัสพิเศษ!',       icon:'👑', dur:0,   color:'#f0d080',
+   instant:true},
+  {id:'critic', name:'นักวิจารณ์มา! 📰', desc:'เสิร์ฟให้สมบูรณ์แบบ! +3 Rating/ครั้ง', icon:'📰', dur:90, color:'#a78bfa',
+   ratingGainOverride:3, missRatingLossOverride:-8, badge:'+3 ⭐/เสิร์ฟ'},
+  {id:'storm',  name:'พายุ! ☁️',       desc:'ลูกค้าน้อยลง แต่ค่ายเพิ่ม x1.5!', icon:'☁️', dur:120, color:'#4a9eff',
+   earnMult:1.5, patienceMult:1.4, queueDelta:-1, badge:'x1.5 💰'},
+  // NEW: Special Events
+  {id:'festival', name:'เทศกาลอาหาร! 🎊', desc:'ลูกค้าเพิ่มขึ้น 2 คน + Income x2', icon:'🎊', dur:90, color:'#ff9f43',
+   earnMult:2, queueDelta:2, badge:'x2 💰 + ลูกค้า 2'},
+  {id:'celebrity', name:'เซเลบริตี้มา! ⭐', desc:'VIP มาตลอด + Income x3', icon:'⭐', dur:45, color:'#ffd700',
+   earnMult:3, guaranteedVip:true, badge:'x3 💰 + VIP'},
+  {id:'lucky',  name:'วันโชคดี! 🍀',   desc:'วัตถุดิบลดราคา 50% + Streak ไม่ลด', icon:'🍀', dur:120, color:'#2ecc71',
+   ingredientDiscount:0.5, streakProtect:true, badge:'-50% วัตถุดิบ'},
+];
+
+export const PRESTIGE_BONUSES = [
+  'รายได้ +10% ถาวร',
+  'ความเร็วทำอาหาร +5% ถาวร',
+  'เริ่มต้นด้วยเงิน +500฿',
+  'ลูกค้าเริ่มต้นด้วยความอดทน +20%',
+  'ปลดล็อก Prestige Skin',
+];
+
+export const STAFF_DATA = [
+  {id:'chef_a',  name:'ซากุระ',   role:'เชฟซูชิ',     emoji:'👩‍🍳',rarity:'rare',
+   stats:{speed:85,patience:40,income:60,mood:100},
+   baseBonusDesc:'ความเร็วทำ +20%',
+   fx:g=>{g.staffSpeedBonus+=.20*(1+((g.staff&&g.staff.chef_a&&g.staff.chef_a.level)||1)*.1);},
+   skills:[
+     {id:'sk_sa1',name:'Precision Cut',emoji:'🔪',desc:'+5% ความเร็ว',cost:300,effect:g=>{g.staffSpeedBonus+=.05;}},
+     {id:'sk_sa2',name:'Rice Master',  emoji:'🍚',desc:'วัตถุดิบข้าวลด 1/เมนู',cost:600,effect:g=>{g.staffRiceDiscount=true;}},
+     {id:'sk_sa3',name:'Speed Burst',  emoji:'⚡',desc:'ทุก 5 เสิร์ฟ ความเร็ว x2 ชั่วคราว',cost:1200,effect:g=>{g.staffSpeedBurst=true;}},
+   ],levels:[{cost:500},{cost:1500},{cost:4000}],unlockLv:1,
+   chemistry:{waiter_a:'เพื่อนเก้า → Income +15%',chef_b:'คู่แข้ง → Speed +10% ทั้งคู่'}},
+  {id:'waiter_a',name:'ฮิระ',    role:'หัวหน้าบริกร', emoji:'🧑‍🍽️',rarity:'common',
+   stats:{speed:30,patience:90,income:50,mood:100},
+   baseBonusDesc:'ลูกค้าอดทน +30%',
+   fx:g=>{g.staffPatBonus+=.30*(1+((g.staff&&g.staff.waiter_a&&g.staff.waiter_a.level)||1)*.1);},
+   skills:[
+     {id:'sk_wa1',name:'Smile Service',emoji:'😊',desc:'+20% ความอดทนลูกค้า',cost:250,effect:g=>{g.staffPatBonus+=.20;}},
+     {id:'sk_wa2',name:'Fast Serve',   emoji:'🏃',desc:'เสิร์ฟอัตโนมัติเมื่อพร้อม',cost:500,effect:g=>{g.autoServe=true;}},
+     {id:'sk_wa3',name:'VIP Handler',  emoji:'👑',desc:'VIP bonus +50%',cost:1000,effect:g=>{g.staffVipBonus=true;}},
+   ],levels:[{cost:400},{cost:1200},{cost:3000}],unlockLv:1,
+   chemistry:{chef_a:'เพื่อนเก้า → Income +15%',mgr:'ทีมเวิร์ก → Patience +25%'}},
+  {id:'chef_b',  name:'เคนจิ',   role:'เชฟ Sashimi',  emoji:'👨‍🍳',rarity:'rare',
+   stats:{speed:70,patience:50,income:90,mood:100},
+   baseBonusDesc:'รายได้ +25%',
+   fx:g=>{g.staffIncomeBonus+=.25*(1+((g.staff&&g.staff.chef_b&&g.staff.chef_b.level)||1)*.1);},
+   skills:[
+     {id:'sk_cb1',name:'Premium Cut',  emoji:'🌟',desc:'เมนูระดับสูง +30% ราคา',cost:400,effect:g=>{g.staffPremiumBonus=true;}},
+     {id:'sk_cb2',name:'Critic Proof', emoji:'📰',desc:'นักวิจารณ์ไม่ลด Rating',cost:800,effect:g=>{g.staffCriticProof=true;}},
+     {id:'sk_cb3',name:'Omakase Pro',  emoji:'🍮',desc:'Omakase income x2',cost:1500,effect:g=>{g.staffOmakaseBonus=true;}},
+   ],levels:[{cost:800},{cost:2500},{cost:6000}],unlockLv:3,
+   chemistry:{chef_a:'คู่แข้ง → Speed +10% ทั้งคู่',chef_c:'Sushi Bros → ลูกค้า Streak ไม่ reset'}},
+  {id:'mgr',     name:'อายาเนะ', role:'ผู้จัดการ',     emoji:'👩‍💼',rarity:'epic',
+   stats:{speed:50,patience:80,income:80,mood:100},
+   baseBonusDesc:'Streak guard + Team bonus',
+   fx:g=>{g.staffStreakGuard=true;},
+   skills:[
+     {id:'sk_mg1',name:'Leadership',   emoji:'👥',desc:'ทีมทุกคน +10% income',cost:600,effect:g=>{g.staffLeaderBonus=true;}},
+     {id:'sk_mg2',name:'Schedule Mgmt',emoji:'📅',desc:'Event duration +20s',cost:1200,effect:g=>{g.staffEventBonus=true;}},
+     {id:'sk_mg3',name:'Staff Trainer',emoji:'📚',desc:'Staff lvlup cost -20%',cost:2000,effect:g=>{g.staffTrainerBonus=true;}},
+   ],levels:[{cost:1200},{cost:3500},{cost:8000}],unlockLv:5,
+   chemistry:{waiter_a:'ทีมเวิร์ก → Patience +25%',artist:'Creative Team → Deco bonus x2'}},
+  {id:'chef_c',  name:'ริวอิจิ', role:'เชฟ Omakase',  emoji:'🧑‍🍳',rarity:'legendary',
+   stats:{speed:60,patience:60,income:95,mood:100},
+   baseBonusDesc:'เมนูสูง income x1.5',
+   fx:g=>{g.staffOmakaseBonus=true;g.staffIncomeBonus+=.15;},
+   skills:[
+     {id:'sk_cc1',name:'Secret Recipe', emoji:'📖',desc:'ปลดล็อกเมนูพิเศษ Omakase EX',cost:800,effect:g=>{g.staffSecretMenu=true;}},
+     {id:'sk_cc2',name:'Master Taste',  emoji:'👅',desc:'Rating gain +1 ทุกเสิร์ฟ',cost:1500,effect:g=>{g.staffExtraRating=true;}},
+     {id:'sk_cc3',name:'Legend Chef',   emoji:'🌟',desc:'รายได้ทั้งหมด +20%',cost:3000,effect:g=>{g.staffIncomeBonus+=.20;}},
+   ],levels:[{cost:2000},{cost:5000},{cost:12000}],unlockLv:8,
+   chemistry:{chef_b:'Sushi Bros → Streak ไม่ reset',mgr:'Dream Team → Income +30%'}},
+  {id:'artist',  name:'ฮานะ',    role:'Food Artist',   emoji:'🎨',rarity:'rare',
+   stats:{speed:40,patience:70,income:70,mood:100},
+   baseBonusDesc:'ตกแต่งร้าน bonus x1.5',
+   fx:g=>{g.staffDecoBonus=true;},
+   skills:[
+     {id:'sk_ar1',name:'Eye Candy',    emoji:'👁️',desc:'ลูกค้าเพิ่มขึ้น +1',cost:500,effect:g=>{g.qSize=Math.min(6,g.qSize+1);}},
+     {id:'sk_ar2',name:'Instagrammable',emoji:'📸',desc:'ทุก VIP ให้ +Rating 2',cost:900,effect:g=>{g.staffPhotoBonus=true;}},
+     {id:'sk_ar3',name:'Viral Food',   emoji:'📱',desc:'Streak bonus income x2',cost:1800,effect:g=>{g.staffViralBonus=true;}},
+   ],levels:[{cost:1500},{cost:4000},{cost:10000}],unlockLv:6,
+   chemistry:{mgr:'Creative Team → Deco bonus x2',waiter_a:'Friendly Crew → Mood regen 2x'}},
+];
+
+export const CHEMISTRY = [
+  {pair:['chef_a','waiter_a'], name:'เพื่อนเก้า',    emoji:'🤝', desc:'Income +15%',    fx:g=>{g.staffIncomeBonus+=.15;}},
+  {pair:['chef_a','chef_b'],   name:'คู่แข้ง',       emoji:'⚔️', desc:'Speed +10% ทั้งคู่',fx:g=>{g.staffSpeedBonus+=.10;}},
+  {pair:['chef_b','chef_c'],   name:'Sushi Bros',    emoji:'🤜🤛',desc:'Streak ไม่ reset เมื่อพลาด',fx:g=>{g.staffStreakGuard=true;}},
+  {pair:['waiter_a','mgr'],    name:'ทีมเวิร์ก',     emoji:'🤗', desc:'Patience +25%',   fx:g=>{g.staffPatBonus+=.25;}},
+  {pair:['mgr','artist'],      name:'Creative Team', emoji:'🎨', desc:'Deco bonus x2',   fx:g=>{g.staffDecoMult=2;}},
+  {pair:['chef_c','mgr'],      name:'Dream Team',    emoji:'✨', desc:'Income +30%',     fx:g=>{g.staffIncomeBonus+=.30;}},
+];
+
+export const RARITY_COLOR = {common:'var(--muted)',rare:'var(--teal)',epic:'var(--purple)',legendary:'var(--gold)'};
+export const RARITY_STYLE = {
+  common:    {label:'Common',    color:'rgba(136,135,128,.8)',  bg:'rgba(136,135,128,.1)'},
+  rare:      {label:'Rare',      color:'rgba(74,158,255,.9)',   bg:'rgba(74,158,255,.08)'},
+  epic:      {label:'Epic',      color:'rgba(167,139,250,.9)',  bg:'rgba(167,139,250,.1)'},
+  legendary: {label:'Legendary', color:'rgba(232,196,106,.95)', bg:'rgba(232,196,106,.1)'},
+};
+
+export const DECO_DATA = [
+  {id:'lantern',  name:'โคมไฟญี่ปุ่น',emoji:'🏮',cost:300,  bonus:'+5% Rating gain',   fx:g=>{g.decoRatingBonus=.05;}},
+  {id:'bamboo',   name:'ไม้ไผ่',       emoji:'🎋',cost:500,  bonus:'+8% Income',        fx:g=>{g.decoIncomeBonus=.08;}},
+  {id:'koi',      name:'ปลาคาร์ฟ',     emoji:'🐠',cost:1200, bonus:'VIP มาบ่อยขึ้น',    fx:g=>{g.decoVipBonus=true;}},
+  {id:'bonsai',   name:'ต้นบอนไซ',    emoji:'🌿',cost:800,  bonus:'+10% Patience',     fx:g=>{g.decoPatienceBonus=.10;}},
+  {id:'noren',    name:'ผ้าม่านประตู',emoji:'🎏',cost:2000, bonus:'Streak bonus x1.5', fx:g=>{g.decoStreakMult=1.5;}},
+  {id:'taiko',    name:'กลองไทโกะ',   emoji:'🥁',cost:3500, bonus:'Rush Hour ยาวขึ้น +30s',fx:g=>{g.decoRushBonus=true;}},
+  {id:'sakura',   name:'ซากุระ',       emoji:'🌸',cost:5000, bonus:'+15% Income ถาวร',  fx:g=>{g.decoIncomeBonus=.15;}},
+  {id:'moon',     name:'จันทร์เพ็ญเต็มดวง',emoji:'🌕',cost:8000, bonus:'Idle income x2',    fx:g=>{g.decoIdleBonus=true;}},
+  // NEW: Premium Decorations
+  {id:'fountain', name:'น้ำพุทองคำ',  emoji:'⛲',cost:15000,bonus:'+25% Income + VIP rate',fx:g=>{g.decoIncomeBonus+=.25;g.decoVipBonus=true;}},
+  {id:'statue',   name:'รูปปั้นมังกร', emoji:'🐉',cost:25000,bonus:'Streak bonus x2',    fx:g=>{g.decoStreakMult=2;}},
+  {id:'garden',   name:'สวนเซน',       emoji:'🏞️',cost:40000,bonus:'+30% Patience + Income',fx:g=>{g.decoPatienceBonus+=.30;g.decoIncomeBonus+=.10;}},
+  {id:'crystal',  name:'คริสตัลวิเศษ', emoji:'💠',cost:75000,bonus:'ทุกโบนัส x1.5',       fx:g=>{
+    g.decoIncomeBonus   = .15 * 1.5;
+    g.decoPatienceBonus = .30 * 1.5;
+    g.decoRatingBonus   = .05 * 1.5;
+    g.decoStreakMult    = 2   * 1.5;
+    g.decoVipBonus      = true;
+    g.decoRushBonus     = true;
+    g.decoIdleBonus     = true;
+  }},
+];
+
+export const DAILY_POOL = [
+  {id:'d_serve10',  name:'เสิร์ฟ 10 ครั้ง',     emoji:'🍣',target:10, field:'served',     reward:200},
+  {id:'d_streak5',  name:'Streak 5 ครั้งติด',    emoji:'🔥',target:5,  field:'streak',     reward:150},
+  {id:'d_money500', name:'หาเงิน 500฿',           emoji:'💰',target:500,field:'moneyEarned',reward:180},
+  {id:'d_nomiss',   name:'เสิร์ฟโดยไม่มีคนเดิน', emoji:'😊',target:5,  field:'servedNomiss',reward:250},
+  {id:'d_mg1',      name:'ชนะ Mini-game 1 ครั้ง', emoji:'🎮',target:1,  field:'mgWinsToday', reward:120},
+];
+
+export const WEEKLY_POOL = [
+  {id:'w_serve100', name:'เสิร์ฟ 100 ครั้งในสัปดาห์',emoji:'🏅',target:100,field:'servedWeek',  reward:2000},
+  {id:'w_lv3',      name:'อัปเกรด 3 อย่าง',          emoji:'⬆️',target:3,  field:'upgradesWeek',reward:1500},
+  {id:'w_event5',   name:'ผ่าน Event 5 ครั้ง',        emoji:'⚡',target:5,  field:'eventsWeek',  reward:1800},
+  {id:'w_mg5',      name:'ชนะ Mini-game 5 ครั้ง',     emoji:'🎮',target:5,  field:'mgWinsWeek',  reward:2500},
+];
+
+export const FUSION_RECIPES = [
+  {id:'spicy_tuna',   combo:['tuna','shrimp'],    name:'สเปซี่ทูน่า',      emoji:'🌶️',
+   desc:'ทูน่ากับคอสตริง → เผ็ดร้อนสุดๆ!',
+   price:90, time:3000, rarity:'common', hint:'ทูน่า + กุ้ง = ?', tags:['เผ็ด','ยอดนิยม'] },
+  {id:'salmon_nori',  combo:['salmon','nori'],     name:'แซลมอน เทมากิ',   emoji:'🍮',
+   desc:'ม้วนสาหร่ายกรอบกับแซลมอน',
+   price:80, time:2800, rarity:'common', hint:'แซลมอน + สาหร่าย', tags:['กรอบ','คลาสสิก'] },
+  {id:'uni_rice',     combo:['uni','rice'],        name:'อูนิ ดองบุริ',     emoji:'🎣',
+   desc:'อูนิสดบนข้าวหน้าทะเลสุด',
+   price:200, time:5000, rarity:'rare', hint:'อูนิ + ข้าว', tags:['พรีเมียม','หายาก'] },
+  {id:'shrimp_nori',  combo:['shrimp','nori'],     name:'เทมปุระ เรล',      emoji:'🥢',
+   desc:'กุ้งกรอบห่อสาหร่าย',
+   price:110, time:3500, rarity:'common', hint:'กุ้ง + สาหร่าย', tags:['กรอบ','กอบ'] },
+  {id:'tuna_nori',    combo:['tuna','nori'],       name:'ทูน่า เฮ็นมากิ',  emoji:'🌱',
+   desc:'มากิทำ ทูน่าสด สาหร่ายหอม',
+   price:85, time:2600, rarity:'common', hint:'ทูน่า + สาหร่าย', tags:['คลาสสิก'] },
+  {id:'salmon_uni',   combo:['salmon','uni'],      name:'คัตเซลิ ครีมมี่',emoji:'🌟',
+   desc:'แซลมอน+อูนิ คู่ที่ชิมแล้วยกนิ้วร้อง!',
+   price:280, time:7000, rarity:'epic', hint:'แซลมอน + อูนิ', tags:['หายากมาก','VIP'] },
+  {id:'rainbow_roll',  combo:['salmon','tuna','shrimp'], name:'เรนโบ้ เรล',  emoji:'🌈',
+   desc:'สามสีสามรส → เมนูที่ลูกค้าค้าย รูปมากที่สุด!',
+   price:180, time:5500, rarity:'rare', hint:'ปลา 3 ชนิด', tags:['ฮิต','ค้าย รูป','Streak+'] },
+  {id:'ninja_roll',    combo:['tuna','nori','rice'],     name:'นินจา เรล',    emoji:'🥷',
+   desc:'ม้วนทำ ด้วยมือทูน่า → ลึกลับเหมือนนินจา',
+   price:150, time:4500, rarity:'rare', hint:'ทูน่า + สาหร่าย + ข้าว', tags:['ฝีมือ','คูล'] },
+  {id:'volcano_roll',  combo:['shrimp','uni','rice'],    name:'วอลคาโน เรล',  emoji:'🌋',
+   desc:'กุ้ง+อูนิ+ข้าว ราดซอสร้อน ระเบิดกา!',
+   price:220, time:6000, rarity:'rare', hint:'กุ้ง + อูนิ + ข้าว', tags:['เผ็ด','Rush+'] },
+  {id:'sakura_maki',   combo:['salmon','nori','rice'],   name:'ซากุระ มากิ',  emoji:'🌸',
+   desc:'มากิสีชมพู → สวยงามเหมือนดอกซากุระ',
+   price:170, time:5000, rarity:'rare', hint:'แซลมอน + สาหร่าย + ข้าว', tags:['สวย','Rating+'] },
+  {id:'dragon_king',   combo:['salmon','tuna','nori'],   name:'ดราก้อน คิง',  emoji:'🐉',
+   desc:'รวมปลาสองชนิดกับสาหร่าย → เมนูของกษัตริย์',
+   price:260, time:7500, rarity:'epic', hint:'แซลมอน + ทูน่า + สาหร่าย', tags:['กษัตริย์','Income+'] },
+  {id:'moonlight',     combo:['uni','salmon','nori'],    name:'มูนไลท์ เรล',  emoji:'🌕',
+   desc:'อูนิ+แซลมอน+สาหร่ายทำ → ติดอยู่บนปลาดาวคืนรสชาติดีที่สุด',
+   price:310, time:8000, rarity:'epic', hint:'อูนิ + แซลมอน + สาหร่าย', tags:['กลางคืน','Idle+'] },
+  {id:'ultimate',      combo:['salmon','tuna','uni'],    name:'Ultimate Sushi', emoji:'🌠',
+   desc:'3 วัตถุดิบครีมมี่ → เมนูสูงสุดของ Sushi Empire!',
+   price:450, time:10000, rarity:'legendary', hint:'ปลา 3 ตัวครีมมี่', tags:['ขำมาก','ทุก bonus'] },
+];
+
+export const STORY_CHAPTERS = [
+  {
+    id:'intro', chapter:'CH.1', title:'วันแรกของร้าน',
+    triggerLv:1, triggerServed:0, triggerOnce:true,
+    scenes:[
+      { speaker:'ฮิระ', role:'บริกร', avatar:'🧑‍🍽️',
+        text:'เฮ้! ร้านเรายังไม่มีลูกค้าเลยสักคน... แต่ไม่เป็นไร วันแรกมันต้องเป็นแบบนี้แหละ!',
+        choices:[{label:'เช้า เดี๋ยวขึ้น!', next:1},{label:'...', next:1}]},
+      { speaker:'ซากุระ', role:'เชฟ', avatar:'👩‍🍳',
+        text:'ฉันเตรียมส่วนผสมไว้หมดแล้ว ทำซูชิแรกกันเลย!',
+        choices:[{label:'เริ่มทำซูชิ! 🍣', next:null, reward:{money:0}, close:true}]},
+    ]
+  },
+  {
+    id:'first_customer', chapter:'CH.1', title:'ลูกค้าคนแรก',
+    triggerLv:1, triggerServed:1, triggerOnce:true,
+    scenes:[
+      { speaker:'ลูกค้า', role:'แขกคนแรก', avatar:'🤷',
+        text:'"อร่อยมาก! ซูชิที่นี่ดีจริงเลย ฉันจะบอกให้เพื่อนมาด้วย!"',
+        choices:[{label:'ขอบคุณมา! 😊', next:1}]},
+      { speaker:'ฮิระ', role:'บริกร', avatar:'🧑‍🍽️',
+        text:'เห็นมั้ย! ทุกอย่างเริ่มต้นจากก้าวเดียว ต้องเดินต่อเลย!',
+        choices:[{label:'เดินต่อเลย! 💪', next:null, reward:{money:50}, close:true}]},
+    ]
+  },
+  {
+    id:'hire_sakura', chapter:'CH.2', title:'มือใหม่หัดทำซูชิ',
+    triggerLv:3, triggerServed:0, triggerOnce:true,
+    scenes:[
+      { speaker:'ซากุระ', role:'เชฟ', avatar:'👩‍🍳',
+        text:'เฮ้! ฉันชื่อซากุระ เรียนทำซูชิมาจากญี่ปุ่นเลย ขอทำงานที่นี่ได้ไหม?',
+        choices:[{label:'ยินดีต้อนรับ! 🌸', next:1},{label:'ลองดูก่อนนะ', next:1}]},
+      { speaker:'ซากุระ', role:'เชฟ', avatar:'👩‍🍳',
+        text:'เยี่ยม! ฉันจะทำให้ร้านที่นี่เป็นที่รู้จักทั่วเมือง เดินหน้า!',
+        choices:[{label:'เดินหน้าแล้ว! ⚡', next:null, reward:{money:100}, close:true}]},
+    ]
+  },
+  {
+    id:'food_critic', chapter:'CH.2', title:'นักวิจารณ์อาหาร',
+    triggerLv:5, triggerServed:0, triggerOnce:true,
+    scenes:[
+      { speaker:'นักวิจารณ์', role:'คอลัมนิสต์อาหาร', avatar:'🧐',
+        text:'"ผมได้ยินมาว่าร้านที่นี่ดูดีที่สุด... ลองลิ้มรสสักที แต่ถ้าไม่ถูกปากเลย ผมจะเขียนถึงในคอลัมน์นะ!"',
+        choices:[{label:'รับมือได้! เดี๋ยวทำให้ดู', next:1},{label:'(กลัวนิดหน่อย...)', next:1}]},
+      { speaker:'ซากุระ', role:'เชฟ', avatar:'👩‍🍳',
+        text:'ไม่ต้องกังวล! ทำซูชิให้ดีที่สุด Rating เราต้องสูงขึ้นแน่นอน',
+        choices:[{label:'เดินหน้าเลย! 🍣', next:null, reward:{money:200, rating:5}, close:true}]},
+    ]
+  },
+  {
+    id:'rival_appears', chapter:'CH.3', title:'ร้านคู่แข้ง',
+    triggerLv:8, triggerServed:0, triggerOnce:true,
+    scenes:[
+      { speaker:'ฮิระ', role:'บริกร', avatar:'🧑‍🍽️',
+        text:'มีร้านใหม่เปิดตรงข้าม "Tsunami Sushi" — เขาโฆษณาเต็มไปหมด...',
+        choices:[{label:'ไม่กลัว! เดินเดินเลย!', next:1},{label:'ค้าเขาได้ห่วง...', next:1}]},
+      { speaker:'เคนจิ', role:'เชฟ Sashimi', avatar:'👨‍🍳',
+        text:'"ผมเคยทำงานที่ Tsunami Sushi มาก่อน ออกมาเพราะเจ้าของกระหายเงินมาก ที่นี่ดีว่ายะ"',
+        choices:[{label:'ขอบคุณที่เลือกเรา 😊', next:2}]},
+      { speaker:'ซากุระ', role:'เชฟ', avatar:'👩‍🍳',
+        text:'เรามีทีม มีใจ → เดินหน้าต่อแล้วเลย!',
+        choices:[{label:'เพื่อ Sushi Empire! 🌟', next:null, reward:{money:300}, close:true}]},
+    ]
+  },
+  {
+    id:'first_branch', chapter:'CH.3', title:'ก้าวแรกสู่การขยาย',
+    triggerLv:10, triggerServed:0, triggerOnce:true,
+    scenes:[
+      { speaker:'อายาเนะ', role:'ผู้จัดการ', avatar:'👩‍💼',
+        text:'ยอดขายเราเพิ่มมากขึ้นมาก มีโอกาสให้เราเปิดเห็นห้าแล้ว! นี่คือโอกาสของ',
+        choices:[{label:'ทำเลย! 🏬', next:1},{label:'ค้าก่อนนิด', next:1}]},
+      { speaker:'อายาเนะ', role:'ผู้จัดการ', avatar:'👩‍💼',
+        text:'ฉันจะดูแลทุกอย่างเอง แต่เจ้าต้องทำอาหารให้อร่อย ส่วนที่เหลือฝากถือ',
+        choices:[{label:'เพื่อนรักมาค! 😊', next:null, reward:{money:500}, close:true}]},
+    ]
+  },
+  {
+    id:'tokyo_dream', chapter:'CH.4', title:'ความฝันในญี่ปุ่น',
+    triggerLv:15, triggerServed:0, triggerOnce:true,
+    scenes:[
+      { speaker:'ซากุระ', role:'เชฟ', avatar:'👩‍🍳',
+        text:'ตอนอายุ 7 ขวบ ฉันกินซูชิที่ญี่ปุ่นครั้งแรก ฉันร้องให้เพราะอร่อยมากเลย',
+        choices:[{label:'ค้ารักมาก 😊', next:1},{label:'เล่าต่อสิ!', next:1}]},
+      { speaker:'ซากุระ', role:'เชฟ', avatar:'👩‍🍳',
+        text:'ตั้งแต่นั้นทำให้ฉันอยากเป็นเชฟ ฉันอยากเปิดร้านที่ญี่ปุ่นสักวัน...',
+        choices:[{label:'เราจะทำให้ได้! 🗼', next:2},{label:'ยังอีกนิดหน่อย', next:2}]},
+      { speaker:'ฮิระ', role:'บริกร', avatar:'🧑‍🍽️',
+        text:'อีกไม่นาน เราเปิดสาขา Airport แล้ว ต่อไปก็ญี่ปุ่นเลย!',
+        choices:[{label:'เดินต่อด้วยกัน! 🌸', next:null, reward:{money:1000}, close:true}]},
+    ]
+  },
+  {
+    id:'legend_status', chapter:'CH.5', title:'กำขาวบูชิ',
+    triggerLv:20, triggerServed:0, triggerOnce:true,
+    scenes:[
+      { speaker:'นักวิจารณ์', role:'คอลัมนิสต์อาหาร', avatar:'🧐',
+        text:'"ผมกลับมาแล้ว... และต้องยอมรับว่า ร้านที่นี่ได้รับ 5 ดาวจากผม ยอดจริง!"',
+        choices:[{label:'ขอบคุณมา! 🌟', next:1}]},
+      { speaker:'อายาเนะ', role:'ผู้จัดการ', avatar:'👩‍💼',
+        text:'ตอนนี้เราเป็น "Sushi Empire" จริงๆ แล้ว ตั้งแต่ร้านเล็กๆ มาถึงวันนี้ยังไม่ไกลเลย',
+        choices:[{label:'เพราะทีมที่ดีนี่เหละ 😊', next:2}]},
+      { speaker:'ทีมทุกคน', role:'พนักงานทั้งหมด', avatar:'🍣',
+        text:'"SUSHI EMPIRE!" 🎉🎊✨',
+        choices:[{label:'ยังไม่หยุด → เดินต่อ! 🚀', next:null, reward:{money:2000, prestige:true}, close:true}]},
+    ]
+  },
+  {
+    id:'happy_regular', chapter:'★', title:'ลูกค้าประจำ',
+    triggerLv:0, triggerServed:20, triggerOnce:false, cooldown:30,
+    scenes:[
+      { speaker:'ลูกค้า', role:'ลูกค้าประจำ', avatar:'👵',
+        text:'"มากินที่นี่ทุกวันอาทิตย์เลย ลูกๆ ชอบมาก ขอบคุณสำหรับซูชิอร่อยๆ คลองๆ นะ"',
+        choices:[{label:'ขอบคุณที่มาเสมอ! 😊', next:null, reward:{money:50, rating:2}, close:true}]},
+    ]
+  },
+  {
+    id:'tourist_visit', chapter:'★', title:'นักท่องเที่ยว',
+    triggerLv:0, triggerServed:35, triggerOnce:false, cooldown:40,
+    scenes:[
+      { speaker:'นักท่องเที่ยว', role:'ชาวต่างชาติ', avatar:'✈',
+        text:'"Excuse me, is this the best sushi in town? My friend said THIS is the place!"',
+        choices:[{label:'Yes! Welcome! 🍣', next:1}]},
+      { speaker:'ซากุระ', role:'เชฟ', avatar:'👩‍🍳',
+        text:'เห็นมั้ย! ชื่อเสียงเราออกไปแล้ว! 😊',
+        choices:[{label:'ยินดีมาก! ✨', next:null, reward:{money:150}, close:true}]},
+    ]
+  },
+];
